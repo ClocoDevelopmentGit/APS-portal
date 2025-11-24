@@ -1,0 +1,163 @@
+import React, { useState, useContext } from "react";
+import PropTypes from "prop-types";
+
+import { usePathname } from "next/navigation";
+
+// mui imports
+import Collapse from "@mui/material/Collapse";
+import ListItemButton from "@mui/material/ListItemButton";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import { styled, useTheme } from "@mui/material/styles";
+import { CustomizerContext } from "@/app/context/customizerContext";
+
+// custom imports
+import NavItem from "../NavItem";
+
+// plugins
+import { IconChevronDown, IconChevronUp } from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
+import { isNull } from "lodash";
+
+// Move styled component outside and accept props
+const ListItemStyled = styled(ListItemButton, {
+  shouldForwardProp: (prop) =>
+    prop !== "isOpen" &&
+    prop !== "level" &&
+    prop !== "hideMenu" &&
+    prop !== "pathIncludes" &&
+    prop !== "borderRadius",
+})(({ theme, isOpen, level, hideMenu, pathIncludes, borderRadius }) => ({
+  marginBottom: "2px",
+  padding: "8px 10px",
+  paddingLeft: hideMenu ? "10px" : level > 2 ? `${level * 15}px` : "10px",
+  backgroundColor: isOpen && level < 2 ? theme.palette.primary.main : "",
+  whiteSpace: "nowrap",
+  "&:hover": {
+    backgroundColor:
+      pathIncludes || isOpen
+        ? theme.palette.primary.main
+        : theme.palette.primary.light,
+    color: pathIncludes || isOpen ? "white" : theme.palette.primary.main,
+  },
+  color:
+    isOpen && level < 2
+      ? "white"
+      : `inherit` && level > 1 && isOpen
+      ? theme.palette.primary.main
+      : theme.palette.text.secondary,
+  borderRadius: `${borderRadius}px`,
+}));
+
+// FC Component For Dropdown Menu
+export default function NavCollapse({
+  menu,
+  level,
+  pathWithoutLastPart,
+  pathDirect,
+  hideMenu,
+  onClick,
+}) {
+  const lgDown = useMediaQuery((theme) => theme.breakpoints.down("lg"));
+  const { isBorderRadius } = useContext(CustomizerContext);
+
+  const Icon = menu?.icon;
+  const theme = useTheme();
+  const pathname = usePathname();
+  const { t } = useTranslation();
+  const [open, setOpen] = useState(false);
+  const menuIcon =
+    level > 1 ? (
+      <Icon stroke={1.5} size="1rem" />
+    ) : (
+      <Icon stroke={1.5} size="1.3rem" />
+    );
+
+  const handleClick = () => {
+    setOpen(!open);
+  };
+
+  // menu collapse for sub-levels
+  React.useEffect(() => {
+    setOpen(false);
+    menu?.children?.forEach((item) => {
+      if (item?.href === pathname) {
+        setOpen(true);
+      }
+    });
+  }, [pathname, menu.children]);
+
+  // If Menu has Children
+  const submenus = menu.children?.map((item) => {
+    if (item.children) {
+      return (
+        <NavCollapse
+          key={item?.id}
+          menu={item}
+          level={level + 1}
+          pathWithoutLastPart={pathWithoutLastPart}
+          pathDirect={pathDirect}
+          hideMenu={hideMenu}
+          onClick={onClick}
+        />
+      );
+    } else {
+      return (
+        <NavItem
+          key={item.id}
+          item={item}
+          level={level + 1}
+          pathDirect={pathDirect}
+          hideMenu={hideMenu}
+          onClick={lgDown ? onClick : isNull}
+        />
+      );
+    }
+  });
+
+  return (
+    <>
+      <ListItemStyled
+        onClick={handleClick}
+        selected={pathWithoutLastPart === menu.href}
+        key={menu?.id}
+        isOpen={open}
+        level={level}
+        hideMenu={hideMenu}
+        pathIncludes={pathname.includes(menu.href)}
+        borderRadius={isBorderRadius}
+      >
+        <ListItemIcon
+          sx={{
+            minWidth: "36px",
+            p: "3px 0",
+            color: "inherit",
+          }}
+        >
+          {menuIcon}
+        </ListItemIcon>
+        <ListItemText color="inherit">
+          {hideMenu ? "" : <>{t(`${menu.title}`)}</>}
+        </ListItemText>
+        {!open ? (
+          <IconChevronDown size="1rem" />
+        ) : (
+          <IconChevronUp size="1rem" />
+        )}
+      </ListItemStyled>
+      <Collapse in={open} timeout="auto">
+        {submenus}
+      </Collapse>
+    </>
+  );
+}
+
+NavCollapse.propTypes = {
+  menu: PropTypes.object,
+  level: PropTypes.number,
+  pathDirect: PropTypes.any,
+  pathWithoutLastPart: PropTypes.any,
+  hideMenu: PropTypes.any,
+  onClick: PropTypes.func,
+};
