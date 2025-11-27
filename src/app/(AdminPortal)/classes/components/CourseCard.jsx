@@ -170,11 +170,19 @@ const ClassDetailText = styled(Typography)({
   fontWeight: 400,
 });
 
+const ClassFees = styled(Typography)({
+  fontWeight: 600,
+  fontSize: "14px",
+  color: "#AE9964",
+  fontWidth: 700,
+  lineHeight: "16px",
+});
+
 const ClassActions = styled(Box)({
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
-  gap: "10px",
+  gap: "8px",
 });
 
 const EditIconButton = styled(Button)({
@@ -266,7 +274,7 @@ const SessionsArea = styled(Box)({
   padding: "0px",
   paddingRight: "2px",
   margin: "0px",
-  maxHeight: "400px",
+  maxHeight: "410px",
   overflowY: "auto",
   "&::-webkit-scrollbar": {
     width: "4px",
@@ -349,7 +357,7 @@ const CourseCard = ({ course }) => {
         <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
           <DetailChip label={course.age} size="small" />
           <DetailChip label={course.term} size="small" />
-          <DetailChip label={course.price} size="small" />
+          {/* <DetailChip label={course.price} size="small" /> */}
         </Stack>
 
         <DividerLine />
@@ -410,6 +418,7 @@ const CourseCard = ({ course }) => {
                   </ClassItemContent>
 
                   <ClassActions>
+                    <ClassFees>{classItem.price}</ClassFees>
                     <EditIconButton
                       size="small"
                       onClick={() => handleEditClass(classItem.id)}

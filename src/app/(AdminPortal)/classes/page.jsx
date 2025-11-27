@@ -189,7 +189,6 @@ const coursesData = [
     category: "Acting Classes",
     age: "Age 4-6",
     term: "Term 4",
-    price: "$325.00",
     status: "Active",
     classes: [
       {
@@ -201,6 +200,7 @@ const coursesData = [
         status: "Active",
         totalSlots: 20,
         availableSlots: 5,
+        price: "$325.00",
       },
       {
         id: 2,
@@ -211,6 +211,7 @@ const coursesData = [
         status: "Active",
         totalSlots: 15,
         availableSlots: 0,
+        price: "$325.00",
       },
       {
         id: 3,
@@ -221,6 +222,7 @@ const coursesData = [
         status: "Inactive",
         totalSlots: 18,
         availableSlots: 12,
+        price: "$325.00",
       },
       {
         id: 4,
@@ -231,6 +233,7 @@ const coursesData = [
         status: "Active",
         totalSlots: 25,
         availableSlots: 8,
+        price: "$325.00",
       },
     ],
   },
@@ -242,7 +245,6 @@ const coursesData = [
     category: "Acting Classes",
     age: "Age 7-11",
     term: "Term 4",
-    price: "$325.00",
     status: "Active",
     classes: [
       {
@@ -254,6 +256,7 @@ const coursesData = [
         status: "Active",
         totalSlots: 20,
         availableSlots: 3,
+        price: "$325.00",
       },
       {
         id: 2,
@@ -264,6 +267,7 @@ const coursesData = [
         status: "Active",
         totalSlots: 15,
         availableSlots: 7,
+        price: "$325.00",
       },
       {
         id: 3,
@@ -274,6 +278,7 @@ const coursesData = [
         status: "Inactive",
         totalSlots: 18,
         availableSlots: 15,
+        price: "$325.00",
       },
       {
         id: 4,
@@ -284,6 +289,7 @@ const coursesData = [
         status: "Active",
         totalSlots: 25,
         availableSlots: 10,
+        price: "$325.00",
       },
     ],
   },
@@ -295,7 +301,6 @@ const coursesData = [
     category: "Musical Theatre",
     age: "Age upto 6",
     term: "Term 4",
-    price: "$325.00",
     status: "Active",
     classes: [
       {
@@ -307,6 +312,7 @@ const coursesData = [
         status: "Active",
         totalSlots: 20,
         availableSlots: 12,
+        price: "$325.00",
       },
       {
         id: 2,
@@ -317,6 +323,7 @@ const coursesData = [
         status: "Active",
         totalSlots: 15,
         availableSlots: 2,
+        price: "$325.00",
       },
       {
         id: 3,
@@ -327,6 +334,7 @@ const coursesData = [
         status: "Inactive",
         totalSlots: 18,
         availableSlots: 18,
+        price: "$325.00",
       },
       {
         id: 4,
@@ -337,6 +345,7 @@ const coursesData = [
         status: "Active",
         totalSlots: 25,
         availableSlots: 6,
+        price: "$325.00",
       },
     ],
   },
@@ -348,7 +357,6 @@ const coursesData = [
     category: "Acting Classes",
     age: "Age 13-17",
     term: "Term 4",
-    price: "$375.00",
     status: "Active",
     classes: [
       {
@@ -360,6 +368,7 @@ const coursesData = [
         status: "Active",
         totalSlots: 15,
         availableSlots: 4,
+        price: "$375.00",
       },
     ],
   },
@@ -371,7 +380,6 @@ const coursesData = [
     category: "Acting Classes",
     age: "Age 18+",
     term: "Term 4",
-    price: "$425.00",
     status: "Active",
     classes: [
       {
@@ -383,6 +391,7 @@ const coursesData = [
         status: "Active",
         totalSlots: 12,
         availableSlots: 9,
+        price: "$425.00",
       },
     ],
   },
@@ -528,7 +537,7 @@ const ClassesPage = () => {
           spaceBetween={24}
           slidesPerView={1}
           autoplay={{
-            delay: 500000,
+            delay: 20000,
             disableOnInteraction: false,
           }}
           loop={true}
