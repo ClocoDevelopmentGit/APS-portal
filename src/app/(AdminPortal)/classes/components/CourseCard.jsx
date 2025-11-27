@@ -173,7 +173,7 @@ const ClassDetailText = styled(Typography)({
 const ClassFees = styled(Typography)({
   fontWeight: 600,
   fontSize: "14px",
-  color: "#AE9964",
+  color: "#635738",
   fontWidth: 700,
   lineHeight: "16px",
 });
