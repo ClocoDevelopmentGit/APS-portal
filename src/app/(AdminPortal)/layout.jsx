@@ -36,7 +36,7 @@ export default function RootLayout({ children }) {
         <Header />
         <Container
           sx={{
-            pt: "30px",
+            padding: "10px 10px 0px 10px !important",
             maxWidth: isLayout === "boxed" ? "lg" : "100%!important",
           }}
         >
