@@ -2,6 +2,7 @@ import { uniqueId } from 'lodash';
 
 import { RiDashboardHorizontalFill } from "react-icons/ri";
 import { MdFormatListBulleted } from "react-icons/md";
+import { BiCalendarEvent } from "react-icons/bi";
 
 const Menuitems = [
 
@@ -17,6 +18,12 @@ const Menuitems = [
     title: 'Classes',
     icon: MdFormatListBulleted,
     href: '/classes',
+  },
+  {
+    id: uniqueId(),
+    title: 'Events',
+    icon: BiCalendarEvent,
+    href: '/events',
   },
   // {
   //   id: uniqueId(),
