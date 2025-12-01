@@ -1,29 +1,28 @@
-import { uniqueId } from 'lodash';
+import { uniqueId } from "lodash";
 
 import { RiDashboardHorizontalFill } from "react-icons/ri";
 import { MdFormatListBulleted } from "react-icons/md";
 import { BiCalendarEvent } from "react-icons/bi";
 
 const Menuitems = [
-
   {
     id: uniqueId(),
-    title: 'Dashboard',
+    title: "Dashboard",
     icon: RiDashboardHorizontalFill,
-    href: '/',
-    chipColor: 'secondary',
+    href: "/",
+    chipColor: "secondary",
   },
   {
     id: uniqueId(),
-    title: 'Classes',
+    title: "Classes",
     icon: MdFormatListBulleted,
-    href: '/classes',
+    href: "/admin/classes",
   },
   {
     id: uniqueId(),
-    title: 'Events',
+    title: "Events",
     icon: BiCalendarEvent,
-    href: '/events',
+    href: "/admin/events",
   },
   // {
   //   id: uniqueId(),

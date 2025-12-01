@@ -74,6 +74,11 @@ const CourseDescription = styled(Typography)({
   fontSize: "14px",
   lineHeight: "16px",
   maxLines: 1,
+  display: "-webkit-box",
+  WebkitLineClamp: 1,
+  WebkitBoxOrient: "vertical",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
 });
 
 const CategoryLabel = styled(Typography)({
@@ -329,10 +334,13 @@ const CourseCard = ({ course }) => {
       <ImageContainer>
         <StyledCardMedia
           component="img"
-          image={course.image}
+          image={course.mediaUrl}
           alt={course.title}
         />
-        <StatusChip label={course.status} size="small" />
+        <StatusChip
+          label={course.isActive ? "Active" : "Inactive"}
+          size="small"
+        />
       </ImageContainer>
 
       <CardContent
@@ -351,12 +359,14 @@ const CourseCard = ({ course }) => {
 
         {/* Course Category */}
         <CategoryLabel variant="caption">Course Category</CategoryLabel>
-        <CategoryValue variant="body2">{course.category}</CategoryValue>
+        <CategoryValue variant="body2">
+          {course.courseCategory.name}
+        </CategoryValue>
 
         {/* Course Details Chips */}
         <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
-          <DetailChip label={course.age} size="small" />
-          <DetailChip label={course.term} size="small" />
+          <DetailChip label={`Age ${course.ageRange}`} size="small" />
+          {/* <DetailChip label={course.classes?.[0]?.term?.name} size="small" /> */}
           {/* <DetailChip label={course.price} size="small" /> */}
         </Stack>
 
