@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -22,6 +22,8 @@ import "swiper/css/navigation";
 import CourseCard from "./components/CourseCard";
 import "./classes.css";
 import CreateCourse from "./components/CreateCourse";
+import { useSelector } from "react-redux";
+import Loading from "../../loading";
 
 // ==================== STYLED COMPONENTS ====================
 
@@ -399,6 +401,32 @@ const coursesData = [
 
 // ==================== COMPONENT ====================
 const ClassesPage = () => {
+  const { courses, error } = useSelector((state) => state.course);
+  const [coursesList, setCoursesList] = useState(courses);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!courses) return;
+
+    const load = () => {
+      let storedCourses = [];
+
+      if (typeof window !== "undefined") {
+        const data = localStorage.getItem("allCourses");
+        storedCourses = data ? JSON.parse(data) : [];
+      }
+
+      if (courses.length > 0) {
+        setCoursesList(courses);
+      } else {
+        setCoursesList(storedCourses);
+      }
+
+      setLoading(false);
+    };
+
+    load();
+  }, [courses]);
   const [courseFilter, setCourseFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -424,6 +452,13 @@ const ClassesPage = () => {
       swiperRef.current.swiper.slideNext();
     }
   };
+
+  if (loading) {
+    return <Loading />;
+  }
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
 
   return (
     <PageContainer className="classes-swiper">
@@ -556,11 +591,12 @@ const ClassesPage = () => {
             },
           }}
         >
-          {coursesData.map((course) => (
-            <SwiperSlide key={course.id}>
-              <CourseCard course={course} />
-            </SwiperSlide>
-          ))}
+          {coursesList.length > 0 &&
+            coursesList.map((course) => (
+              <SwiperSlide key={course.id}>
+                <CourseCard course={course} />
+              </SwiperSlide>
+            ))}
         </Swiper>
 
         {/* Right Navigation Arrow */}

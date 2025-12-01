@@ -226,6 +226,7 @@ const CreateCourse = ({ open, onClose }) => {
     description: "",
     status: "",
     homePageStatus: "",
+    courseImage: null,
   });
 
   const handleChange = (field, value) => {
@@ -254,8 +255,8 @@ const CreateCourse = ({ open, onClose }) => {
       ageRange: [4, 18],
       description: "",
       status: "",
-      fees: "",
       homePageStatus: "",
+      courseImage: null,
     });
     onClose();
   };
@@ -366,7 +367,7 @@ const CreateCourse = ({ open, onClose }) => {
             <StyledFormControl fullWidth>
               <Select
                 value={formData.homePageStatus}
-                onChange={(e) => handleChange("status", e.target.value)}
+                onChange={(e) => handleChange("homePageStatus", e.target.value)}
                 displayEmpty
                 renderValue={(selected) => {
                   if (!selected) {

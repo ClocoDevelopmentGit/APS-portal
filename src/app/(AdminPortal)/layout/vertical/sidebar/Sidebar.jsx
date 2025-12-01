@@ -5,9 +5,11 @@ import { useTheme } from "@mui/material/styles";
 import SidebarItems from "./SidebarItems";
 import Scrollbar from "@/app/components/custom-scroll/Scrollbar";
 import Image from "next/image";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { CustomizerContext } from "@/app/context/customizerContext";
 import config from "@/app/context/config";
+import { useDispatch } from "react-redux";
+import { fetchAllCourses } from "@/redux/slices/courseSlice";
 
 const Sidebar = () => {
   const lgUp = useMediaQuery((theme) => theme.breakpoints.down("lg"));
@@ -20,6 +22,11 @@ const Sidebar = () => {
   } = useContext(CustomizerContext);
   const MiniSidebarWidth = config.miniSidebarWidth;
   const SidebarWidth = config.sidebarWidth;
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(fetchAllCourses());
+  }, [dispatch]);
 
   const theme = useTheme();
   const toggleWidth =
