@@ -16,7 +16,7 @@ import CreateEvent from "./components/CreateEvent";
 // ==================== STYLED COMPONENTS ====================
 
 const PageContainer = styled(Box)({
-  padding: "24px",
+  // padding: "24px",
   backgroundColor: "#FFFFFF",
   minHeight: "100vh",
 });

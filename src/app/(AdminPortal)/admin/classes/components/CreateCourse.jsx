@@ -17,6 +17,7 @@ import {
 import { styled } from "@mui/material/styles";
 import { IconX } from "@tabler/icons-react";
 import DescriptionBox from "./DescriptionBox";
+import MediaFileUpload from "@/app/components/image-upload/media-upload";
 
 // ==================== STYLED COMPONENTS ====================
 
@@ -229,6 +230,13 @@ const CreateCourse = ({ open, onClose }) => {
     courseImage: null,
   });
 
+  const [courseImage, setCourseImage] = useState(null);
+
+  const handleFileSelect = (file, previewUrl) => {
+    setCourseImage({ file, previewUrl });
+    console.log("Selected file:", file);
+  };
+
   const handleChange = (field, value) => {
     setFormData({
       ...formData,
@@ -334,6 +342,16 @@ const CreateCourse = ({ open, onClose }) => {
             value={formData.description}
             onChange={(value) => handleChange("description", value)}
             placeholder="Enter course description..."
+          />
+        </Box>
+
+        <Box pb={3}>
+          <FormLabel>Upload Media:</FormLabel>
+          <MediaFileUpload
+            label="Event Image/Video:"
+            onFileSelect={handleFileSelect}
+            acceptedTypes=".jpg,.jpeg,.png,.gif,.mp4"
+            maxSize={5}
           />
         </Box>
 

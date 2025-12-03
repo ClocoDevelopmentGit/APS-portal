@@ -39,11 +39,21 @@ const StyledCard = styled(Card)({
 
 const ImageContainer = styled(Box)({
   position: "relative",
+  height: "220px",
+  overflow: "hidden",
+  borderRadius: "10px 10px 0 0",
 });
 
 const StyledCardMedia = styled(CardMedia)({
   height: "220px",
   objectFit: "cover",
+});
+
+const StyledVideo = styled("video")({
+  width: "100%",
+  height: "220px",
+  objectFit: "cover",
+  display: "block",
 });
 
 const StatusChip = styled(Chip)({
@@ -57,6 +67,7 @@ const StatusChip = styled(Chip)({
   height: "24px",
   borderRadius: "12px",
   boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+  zIndex: 2,
 });
 
 // Event Content Styles
@@ -185,15 +196,46 @@ const EventCard = ({ event }) => {
     setOpenEventModal(false);
   };
 
+  // Function to determine media type
+  const getMediaType = (url) => {
+    if (!url) return "image";
+    const extension = url.split(".").pop().toLowerCase();
+    const videoExtensions = ["mp4", "webm", "ogg", "mov"];
+    const imageExtensions = ["jpg", "jpeg", "png", "gif", "webp"];
+
+    if (videoExtensions.includes(extension)) {
+      return "video";
+    } else if (imageExtensions.includes(extension)) {
+      return "image";
+    }
+    return "image"; // default to image
+  };
+
+  const mediaType = getMediaType(event.image);
+  const isVideo = mediaType === "video";
+
   return (
     <StyledCard>
-      {/* Event Image */}
+      {/* Event Image/Video */}
       <ImageContainer>
-        <StyledCardMedia
-          component="img"
-          image={event.image}
-          alt={event.title}
-        />
+        {isVideo ? (
+          <StyledVideo
+            src={event.image}
+            controls
+            preload="metadata"
+            onError={(e) => {
+              console.error("Video failed to load:", e);
+            }}
+          >
+            Your browser does not support the video tag.
+          </StyledVideo>
+        ) : (
+          <StyledCardMedia
+            component="img"
+            image={event.image}
+            alt={event.title}
+          />
+        )}
         <StatusChip label={event.status} size="small" />
       </ImageContainer>
 

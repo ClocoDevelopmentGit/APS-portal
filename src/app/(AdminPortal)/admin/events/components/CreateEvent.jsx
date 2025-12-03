@@ -21,6 +21,7 @@ import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import "./CreateEvent.css";
 import DescriptionBox from "../../classes/components/DescriptionBox";
+import MediaFileUpload from "@/app/components/image-upload/media-upload";
 
 // ==================== STYLED COMPONENTS ====================
 const pickerTheme = createTheme({
@@ -301,6 +302,13 @@ const CreateEvent = ({ open, onClose, courseId }) => {
     slots: "",
   });
 
+  const [eventMedia, setEventMedia] = useState(null);
+
+  const handleFileSelect = (file, previewUrl) => {
+    setEventMedia({ file, previewUrl });
+    console.log("Selected file:", file);
+  };
+
   const handleChange = (field, value) => {
     setFormData({
       ...formData,
@@ -382,6 +390,16 @@ const CreateEvent = ({ open, onClose, courseId }) => {
                 value={formData.description}
                 onChange={(value) => handleChange("description", value)}
                 placeholder="Enter event description..."
+              />
+            </Box>
+
+            <Box pb={3}>
+              <FormLabel>Upload Media:</FormLabel>
+              <MediaFileUpload
+                label="Event Image/Video:"
+                onFileSelect={handleFileSelect}
+                acceptedTypes=".jpg,.jpeg,.png,.gif,.mp4"
+                maxSize={5}
               />
             </Box>
 
