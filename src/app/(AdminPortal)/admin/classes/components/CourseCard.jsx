@@ -39,11 +39,21 @@ const StyledCard = styled(Card)({
 
 const ImageContainer = styled(Box)({
   position: "relative",
+  height: "220px",
+  overflow: "hidden",
+  borderRadius: "12px 12px 0 0",
 });
 
 const StyledCardMedia = styled(CardMedia)({
   height: "220px",
   objectFit: "cover",
+});
+
+const StyledVideo = styled("video")({
+  width: "100%",
+  height: "220px",
+  objectFit: "cover",
+  display: "block",
 });
 
 const StatusChip = styled(Chip)({
@@ -57,6 +67,7 @@ const StatusChip = styled(Chip)({
   height: "24px",
   borderRadius: "12px",
   boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+  zIndex: 2,
 });
 
 // Course Content Styles
@@ -328,15 +339,46 @@ const CourseCard = ({ course }) => {
     console.log("Toggle class status:", classId, currentStatus);
   };
 
+  // Function to determine media type
+  const getMediaType = (url) => {
+    if (!url) return "image";
+    const extension = url.split(".").pop().toLowerCase();
+    const videoExtensions = ["mp4", "webm", "ogg", "mov"];
+    const imageExtensions = ["jpg", "jpeg", "png", "gif", "webp"];
+
+    if (videoExtensions.includes(extension)) {
+      return "video";
+    } else if (imageExtensions.includes(extension)) {
+      return "image";
+    }
+    return "image"; // default to image
+  };
+
+  const mediaType = getMediaType(course.mediaUrl);
+  const isVideo = mediaType === "video";
+
   return (
     <StyledCard>
       {/* Course Image */}
       <ImageContainer>
-        <StyledCardMedia
-          component="img"
-          image={course.mediaUrl}
-          alt={course.title}
-        />
+        {isVideo ? (
+          <StyledVideo
+            src={course.mediaUrl}
+            controls
+            preload="metadata"
+            onError={(e) => {
+              console.error("Video failed to load:", e);
+            }}
+          >
+            Your browser does not support the video tag.
+          </StyledVideo>
+        ) : (
+          <StyledCardMedia
+            component="img"
+            image={course.mediaUrl}
+            alt={course.title}
+          />
+        )}
         <StatusChip
           label={course.isActive ? "Active" : "Inactive"}
           size="small"
