@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -18,7 +18,8 @@ import { styled } from "@mui/material/styles";
 import { IconX } from "@tabler/icons-react";
 import DescriptionBox from "./DescriptionBox";
 import MediaFileUpload from "@/app/components/image-upload/media-upload";
-
+import { useDispatch } from "react-redux";
+import { createCourse, updateCourse } from "@/redux/slices/courseSlice";
 // ==================== STYLED COMPONENTS ====================
 
 const StyledDialog = styled(Dialog)({
@@ -67,7 +68,6 @@ const FormLabel = styled(Typography)({
 });
 
 const StyledTextField = styled(TextField)({
-  marginBottom: "20px",
   "& .MuiOutlinedInput-root": {
     borderRadius: "8px",
     padding: "0px",
@@ -143,6 +143,12 @@ const StyledMenuItem = styled(MenuItem)({
   },
 });
 
+const ErrorText = styled(Typography)({
+  fontSize: "12px",
+  color: "#E85A4F",
+  marginTop: "4px",
+});
+
 const AgeSliderContainer = styled(Box)({
   marginBottom: "10px",
   padding: "0 8px",
@@ -197,6 +203,13 @@ const SaveButton = styled(Button)({
     boxShadow: "rgba(0, 0, 0, 0.35) 0px 5px 15px",
     backgroundColor: "#B38349",
   },
+  "&:disabled": {
+    backgroundColor: "#D4C4B0",
+    color: "#FFFFFF",
+    boxShadow: "none",
+    cursor: "not-allowed",
+    opacity: 0.6,
+  },
 });
 
 const CancelButton = styled(Button)({
@@ -219,7 +232,17 @@ const CancelButton = styled(Button)({
 });
 
 // ==================== COMPONENT ====================
-const CreateCourse = ({ open, onClose }) => {
+const CreateCourse = ({
+  open,
+  onClose,
+  type,
+  data = null,
+  categories = {},
+  setAlert,
+}) => {
+  const dispatch = useDispatch();
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     courseName: "",
     courseCategory: "",
@@ -228,13 +251,42 @@ const CreateCourse = ({ open, onClose }) => {
     status: "",
     homePageStatus: "",
     courseImage: null,
+    imageType: "",
   });
 
-  const [courseImage, setCourseImage] = useState(null);
+  const [courseImage, setCourseImage] = useState({
+    file: null,
+    previewUrl: null,
+  });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (data) {
+        const ageArray =
+          typeof data.ageRange === "string"
+            ? data.ageRange === "18+"
+              ? [18, 18]
+              : data.ageRange.split("-").map(Number)
+            : data.ageRange;
+
+        setFormData({
+          courseName: data.title || "",
+          courseCategory: data.courseCategoryId || "",
+          ageRange: ageArray || [4, 18],
+          description: data.description || "",
+          status: data.isActive ? "Active" : "Inactive",
+          homePageStatus: data.displayOnHomePage ? "Active" : "Inactive",
+          courseImage: data.mediaUrl || null,
+          imageType: data.mediaType || "",
+        });
+        setCourseImage({ file: null, previewUrl: data.mediaUrl || null });
+      }
+    };
+    fetchData();
+  }, [data]);
 
   const handleFileSelect = (file, previewUrl) => {
     setCourseImage({ file, previewUrl });
-    console.log("Selected file:", file);
   };
 
   const handleChange = (field, value) => {
@@ -251,9 +303,104 @@ const CreateCourse = ({ open, onClose }) => {
     });
   };
 
-  const handleSubmit = () => {
-    console.log("Form submitted:", formData);
-    onClose();
+  const validateCourseForm = (formData) => {
+    const newErrors = {};
+    const fieldLabels = {
+      courseName: "Course Name",
+      courseCategory: "Category",
+      homePageStatus: "Display On HomePage",
+      status: "Status",
+    };
+
+    Object.keys(fieldLabels).forEach((key) => {
+      const value = formData[key];
+
+      if (
+        value === null ||
+        value === undefined ||
+        value === "" ||
+        value === 0
+      ) {
+        newErrors[key] = `${fieldLabels[key]} is required`;
+      }
+    });
+
+    if (!courseImage) {
+      newErrors.courseImage = "Course Image/Video is required";
+    }
+
+    return newErrors;
+  };
+
+  const handleSubmit = async (e) => {
+    console.log(formData);
+    e.preventDefault();
+    const id = data?.id;
+    const newErrors = validateCourseForm(formData);
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length > 0) return;
+
+    setLoading(true);
+    const ageString = Array.isArray(formData.ageRange)
+      ? formData.ageRange.includes(18)
+        ? "18+"
+        : formData.ageRange.join("-")
+      : formData.ageRange;
+
+    const payload = new FormData();
+
+    payload.append("title", formData.courseName);
+    payload.append("courseCategoryId", formData.courseCategory);
+    payload.append("isActive", formData.status === "Active");
+    payload.append("displayOnHomePage", formData.homePageStatus === "Active");
+    payload.append("createdBy", "admin");
+    if (formData.description) {
+      payload.append("description", formData.description);
+    }
+    if (formData.ageRange) {
+      payload.append("ageRange", ageString);
+    }
+    if (courseImage.file) {
+      payload.append("course", courseImage.file);
+    }
+    try {
+      if (type === "edit" && id) {
+        await dispatch(updateCourse({ formData: payload, id }))
+          .unwrap()
+          .then(() => {
+            setAlert({
+              severity: "success",
+              message: "Course Updated Successfully",
+            });
+            handleCancel();
+          })
+          .catch((error) => {
+            console.log(error);
+            handleCancel();
+          });
+      } else {
+        await dispatch(createCourse({ formData: payload }))
+          .unwrap()
+          .then(() => {
+            setAlert({
+              severity: "success",
+              message: "Course Created Successfully",
+            });
+            handleCancel();
+          })
+          .catch((error) => {
+            console.log(error);
+            handleCancel();
+          });
+        onClose();
+      }
+    } catch (error) {
+      console.log(error);
+      setAlert({ severity: "error", message: error || "Something went wrong" });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCancel = () => {
@@ -265,14 +412,16 @@ const CreateCourse = ({ open, onClose }) => {
       status: "",
       homePageStatus: "",
       courseImage: null,
+      imageType: "",
     });
+    setErrors({});
     onClose();
   };
 
   return (
     <StyledDialog open={open} onClose={handleCancel} maxWidth="sm" fullWidth>
       <StyledDialogTitle>
-        Create New Course
+        {type === "add" ? "Create New Course" : "Update Course"}
         <CloseButton onClick={handleCancel}>
           <IconX size={20} />
         </CloseButton>
@@ -280,7 +429,11 @@ const CreateCourse = ({ open, onClose }) => {
 
       <StyledDialogContent>
         {/* Course Name */}
-        <Box>
+        <Box
+          sx={{
+            marginBottom: "20px",
+          }}
+        >
           <FormLabel>Course Name:</FormLabel>
           <StyledTextField
             fullWidth
@@ -288,6 +441,7 @@ const CreateCourse = ({ open, onClose }) => {
             value={formData.courseName}
             onChange={(e) => handleChange("courseName", e.target.value)}
           />
+          {errors.courseName && <ErrorText>{errors.courseName}</ErrorText>}
         </Box>
 
         {/* Course Category */}
@@ -304,20 +458,25 @@ const CreateCourse = ({ open, onClose }) => {
                     <span style={{ color: "#757575" }}>Select Category</span>
                   );
                 }
-                return selected;
+                const selectedCategory = categories.find(
+                  (cat) => cat.id === selected
+                );
+                return selectedCategory ? selectedCategory.name : "";
               }}
             >
-              <StyledMenuItem value="Acting Classes">
-                Acting Classes
-              </StyledMenuItem>
-              <StyledMenuItem value="Musical Theatre">
-                Musical Theatre
-              </StyledMenuItem>
-              <StyledMenuItem value="Voice Training">
-                Voice Training
-              </StyledMenuItem>
-              <StyledMenuItem value="Dance">Dance</StyledMenuItem>
+              {categories.length > 0 ? (
+                categories?.map((cat) => (
+                  <StyledMenuItem key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </StyledMenuItem>
+                ))
+              ) : (
+                <StyledMenuItem>Loading...</StyledMenuItem>
+              )}
             </Select>
+            {errors.courseCategory && (
+              <ErrorText>{errors.courseCategory}</ErrorText>
+            )}
           </StyledFormControl>
         </Box>
 
@@ -348,11 +507,14 @@ const CreateCourse = ({ open, onClose }) => {
         <Box pb={3}>
           <FormLabel>Upload Media:</FormLabel>
           <MediaFileUpload
-            label="Event Image/Video:"
+            label="Course Image/Video:"
             onFileSelect={handleFileSelect}
             acceptedTypes=".jpg,.jpeg,.png,.gif,.mp4"
             maxSize={5}
+            mediaUrl={formData.courseImage}
+            mediaType={formData.imageType}
           />
+          {errors.courseImage && <ErrorText>{errors.courseImage}</ErrorText>}
         </Box>
 
         <Box sx={{ display: "flex", gap: 2 }}>
@@ -376,6 +538,7 @@ const CreateCourse = ({ open, onClose }) => {
                 <StyledMenuItem value="Active">Active</StyledMenuItem>
                 <StyledMenuItem value="Inactive">Inactive</StyledMenuItem>
               </Select>
+              {errors.status && <ErrorText>{errors.status}</ErrorText>}
             </StyledFormControl>
           </Box>
 
@@ -401,13 +564,18 @@ const CreateCourse = ({ open, onClose }) => {
                 <StyledMenuItem value="Active">Active</StyledMenuItem>
                 <StyledMenuItem value="Inactive">Inactive</StyledMenuItem>
               </Select>
+              {errors.homePageStatus && (
+                <ErrorText>{errors.homePageStatus}</ErrorText>
+              )}
             </StyledFormControl>
           </Box>
         </Box>
 
         {/* Action Buttons */}
         <ButtonGroup>
-          <SaveButton onClick={handleSubmit}>Save</SaveButton>
+          <SaveButton disabled={loading} onClick={(e) => handleSubmit(e)}>
+            {loading ? "Saving..." : "Save"}
+          </SaveButton>
           <CancelButton onClick={handleCancel}>Cancel</CancelButton>
         </ButtonGroup>
       </StyledDialogContent>
