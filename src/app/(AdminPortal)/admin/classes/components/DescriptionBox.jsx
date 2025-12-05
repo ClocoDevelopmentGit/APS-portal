@@ -15,6 +15,7 @@ import {
   IconCode,
   IconLink,
 } from "@tabler/icons-react";
+import { useEffect } from "react";
 
 const EditorContainer = styled(Box)({
   border: "1px solid #E0E0E0",
@@ -137,6 +138,12 @@ const DescriptionBox = ({ value, onChange, placeholder }) => {
       onChange(editor.getHTML());
     },
   });
+
+  useEffect(() => {
+    if (editor && value && value !== editor.getHTML()) {
+      editor.commands.setContent(value);
+    }
+  }, [value, editor]);
 
   if (!editor) {
     return null;

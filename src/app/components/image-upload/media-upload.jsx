@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Box,
   Button,
@@ -136,13 +136,31 @@ const PreviewVideo = styled("video")({
 const FileUploadPreview = ({
   onFileSelect,
   acceptedTypes = ".jpg,.jpeg,.png,.gif,.mp4",
-  maxSize = 5, // in MB
+  maxSize = 5, // in MB,
+  mediaUrl = null,
+  mediaType = null,
 }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [filePreviewUrl, setFilePreviewUrl] = useState(null);
   const [error, setError] = useState("");
   const [openPreview, setOpenPreview] = useState(false);
   const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (mediaUrl) {
+        setFilePreviewUrl(mediaUrl);
+        setSelectedFile({
+          name: mediaUrl.split("/").pop(),
+          type: mediaType || "",
+          lastModified: Date.now(),
+          webkitRelativePath: "",
+          lastModifiedDate: new Date(),
+        });
+      }
+    };
+    fetchData();
+  }, [mediaUrl, mediaType]);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];

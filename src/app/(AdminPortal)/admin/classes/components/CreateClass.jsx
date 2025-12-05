@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -20,7 +20,15 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import "./CreateClass.css";
+import { useDispatch } from "react-redux";
+import {
+  createClass,
+  deleteClass,
+  updateClass,
+} from "@/redux/slices/courseSlice";
+import DescriptionBox from "./DescriptionBox";
 import dayjs from "dayjs";
+import ConfirmationDialog from "@/app/components/confirmation-dialog/ConfirmationDialog";
 
 // ==================== STYLED COMPONENTS ====================
 const pickerTheme = createTheme({
@@ -121,7 +129,6 @@ const FormLabel = styled(Typography)({
 });
 
 const StyledTextField = styled(TextField)({
-  marginBottom: "20px",
   "& .MuiOutlinedInput-root": {
     borderRadius: "8px",
     padding: "0px",
@@ -151,7 +158,6 @@ const StyledTextField = styled(TextField)({
 
 const StyledDatePicker = styled(DatePicker)({
   width: "100%",
-  marginBottom: "20px",
   "& .MuiOutlinedInput-root": {
     borderRadius: "8px",
     backgroundColor: "#FFFFFF",
@@ -173,7 +179,6 @@ const StyledDatePicker = styled(DatePicker)({
 
 const StyledTimePicker = styled(TimePicker)({
   width: "100%",
-  marginBottom: "20px",
   "& .MuiOutlinedInput-root": {
     borderRadius: "8px",
     backgroundColor: "#FFFFFF",
@@ -223,6 +228,12 @@ const StyledFormControl = styled(FormControl)({
   },
 });
 
+const ErrorText = styled(Typography)({
+  fontSize: "12px",
+  color: "#E85A4F",
+  marginTop: "4px",
+});
+
 const StyledMenuItem = styled(MenuItem)({
   fontSize: "13px",
   color: "#181818",
@@ -263,6 +274,13 @@ const SaveButton = styled(Button)({
     boxShadow: "rgba(0, 0, 0, 0.35) 0px 5px 15px",
     backgroundColor: "#B38349",
   },
+  "&:disabled": {
+    backgroundColor: "#D4C4B0",
+    color: "#FFFFFF",
+    boxShadow: "none",
+    cursor: "not-allowed",
+    opacity: 0.6,
+  },
 });
 
 const CancelButton = styled(Button)({
@@ -284,11 +302,45 @@ const CancelButton = styled(Button)({
   },
 });
 
+const DeleteButton = styled(Button)({
+  backgroundColor: "#f60c0cff",
+  color: "#FFFFFF",
+  textTransform: "none",
+  fontSize: "14px",
+  fontWeight: 700,
+  height: "35px",
+  padding: "8px 24px",
+  borderRadius: "5px",
+  lineHeight: "19px",
+  letterSpacing: "-0.14px",
+  "&:hover": {
+    boxShadow: "rgba(0, 0, 0, 0.35) 0px 5px 15px",
+    backgroundColor: "#ff0000",
+  },
+  "&:disabled": {
+    backgroundColor: "#db0f0fff",
+    color: "#FFFFFF",
+    boxShadow: "none",
+    cursor: "not-allowed",
+    opacity: 0.6,
+  },
+});
+
 // ==================== COMPONENT ====================
-const CreateClass = ({ open, onClose, courseId }) => {
+const CreateClass = ({
+  open,
+  onClose,
+  courseId,
+  locations,
+  instructors,
+  type,
+  classData = null,
+  setAlert,
+}) => {
+  const dispatch = useDispatch();
   const [formData, setFormData] = useState({
-    instructorName: "",
-    location: "",
+    tutorId: "",
+    locationId: "",
     status: "",
     day: "",
     fromDate: null,
@@ -296,8 +348,44 @@ const CreateClass = ({ open, onClose, courseId }) => {
     startTime: null,
     endTime: null,
     fees: "",
-    slots: "",
+    slots: 0,
+    description: "",
+    room: "",
+    notes: "",
   });
+  const [isRoomPresent, setIsRoomPresent] = useState(false);
+  const [selectedLocation, setSelectedLocation] = useState(null);
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [deleteTitle, setDeleteTitle] = useState(null);
+  const [deleteMessage, setDeleteMessage] = useState(null);
+  const [deleteStatus, setDeleteStatus] = useState(false);
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchData = () => {
+      if (!classData) return;
+
+      setFormData({
+        tutorId: classData.tutorId || "",
+        locationId: classData.locationId || "",
+        status: classData.isActive ? "Active" : "Inactive",
+        day: classData.day || "",
+        fromDate: classData.startDate ? dayjs(classData.startDate) : null,
+        toDate: classData.endDate ? dayjs(classData.endDate) : null,
+        startTime: classData.startTime ? dayjs(classData.startTime) : null,
+        endTime: classData.endTime ? dayjs(classData.endTime) : null,
+        fees: classData.fees || 0,
+        slots: classData.availableSeats || 0,
+        description: classData.description || "",
+        room: classData.room || "",
+        notes: classData.notes || "",
+      });
+      setIsRoomPresent(classData.room ? true : false);
+    };
+    fetchData();
+  }, [classData]);
 
   const handleChange = (field, value) => {
     setFormData({
@@ -306,30 +394,136 @@ const CreateClass = ({ open, onClose, courseId }) => {
     });
   };
 
-  const handleSubmit = () => {
-    console.log(
-      "Class submitted:",
-      {
-        ...formData,
-        fromDate: formData.fromDate
-          ? formData.fromDate.format("YYYY-MM-DD")
-          : null,
-        toDate: formData.toDate ? formData.toDate.format("YYYY-MM-DD") : null,
-        startTime: formData.startTime
-          ? formData.startTime.format("HH:mm")
-          : null,
-        endTime: formData.endTime ? formData.endTime.format("HH:mm") : null,
-      },
-      "for course:",
-      courseId
-    );
-    onClose();
+  const validateClassForm = (formData) => {
+    const newErrors = {};
+    const fieldLabels = {
+      locationId: "Location",
+      tutorId: "Instructor",
+      day: "Day",
+      fromDate: "Start Date",
+      toDate: "End Date",
+      startTime: "Start Time",
+      endTime: "End Time",
+      slots: "Available Seats",
+      status: "Status",
+      fees: "Fees",
+    };
+
+    Object.keys(fieldLabels).forEach((key) => {
+      const value = formData[key];
+
+      if (
+        value === null ||
+        value === undefined ||
+        value === "" ||
+        value === 0
+      ) {
+        newErrors[key] = `${fieldLabels[key]} is required`;
+      }
+    });
+
+    if (!newErrors.fromDate && !newErrors.toDate) {
+      const start = new Date(formData.fromDate);
+      const end = new Date(formData.toDate);
+      if (start > end) newErrors.toDate = "End Date must be after Start Date";
+    }
+
+    if (!newErrors.startTime && !newErrors.endTime) {
+      const t1 = new Date(formData.startTime);
+      const t2 = new Date(formData.endTime);
+      if (t1 >= t2) newErrors.endTime = "End Time must be after Start Time";
+    }
+
+    if (formData.slots && Number(formData.slots) <= 1) {
+      newErrors.slots = "Available Seats must be greater than 1";
+    }
+
+    if (formData.fees && Number(formData.fees) <= 1) {
+      newErrors.fees = "Fees must be greater than 1";
+    }
+
+    return newErrors;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const id = classData?.id;
+    const newErrors = validateClassForm(formData);
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length > 0) return;
+
+    setLoading(true);
+    const payload = {
+      description: formData.description || "",
+      courseId: courseId,
+      locationId: formData.locationId,
+      tutorId: formData.tutorId,
+      day: formData.day,
+      startDate: formData.fromDate
+        ? formData.fromDate.format("YYYY-MM-DD")
+        : null,
+      endDate: formData.toDate ? formData.toDate.format("YYYY-MM-DD") : null,
+      startTime: formData.startTime ? formData.startTime.format("HH:mm") : null,
+      endTime: formData.endTime ? formData.endTime.format("HH:mm") : null,
+      room: formData.room,
+      notes: formData.notes || "",
+      availableSeats: Number(formData.slots) || 0,
+      createdBy: "admin",
+      isActive: formData.status === "Active",
+      fees: formData.fees,
+    };
+
+    try {
+      if (type === "edit" && id) {
+        await dispatch(updateClass({ data: payload, id }))
+          .unwrap()
+          .then(() => {
+            setAlert({
+              severity: "success",
+              message: "Class Updated Successfully",
+            });
+            handleCancel();
+          })
+          .catch((error) => {
+            console.log("Error creating class:", error);
+            setAlert({
+              severity: "error",
+              message: error,
+            });
+            handleCancel();
+          });
+      } else {
+        await dispatch(createClass({ data: payload }))
+          .unwrap()
+          .then(() => {
+            setAlert({
+              severity: "success",
+              message: "Class Created Successfully",
+            });
+            handleCancel();
+          })
+          .catch((error) => {
+            console.log("Error creating class:", error);
+            setAlert({
+              severity: "error",
+              message: error,
+            });
+            handleCancel();
+          });
+      }
+      onClose();
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCancel = () => {
     setFormData({
-      instructorName: "",
-      location: "",
+      tutorId: "",
+      locationId: "",
       status: "",
       day: "",
       fromDate: null,
@@ -337,9 +531,56 @@ const CreateClass = ({ open, onClose, courseId }) => {
       startTime: null,
       endTime: null,
       fees: "",
-      slots: "",
+      slots: 0,
+      description: "",
+      room: "",
+      notes: "",
     });
+    setErrors({});
     onClose();
+  };
+
+  const handleDeleteCourse = () => {
+    setDeleteTitle("Are you Sure?");
+    setDeleteStatus(true);
+    setDeleteMessage(
+      `The class on ${classData?.day} by ${
+        classData.tutor.firstName + " " + classData.tutor.lastName
+      } will be deleted.`
+    );
+    setOpenDeleteModal(true);
+  };
+
+  const handleCloseDeleteModal = () => {
+    setOpenDeleteModal(false);
+    handleCancel();
+  };
+
+  const deleteSelectedClass = async () => {
+    try {
+      setDeleteLoading(true);
+      await dispatch(deleteClass(classData.id))
+        .unwrap()
+        .then(() => {
+          handleCloseDeleteModal();
+          setAlert({
+            severity: "success",
+            message: "Class Deleted Successfully",
+          });
+        })
+        .catch((error) => {
+          console.log("Error deleting class:", error);
+          setAlert({
+            severity: "error",
+            message: error,
+          });
+          handleCloseDeleteModal();
+        });
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setDeleteLoading(false);
+    }
   };
 
   return (
@@ -353,7 +594,7 @@ const CreateClass = ({ open, onClose, courseId }) => {
           fullWidth
         >
           <StyledDialogTitle>
-            Create New Class
+            {type === "add" ? "Create New Class" : "Update Class"}
             <CloseButton onClick={handleCancel}>
               <IconX size={20} />
             </CloseButton>
@@ -361,13 +602,54 @@ const CreateClass = ({ open, onClose, courseId }) => {
 
           <StyledDialogContent>
             {/* Instructor Name */}
-            <Box>
+            <Box sx={{ flex: 1 }}>
               <FormLabel>Instructor Name:</FormLabel>
-              <StyledTextField
-                fullWidth
-                placeholder="Harrison Lane"
-                value={formData.instructorName}
-                onChange={(e) => handleChange("instructorName", e.target.value)}
+              <StyledFormControl fullWidth>
+                <Select
+                  value={formData.tutorId}
+                  onChange={(e) => handleChange("tutorId", e.target.value)}
+                  displayEmpty
+                  renderValue={(selected) => {
+                    if (!selected) {
+                      return (
+                        <span style={{ color: "#999999" }}>
+                          Select Instructor
+                        </span>
+                      );
+                    }
+                    const selectedInstructor = instructors.find(
+                      (cat) => cat.id === selected
+                    );
+                    return selectedInstructor
+                      ? `${selectedInstructor?.firstName?.trim() || ""} ${
+                          selectedInstructor?.lastName?.trim() || ""
+                        }`.trim()
+                      : "";
+                  }}
+                >
+                  {instructors.length > 0 ? (
+                    instructors?.map((instructor) => (
+                      <StyledMenuItem key={instructor.id} value={instructor.id}>
+                        {`${instructor.firstName?.trim() || ""} ${
+                          instructor.lastName?.trim() || ""
+                        }`.trim()}
+                      </StyledMenuItem>
+                    ))
+                  ) : (
+                    <StyledMenuItem>Loading...</StyledMenuItem>
+                  )}
+                </Select>
+                {errors.tutorId && <ErrorText>{errors.tutorId}</ErrorText>}
+              </StyledFormControl>
+            </Box>
+
+            {/* Description */}
+            <Box>
+              <FormLabel>Description:</FormLabel>
+              <DescriptionBox
+                value={formData.description}
+                onChange={(value) => handleChange("description", value)}
+                placeholder="Enter class description..."
               />
             </Box>
 
@@ -377,8 +659,20 @@ const CreateClass = ({ open, onClose, courseId }) => {
                 <FormLabel>Location:</FormLabel>
                 <StyledFormControl fullWidth>
                   <Select
-                    value={formData.location}
-                    onChange={(e) => handleChange("location", e.target.value)}
+                    value={formData.locationId}
+                    onChange={(e) => {
+                      const selectedId = e.target.value;
+                      handleChange("locationId", selectedId);
+                      const selectedLoc = locations.find(
+                        (loc) => loc.id === selectedId
+                      );
+                      setSelectedLocation(selectedLoc);
+                      setIsRoomPresent(selectedLoc?.rooms?.length > 0);
+                      setFormData((prev) => ({
+                        ...prev,
+                        room: "",
+                      }));
+                    }}
                     displayEmpty
                     renderValue={(selected) => {
                       if (!selected) {
@@ -388,21 +682,27 @@ const CreateClass = ({ open, onClose, courseId }) => {
                           </span>
                         );
                       }
-                      return selected;
+                      const selectedLocation = locations.find(
+                        (cat) => cat.id === selected
+                      );
+                      return selectedLocation
+                        ? `${selectedLocation?.name?.trim() || ""}`.trim()
+                        : "";
                     }}
                   >
-                    <StyledMenuItem value="Ringwood">Ringwood</StyledMenuItem>
-                    <StyledMenuItem value="Moorabbin">Moorabbin</StyledMenuItem>
-                    <StyledMenuItem value="Yarraville">
-                      Yarraville
-                    </StyledMenuItem>
-                    <StyledMenuItem value="Narre Warren">
-                      Narre Warren
-                    </StyledMenuItem>
-                    <StyledMenuItem value="Melbourne CBD">
-                      Melbourne CBD
-                    </StyledMenuItem>
+                    {locations.length > 0 ? (
+                      locations?.map((location) => (
+                        <StyledMenuItem key={location.id} value={location.id}>
+                          {location.name}
+                        </StyledMenuItem>
+                      ))
+                    ) : (
+                      <StyledMenuItem>Loading...</StyledMenuItem>
+                    )}
                   </Select>
+                  {errors.locationId && (
+                    <ErrorText>{errors.locationId}</ErrorText>
+                  )}
                 </StyledFormControl>
               </Box>
 
@@ -428,9 +728,41 @@ const CreateClass = ({ open, onClose, courseId }) => {
                     <StyledMenuItem value="Active">Active</StyledMenuItem>
                     <StyledMenuItem value="Inactive">Inactive</StyledMenuItem>
                   </Select>
+                  {errors.status && <ErrorText>{errors.status}</ErrorText>}
                 </StyledFormControl>
               </Box>
             </Box>
+
+            {isRoomPresent && (
+              <Box>
+                <FormLabel>Room:</FormLabel>
+                <StyledFormControl fullWidth>
+                  <Select
+                    value={formData.room}
+                    onChange={(e) => handleChange("room", e.target.value)}
+                    displayEmpty
+                    renderValue={(selected) => {
+                      if (!selected) {
+                        return (
+                          <span style={{ color: "#999999" }}>Select Room</span>
+                        );
+                      }
+                      return selected;
+                    }}
+                  >
+                    {selectedLocation && selectedLocation?.rooms?.length > 0 ? (
+                      selectedLocation?.rooms?.map((room) => (
+                        <StyledMenuItem key={room} value={room}>
+                          {room}
+                        </StyledMenuItem>
+                      ))
+                    ) : (
+                      <StyledMenuItem>Loading...</StyledMenuItem>
+                    )}
+                  </Select>
+                </StyledFormControl>
+              </Box>
+            )}
 
             {/* Day */}
             <Box>
@@ -457,10 +789,11 @@ const CreateClass = ({ open, onClose, courseId }) => {
                   <StyledMenuItem value="Saturday">Saturday</StyledMenuItem>
                   <StyledMenuItem value="Sunday">Sunday</StyledMenuItem>
                 </Select>
+                {errors.day && <ErrorText>{errors.day}</ErrorText>}
               </StyledFormControl>
             </Box>
 
-            <Box sx={{ display: "flex", gap: 2 }}>
+            <Box sx={{ display: "flex", gap: 2, marginBottom: "20px" }}>
               {/* From Date */}
               <Box sx={{ flex: 1 }}>
                 <FormLabel>From Date:</FormLabel>
@@ -481,6 +814,7 @@ const CreateClass = ({ open, onClose, courseId }) => {
                     },
                   }}
                 />
+                {errors.fromDate && <ErrorText>{errors.fromDate}</ErrorText>}
               </Box>
 
               {/* To Date */}
@@ -503,10 +837,11 @@ const CreateClass = ({ open, onClose, courseId }) => {
                     },
                   }}
                 />
+                {errors.toDate && <ErrorText>{errors.toDate}</ErrorText>}
               </Box>
             </Box>
 
-            <Box sx={{ display: "flex", gap: 2 }}>
+            <Box sx={{ display: "flex", gap: 2, marginBottom: "20px" }}>
               {/* Start Time */}
               <Box sx={{ flex: 1 }}>
                 <FormLabel>Start Time:</FormLabel>
@@ -527,6 +862,7 @@ const CreateClass = ({ open, onClose, courseId }) => {
                     },
                   }}
                 />
+                {errors.startTime && <ErrorText>{errors.startTime}</ErrorText>}
               </Box>
 
               {/* End Time */}
@@ -549,10 +885,11 @@ const CreateClass = ({ open, onClose, courseId }) => {
                     },
                   }}
                 />
+                {errors.endTime && <ErrorText>{errors.endTime}</ErrorText>}
               </Box>
             </Box>
 
-            <Box sx={{ display: "flex", gap: 2 }}>
+            <Box sx={{ display: "flex", gap: 2, marginBottom: "20px" }}>
               {/* Fees */}
               <Box sx={{ flex: 1 }}>
                 <FormLabel>Fees:</FormLabel>
@@ -562,6 +899,7 @@ const CreateClass = ({ open, onClose, courseId }) => {
                   value={formData.fees}
                   onChange={(e) => handleChange("fees", e.target.value)}
                 />
+                {errors.fees && <ErrorText>{errors.fees}</ErrorText>}
               </Box>
 
               {/* Slots */}
@@ -573,16 +911,35 @@ const CreateClass = ({ open, onClose, courseId }) => {
                   value={formData.slots}
                   onChange={(e) => handleChange("slots", e.target.value)}
                 />
+                {errors.slots && <ErrorText>{errors.slots}</ErrorText>}
               </Box>
             </Box>
 
             {/* Action Buttons */}
             <ButtonGroup>
-              <SaveButton onClick={handleSubmit}>Save</SaveButton>
+              <SaveButton disabled={loading} onClick={handleSubmit}>
+                {loading ? "Saving..." : "Save"}
+              </SaveButton>
               <CancelButton onClick={handleCancel}>Cancel</CancelButton>
+              {type === "edit" && (
+                <DeleteButton
+                  disabled={deleteLoading}
+                  onClick={handleDeleteCourse}
+                >
+                  {deleteLoading ? "Deleting..." : "Delete"}
+                </DeleteButton>
+              )}
             </ButtonGroup>
           </StyledDialogContent>
         </StyledDialog>
+        <ConfirmationDialog
+          open={openDeleteModal}
+          onClose={handleCloseDeleteModal}
+          title={deleteTitle}
+          message={deleteMessage}
+          showDelete={deleteStatus}
+          onConfirm={deleteSelectedClass}
+        />
       </LocalizationProvider>
     </ThemeProvider>
   );

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Card,
   CardMedia,
@@ -23,6 +23,11 @@ import {
   IconArmchair,
 } from "@tabler/icons-react";
 import CreateClass from "./CreateClass";
+import CreateCourse from "./CreateCourse";
+import { useDispatch, useSelector } from "react-redux";
+import Loading from "../../../loading";
+import ConfirmationDialog from "@/app/components/confirmation-dialog/ConfirmationDialog";
+import { deleteCourse } from "@/redux/slices/courseSlice";
 
 // ==================== STYLED COMPONENTS ====================
 
@@ -309,53 +314,145 @@ const SessionsArea = styled(Box)({
 });
 
 // ==================== COMPONENT ====================
-const CourseCard = ({ course }) => {
+const CourseCard = ({ course, categories, setAlert }) => {
   // Color array for class item borders
+  const { locations } = useSelector((state) => state.location);
+  const { staffs } = useSelector((state) => state.user);
   const backgroundColors = ["#FFE5E5", "#E0EDFF", "#E5FFE5", "#FFF7E0"];
   const [openClassModal, setOpenClassModal] = useState(false);
+  const [openCourseModal, setOpenCourseModal] = useState(false);
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [locationList, setLocationList] = useState([]);
+  const [instructorList, setInstructorList] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [type, setType] = useState(null);
+  const [classDetails, setClassDetails] = useState(null);
+  const [deleteTitle, setDeleteTitle] = useState(null);
+  const [deleteMessage, setDeleteMessage] = useState(null);
+  const [deleteStatus, setDeleteStatus] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (!locations.length === 0 && !staffs.length === 0) return;
+
+    const fetchData = () => {
+      let storedCourses = [];
+      let storedCategories = [];
+
+      if (typeof window !== "undefined") {
+        const locationsData = localStorage.getItem("allLocations");
+        const staffsData = localStorage.getItem("allStaffs");
+        storedCourses = locationsData ? JSON.parse(locationsData) : [];
+        storedCategories = staffsData ? JSON.parse(staffsData) : [];
+      }
+
+      if (locations.length > 0) {
+        setLocationList(locations);
+        setInstructorList(staffs.length > 0 ? staffs : storedCategories);
+      } else {
+        setLocationList(storedCourses);
+        setInstructorList(storedCategories);
+      }
+
+      setLoading(false);
+    };
+
+    fetchData();
+  }, [locations, staffs]);
+
+  const formatISTTimeRange = (start, end) => {
+    const toIST = (time) =>
+      new Date(time).toLocaleTimeString("en-IN", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+        timeZone: "Asia/Kolkata",
+      });
+
+    return `${toIST(start)} - ${toIST(end)}`;
+  };
 
   const handleEditCourse = () => {
-    console.log("Edit course:", course.id);
+    setOpenCourseModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setOpenCourseModal(false);
   };
 
   const handleDeleteCourse = () => {
-    console.log("Delete course:", course.id);
+    setDeleteTitle(
+      course?.classes?.length === 0 ? "Are you Sure?" : "Cannot Delete Course!"
+    );
+    setDeleteStatus(course?.classes?.length === 0 ? true : false);
+    setDeleteMessage(
+      course?.classes?.length === 0
+        ? `The course "${course?.title}" will be deleted.`
+        : `This course has ${course?.classes?.length} class${
+            course?.classes?.length > 1 ? "es" : ""
+          } assigned to it. Therefore, "${course?.title}" cannot be deleted.`
+    );
+    setOpenDeleteModal(true);
+  };
+
+  const handleCloseDeleteModal = () => {
+    setOpenDeleteModal(false);
+  };
+
+  const deleteSelectedCourse = async () => {
+    try {
+      setDeleteLoading(true);
+      await dispatch(deleteCourse(course.id))
+        .unwrap()
+        .then(() => {
+          handleCloseDeleteModal();
+          setAlert({
+            severity: "success",
+            message: "Course Deleted Successfully",
+          });
+        })
+        .catch((error) => {
+          console.log("Error deleting course:", error);
+          setAlert({
+            severity: "error",
+            message: error,
+          });
+          handleCloseDeleteModal();
+        });
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setDeleteLoading(false);
+    }
   };
 
   // Update handleAddClass function:
   const handleAddClass = () => {
     setOpenClassModal(true);
+    setType("add");
+    setClassDetails(null);
   };
 
   const handleCloseClassModal = () => {
     setOpenClassModal(false);
   };
 
-  const handleEditClass = (classId) => {
-    console.log("Edit class:", classId);
+  const handleEditClass = (classDetails) => {
+    setOpenClassModal(true);
+    setType("edit");
+    setClassDetails(classDetails);
   };
 
   const handleToggleClassStatus = (classId, currentStatus) => {
     console.log("Toggle class status:", classId, currentStatus);
   };
 
-  // Function to determine media type
-  const getMediaType = (url) => {
-    if (!url) return "image";
-    const extension = url.split(".").pop().toLowerCase();
-    const videoExtensions = ["mp4", "webm", "ogg", "mov"];
-    const imageExtensions = ["jpg", "jpeg", "png", "gif", "webp"];
+  const isVideo = course?.mediaType.startsWith("video");
 
-    if (videoExtensions.includes(extension)) {
-      return "video";
-    } else if (imageExtensions.includes(extension)) {
-      return "image";
-    }
-    return "image"; // default to image
-  };
-
-  const mediaType = getMediaType(course.mediaUrl);
-  const isVideo = mediaType === "video";
+  if (loading) {
+    return <Loading />;
+  }
 
   return (
     <StyledCard>
@@ -367,7 +464,7 @@ const CourseCard = ({ course }) => {
             controls
             preload="metadata"
             onError={(e) => {
-              console.error("Video failed to load:", e);
+              console.log("Video failed to load:", e);
             }}
           >
             Your browser does not support the video tag.
@@ -395,9 +492,11 @@ const CourseCard = ({ course }) => {
       >
         {/* Course Title & Description */}
         <CourseTitle variant="h6">{course.title}</CourseTitle>
-        <CourseDescription variant="body2">
-          {course.description}
-        </CourseDescription>
+        <CourseDescription
+          className="rich-text-editor"
+          variant="body2"
+          dangerouslySetInnerHTML={{ __html: course.description }}
+        />
 
         {/* Course Category */}
         <CategoryLabel variant="caption">Course Category</CategoryLabel>
@@ -444,11 +543,18 @@ const CourseCard = ({ course }) => {
                     <Stack direction="row" spacing={2}>
                       <ClassInfoRow>
                         <IconClock size={14} color="#AE9964" />
-                        <ClassDetailText>{classItem.time}</ClassDetailText>
+                        <ClassDetailText>
+                          {formatISTTimeRange(
+                            classItem.startDate,
+                            classItem.endDate
+                          )}
+                        </ClassDetailText>
                       </ClassInfoRow>
                       <ClassInfoRow>
                         <IconMapPin size={14} color="#AE9964" />
-                        <ClassDetailText>{classItem.location}</ClassDetailText>
+                        <ClassDetailText>
+                          {classItem.location.name}
+                        </ClassDetailText>
                       </ClassInfoRow>
                     </Stack>
 
@@ -457,23 +563,26 @@ const CourseCard = ({ course }) => {
                       <ClassInfoRow>
                         <IconUser size={14} color="#AE9964" />
                         <ClassDetailText>
-                          {classItem.instructor}
+                          {`${classItem.tutor.firstName.trim() || ""} ${
+                            classItem.tutor.lastName.trim() || ""
+                          }`.trim()}
                         </ClassDetailText>
                       </ClassInfoRow>
                       <ClassInfoRow>
                         <IconArmchair size={14} color="#AE9964" />
                         <ClassDetailText>
-                          {classItem.availableSlots}/{classItem.totalSlots}
+                          {classItem?.slots || classItem.availableSeats}/
+                          {classItem.availableSeats}
                         </ClassDetailText>
                       </ClassInfoRow>
                     </Stack>
                   </ClassItemContent>
 
                   <ClassActions>
-                    <ClassFees>{classItem.price}</ClassFees>
+                    <ClassFees>${classItem.fees}</ClassFees>
                     <EditIconButton
                       size="small"
-                      onClick={() => handleEditClass(classItem.id)}
+                      onClick={() => handleEditClass(classItem)}
                     >
                       <IconEdit
                         size={12}
@@ -490,7 +599,7 @@ const CourseCard = ({ course }) => {
                       }}
                     >
                       <StyledSwitch
-                        checked={classItem.status === "Active"}
+                        checked={classItem.isActive === true}
                         onChange={() =>
                           handleToggleClassStatus(
                             classItem.id,
@@ -500,7 +609,7 @@ const CourseCard = ({ course }) => {
                         size="small"
                       />
                       <Typography sx={{ color: "#000000", fontSize: "10px" }}>
-                        {classItem.status}
+                        {classItem.isActive ? "Active" : "Inactive"}
                       </Typography>
                     </Box>
                   </ClassActions>
@@ -521,15 +630,37 @@ const CourseCard = ({ course }) => {
           <DeleteButton
             startIcon={<IconTrash size={12} />}
             onClick={handleDeleteCourse}
+            disabled={deleteLoading}
           >
-            Delete Course
+            {deleteLoading ? "Deleting" : "Delete Course"}
           </DeleteButton>
         </ActionButtonsContainer>
       </CardContent>
+      <CreateCourse
+        open={openCourseModal}
+        onClose={handleCloseModal}
+        type="edit"
+        data={course}
+        categories={categories}
+        setAlert={setAlert}
+      />
       <CreateClass
         open={openClassModal}
         onClose={handleCloseClassModal}
         courseId={course.id}
+        locations={locationList}
+        instructors={instructorList}
+        type={type}
+        classData={classDetails}
+        setAlert={setAlert}
+      />
+      <ConfirmationDialog
+        open={openDeleteModal}
+        onClose={handleCloseDeleteModal}
+        title={deleteTitle}
+        message={deleteMessage}
+        showDelete={deleteStatus}
+        onConfirm={deleteSelectedCourse}
       />
     </StyledCard>
   );

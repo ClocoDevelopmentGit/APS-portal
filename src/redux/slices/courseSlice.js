@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const API_URL = "http://localhost:9000";
+const API_URL = "https://aps-backend.cloco.com.au";
 
 export const fetchAllCourses = createAsyncThunk(
   "course/fetchAll",
@@ -48,7 +48,7 @@ export const fetchCourseId = createAsyncThunk(
 
 export const createCourse = createAsyncThunk(
   "course/create",
-  async (formData, { rejectWithValue }) => {
+  async ({ formData }, { rejectWithValue }) => {
     try {
       const response = await axios.post(`${API_URL}/api/course/add`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -64,7 +64,7 @@ export const createCourse = createAsyncThunk(
 
 export const updateCourse = createAsyncThunk(
   "course/update",
-  async (id, formData, { rejectWithValue }) => {
+  async ({ id, formData }, { rejectWithValue }) => {
     try {
       if (!id) {
         return rejectWithValue("Course ID is required for update");
@@ -141,7 +141,7 @@ export const fetchClassId = createAsyncThunk(
 
 export const createClass = createAsyncThunk(
   "class/create",
-  async (data, { rejectWithValue }) => {
+  async ({ data }, { rejectWithValue }) => {
     try {
       const response = await axios.post(`${API_URL}/api/class/add`, data, {
         headers: { "Content-Type": "application/json" },
@@ -157,7 +157,7 @@ export const createClass = createAsyncThunk(
 
 export const updateClass = createAsyncThunk(
   "class/update",
-  async (id, data, { rejectWithValue }) => {
+  async ({ id, data }, { rejectWithValue }) => {
     try {
       if (!id) {
         return rejectWithValue("Class ID is required for update");
@@ -169,7 +169,7 @@ export const updateClass = createAsyncThunk(
           headers: { "Content-Type": "application/json" },
         }
       );
-      return response.data.class;
+      return response?.data?.class;
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to create course"
@@ -185,8 +185,8 @@ export const deleteClass = createAsyncThunk(
       if (!id) {
         return rejectWithValue("Class ID is required for delete");
       }
-      await axios.delete(`${API_URL}/api/class/delete/${id}`);
-      return id;
+      const response = await axios.delete(`${API_URL}/api/class/delete/${id}`);
+      return response?.data?.class;
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to create course"
@@ -291,10 +291,8 @@ const courseSlice = createSlice({
       })
       .addCase(createClass.fulfilled, (state, action) => {
         state.loading = false;
-        if (!state.courses.classes) {
-          state.courses.classes = [];
-        }
-        state.courses.classes.unshift(action.payload);
+        state.courses = action.payload;
+        localStorage.setItem("allCourses", JSON.stringify(state.courses));
       })
       .addCase(createClass.rejected, (state, action) => {
         state.loading = false;
@@ -305,10 +303,9 @@ const courseSlice = createSlice({
         state.error = null;
       })
       .addCase(updateClass.fulfilled, (state, action) => {
-        const updatedClass = action.payload;
-        state.courses.classes = state.courses.classes.map((cls) =>
-          cls.id === updatedClass.id ? updatedClass : cls
-        );
+        state.loading = false;
+        state.courses = action.payload;
+        localStorage.setItem("allCourses", JSON.stringify(state.courses));
       })
       .addCase(updateClass.rejected, (state, action) => {
         state.loading = false;
@@ -319,10 +316,8 @@ const courseSlice = createSlice({
         state.error = null;
       })
       .addCase(deleteClass.fulfilled, (state, action) => {
-        const deletedId = action.payload;
-        state.courses.classes = state.courses.classes.filter(
-          (cls) => cls.id !== deletedId
-        );
+        state.loading = false;
+        state.courses = action.payload;
       })
       .addCase(deleteClass.rejected, (state, action) => {
         state.loading = false;
