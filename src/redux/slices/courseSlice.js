@@ -1,19 +1,26 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const API_URL = "https://aps-backend.cloco.com.au";
-
+// const API_URL = "https://aps-backend.cloco.com.au";
+const API_URL = "http://localhost:9000";
 export const fetchAllCourses = createAsyncThunk(
   "course/fetchAll",
-  async (_, { rejectWithValue }) => {
+  async (paramsObj = {}, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${API_URL}/api/course/get`);
-      localStorage.setItem(
-        "allCourses",
-        JSON.stringify(response?.data?.course)
-      );
-      return response?.data?.course;
+      const { filters = {}, length = 0 } = paramsObj;
+      const response = await axios.get(`${API_URL}/api/course/get`, {
+        params: filters,
+      });
+      const courses = response?.data?.course || [];
+
+      localStorage.setItem("allCourses", JSON.stringify(courses));
+
+      return {
+        isFiltered: length > 0,
+        courses,
+      };
     } catch (error) {
+      console.error("Error fetching courses:", error);
       const message =
         error?.response?.data?.message ||
         error?.message ||
@@ -106,7 +113,7 @@ export const fetchAllClasses = createAsyncThunk(
   "course/fetchAll",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${API_URL}/api/course/get`);
+      const response = await axios.get(`${API_URL}/api/class/get`);
       localStorage.setItem("allClasses", JSON.stringify(response?.data?.class));
       return response?.data?.class;
     } catch (error) {
@@ -215,6 +222,7 @@ const courseSlice = createSlice({
   name: "course",
   initialState: {
     courses: getInitialCourses(),
+    filteredCourses: getInitialCourses(),
     course: getInitialCourse(),
     loading: true,
     error: null,
@@ -226,7 +234,10 @@ const courseSlice = createSlice({
       })
       .addCase(fetchAllCourses.fulfilled, (state, action) => {
         state.loading = false;
-        state.courses = action.payload;
+        state.filteredCourses = action.payload.courses;
+        if (!action.payload.isFiltered) {
+          state.courses = action.payload.courses;
+        }
       })
       .addCase(fetchAllCourses.rejected, (state, action) => {
         state.loading = false;

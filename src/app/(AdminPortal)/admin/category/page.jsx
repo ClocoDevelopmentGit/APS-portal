@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -14,6 +14,7 @@ import {
   Switch,
   IconButton,
   TextField,
+  Portal,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { IconCheck, IconX } from "@tabler/icons-react";
@@ -22,6 +23,10 @@ import { RiDeleteBin6Line } from "react-icons/ri";
 import { IconPlus } from "@tabler/icons-react";
 import CreateCategory from "./components/CreateCategory";
 import ConfirmationDialog from "@/app/components/confirmation-dialog/ConfirmationDialog";
+import Alerts from "@/app/components/Alert/Alert";
+import Loading from "@/app/loading";
+import { useDispatch, useSelector } from "react-redux";
+import { deleteCategory, updateCategory } from "@/redux/slices/categorySlice";
 
 // ==================== STYLED COMPONENTS ====================
 
@@ -177,6 +182,13 @@ const SaveIconButton = styled(IconButton)({
     color: "#FFFFFF",
     backgroundColor: "#AE9964",
   },
+  "&:disabled": {
+    backgroundColor: "#D4C4B0",
+    color: "#FFFFFF",
+    boxShadow: "none",
+    cursor: "not-allowed",
+    opacity: 0.6,
+  },
 });
 
 const CancelIconButton = styled(IconButton)({
@@ -209,45 +221,53 @@ const StyledTextField = styled(TextField)({
   },
 });
 
-// ==================== SAMPLE DATA ====================
-
-const initialCategories = [
-  {
-    id: 1,
-    name: "Acting",
-    description: "Acting Classes Description",
-    status: true,
-  },
-  {
-    id: 2,
-    name: "Industry Driven",
-    description: "Industry Driven Description",
-    status: true,
-  },
-  {
-    id: 3,
-    name: "Musical Theatre",
-    description: "Musical Theatre Description",
-    status: true,
-  },
-  {
-    id: 4,
-    name: "NDIS",
-    description: "NDIS Description",
-    status: false,
-  },
-];
-
 // ==================== COMPONENT ====================
 
 const CourseCategory = () => {
-  const [categories, setCategories] = useState(initialCategories);
+  const dispatch = useDispatch();
+  const { categories, error } = useSelector((state) => state.category);
+  const [categoriesList, setCategoriesList] = useState();
   const [editingId, setEditingId] = useState(null);
-  const [editForm, setEditForm] = useState({ name: "", description: "" });
+  const [editForm, setEditForm] = useState({ name: "" });
   const [openModal, setOpenModal] = useState(false);
-
+  const [alert, setAlert] = useState({ severity: "", message: "" });
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [deleteTitle, setDeleteTitle] = useState(null);
+  const [deleteMessage, setDeleteMessage] = useState(null);
+  const [deleteStatus, setDeleteStatus] = useState(false);
+  const [overlayLoading, setOverlayLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchData = () => {
+      let storedCategories = [];
+
+      if (typeof window !== "undefined") {
+        const categoriesData = localStorage.getItem("allCategories");
+        storedCategories = categoriesData ? JSON.parse(categoriesData) : [];
+      }
+
+      if (categories && categories.length > 0) {
+        setCategoriesList(categories);
+      } else {
+        setCategoriesList(storedCategories);
+      }
+
+      setLoading(false);
+    };
+
+    fetchData();
+  }, [categories]);
+
+  useEffect(() => {
+    const errorSet = () => {
+      if (error) {
+        setAlert({ severity: "error", message: error });
+      }
+    };
+    errorSet();
+  }, [error]);
 
   const handleOpenModal = () => {
     setOpenModal(true);
@@ -259,12 +279,42 @@ const CourseCategory = () => {
 
   const handleDelete = (category) => {
     setCategoryToDelete(category);
+    setDeleteTitle(
+      category?.courses?.length === 0
+        ? "Are you Sure?"
+        : "Cannot Delete Category!"
+    );
+    setDeleteStatus(category?.courses?.length === 0 ? true : false);
+    setDeleteMessage(
+      category?.courses?.length === 0
+        ? `The category "${category?.name}" will be deleted.`
+        : `This category has ${category?.courses?.length} course${
+            category?.courses?.length > 1 ? "s" : ""
+          } assigned to it. Therefore, "${category?.name}" cannot be deleted.`
+    );
     setOpenConfirmDialog(true);
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (categoryToDelete) {
-      setCategories(categories.filter((cat) => cat.id !== categoryToDelete.id));
+      try {
+        setOverlayLoading(true);
+        await dispatch(deleteCategory(categoryToDelete.id))
+          .unwrap()
+          .then(() => {
+            setAlert({
+              severity: "success",
+              message: "Category Deleted Successfully",
+            });
+          });
+      } catch (error) {
+        setAlert({
+          severity: "error",
+          message: error,
+        });
+      } finally {
+        setLoading(false);
+      }
       setCategoryToDelete(null);
     }
   };
@@ -274,37 +324,93 @@ const CourseCategory = () => {
     setCategoryToDelete(null);
   };
 
-  const handleToggleStatus = (id) => {
-    setCategories(
-      categories.map((cat) =>
-        cat.id === id ? { ...cat, status: !cat.status } : cat
-      )
+  const handleToggleStatus = async (id) => {
+    setOverlayLoading(true);
+    const updatedData = categoriesList.find((cat) => cat.id === id);
+
+    if (!updatedData) return;
+
+    const toggled = {
+      name: updatedData.name,
+      isActive: !updatedData.isActive,
+    };
+
+    const newData = { ...updatedData, ...toggled };
+
+    const newList = categoriesList.map((cat) =>
+      cat.id === id ? newData : cat
     );
+
+    try {
+      await dispatch(updateCategory({ id, formData: toggled }))
+        .unwrap()
+        .then(() => {
+          setCategoriesList(newList);
+          setAlert({
+            severity: "success",
+            message: `Category is ${
+              toggled.isActive ? "activated" : "deactivated"
+            } successfully`,
+          });
+        });
+    } catch (error) {
+      setAlert({
+        severity: "error",
+        message: error,
+      });
+    } finally {
+      setOverlayLoading(false);
+    }
   };
 
   const handleEdit = (category) => {
     setEditingId(category.id);
     setEditForm({
       name: category.name,
-      description: category.description,
     });
   };
 
-  const handleSave = (id) => {
-    setCategories(
-      categories.map((cat) =>
-        cat.id === id
-          ? { ...cat, name: editForm.name, description: editForm.description }
-          : cat
-      )
+  const handleSave = async (id) => {
+    setOverlayLoading(true);
+    const updatedData = categoriesList.find((cat) => cat.id === id);
+
+    if (!updatedData) return;
+
+    const editedData = {
+      name: editForm.name,
+      isActive: updatedData.isActive,
+    };
+
+    const newData = { ...updatedData, ...editedData };
+
+    const newList = categoriesList.map((cat) =>
+      cat.id === id ? newData : cat
     );
+    try {
+      await dispatch(updateCategory({ id, formData: editedData }))
+        .unwrap()
+        .then(() => {
+          setCategoriesList(newList);
+          setAlert({
+            severity: "success",
+            message: "Category Name Updated Successfully",
+          });
+        });
+    } catch (error) {
+      setAlert({
+        severity: "error",
+        message: error,
+      });
+    } finally {
+      setOverlayLoading(false);
+    }
     setEditingId(null);
-    setEditForm({ name: "", description: "" });
+    setEditForm({ name: "" });
   };
 
   const handleCancel = () => {
     setEditingId(null);
-    setEditForm({ name: "", description: "" });
+    setEditForm({ name: "" });
   };
 
   const handleChange = (field, value) => {
@@ -314,9 +420,24 @@ const CourseCategory = () => {
     });
   };
 
+  if (loading) {
+    return <Loading />;
+  }
+
   return (
     <PageContainer>
-      {/* Header */}
+      {alert.message && (
+        <Alerts
+          severity={alert.severity}
+          message={alert.message}
+          onClose={() => setAlert({ severity: "", message: "" })}
+        />
+      )}
+      {overlayLoading && (
+        <Portal>
+          <Loading overlay={true} />
+        </Portal>
+      )}
       <HeaderSection>
         <TitleSection>
           <PageTitle>Category Management</PageTitle>
@@ -342,7 +463,7 @@ const CourseCategory = () => {
               </TableRow>
             </StyledTableHead>
             <TableBody>
-              {categories.map((category) => (
+              {categoriesList?.map((category) => (
                 <TableRow key={category.id}>
                   {/* Category Name */}
                   <StyledTableCell>
@@ -361,7 +482,7 @@ const CourseCategory = () => {
                   {/* Status Toggle */}
                   <StyledTableCell align="center">
                     <StyledSwitch
-                      checked={category.status}
+                      checked={category.isActive === true}
                       onChange={() => handleToggleStatus(category.id)}
                     />
                   </StyledTableCell>
@@ -410,14 +531,21 @@ const CourseCategory = () => {
       </ContentCard>
 
       {/* Create Category Modal */}
-      <CreateCategory open={openModal} onClose={handleCloseModal} />
+      <CreateCategory
+        open={openModal}
+        onClose={handleCloseModal}
+        setAlert={setAlert}
+        setOverlayLoading={setOverlayLoading}
+      />
 
       {/* Confirmation Dialog */}
       <ConfirmationDialog
         open={openConfirmDialog}
         onClose={handleCloseConfirmDialog}
         onConfirm={handleConfirmDelete}
-        message={`You are about to delete this course category!`}
+        title={deleteTitle}
+        message={deleteMessage}
+        showDelete={deleteStatus}
       />
     </PageContainer>
   );

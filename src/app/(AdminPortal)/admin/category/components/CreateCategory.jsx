@@ -15,6 +15,8 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { IconX } from "@tabler/icons-react";
+import { createCategory } from "@/redux/slices/categorySlice";
+import { useDispatch } from "react-redux";
 
 // ==================== STYLED COMPONENTS ====================
 
@@ -64,7 +66,6 @@ const FormLabel = styled(Typography)({
 });
 
 const StyledTextField = styled(TextField)({
-  marginBottom: "20px",
   "& .MuiOutlinedInput-root": {
     borderRadius: "8px",
     padding: "0px",
@@ -140,6 +141,12 @@ const StyledMenuItem = styled(MenuItem)({
   },
 });
 
+const ErrorText = styled(Typography)({
+  fontSize: "12px",
+  color: "#E85A4F",
+  marginTop: "4px",
+});
+
 const ButtonGroup = styled(Box)({
   display: "flex",
   gap: "12px",
@@ -161,6 +168,13 @@ const SaveButton = styled(Button)({
   "&:hover": {
     boxShadow: "rgba(0, 0, 0, 0.35) 0px 5px 15px",
     backgroundColor: "#B38349",
+  },
+  "&:disabled": {
+    backgroundColor: "#D4C4B0",
+    color: "#FFFFFF",
+    boxShadow: "none",
+    cursor: "not-allowed",
+    opacity: 0.6,
   },
 });
 
@@ -185,11 +199,14 @@ const CancelButton = styled(Button)({
 
 // ==================== COMPONENT ====================
 
-const CreateCategory = ({ open, onClose, categoryData = null }) => {
+const CreateCategory = ({ open, onClose, setAlert, setOverlayLoading }) => {
   const [formData, setFormData] = useState({
-    categoryName: categoryData?.name || "",
-    status: categoryData?.status ? "Active" : "Inactive",
+    categoryName: "",
+    status: "",
   });
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
 
   const handleChange = (field, value) => {
     setFormData({
@@ -198,16 +215,74 @@ const CreateCategory = ({ open, onClose, categoryData = null }) => {
     });
   };
 
-  const handleSubmit = () => {
-    console.log("Saving category:", formData);
-    // Add your save logic here
-    onClose();
+  const validateCategoryForm = (formData) => {
+    const newErrors = {};
+    const fieldLabels = {
+      categoryName: "Category Name",
+      status: "Status",
+    };
+
+    Object.keys(fieldLabels).forEach((key) => {
+      const value = formData[key];
+      if (
+        value === null ||
+        value === undefined ||
+        value === "" ||
+        value === 0
+      ) {
+        newErrors[key] = `${fieldLabels[key]} is required`;
+      }
+    });
+
+    return newErrors;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const newErrors = validateCategoryForm(formData);
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length > 0) return;
+
+    setLoading(true);
+    setOverlayLoading(true);
+
+    const payload = {
+      name: formData.categoryName,
+      isActive: formData.status === "Active",
+    };
+
+    try {
+      await dispatch(createCategory({ formData: payload }))
+        .unwrap()
+        .then(() => {
+          setAlert({
+            severity: "success",
+            message: "Category Created Successfully",
+          });
+          handleCancel();
+        })
+        .catch((error) => {
+          console.log(error);
+          setAlert({
+            severity: "error",
+            message: error || "Something went wrong",
+          });
+          handleCancel();
+        });
+      onClose();
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+      setOverlayLoading(false);
+    }
   };
 
   const handleCancel = () => {
     setFormData({
       categoryName: "",
-      status: "Active",
+      status: "",
     });
     onClose();
   };
@@ -223,7 +298,7 @@ const CreateCategory = ({ open, onClose, categoryData = null }) => {
 
       <StyledDialogContent>
         {/* Category Course Name */}
-        <Box>
+        <Box sx={{ marginBottom: "20px" }}>
           <FormLabel>Category Course Name:</FormLabel>
           <StyledTextField
             fullWidth
@@ -231,6 +306,7 @@ const CreateCategory = ({ open, onClose, categoryData = null }) => {
             value={formData.categoryName}
             onChange={(e) => handleChange("categoryName", e.target.value)}
           />
+          {errors.categoryName && <ErrorText>{errors.categoryName}</ErrorText>}
         </Box>
 
         {/* Status */}
@@ -253,12 +329,15 @@ const CreateCategory = ({ open, onClose, categoryData = null }) => {
               <StyledMenuItem value="Active">Active</StyledMenuItem>
               <StyledMenuItem value="Inactive">Inactive</StyledMenuItem>
             </Select>
+            {errors.status && <ErrorText>{errors.status}</ErrorText>}
           </StyledFormControl>
         </Box>
 
         {/* Action Buttons */}
         <ButtonGroup>
-          <SaveButton onClick={handleSubmit}>Save</SaveButton>
+          <SaveButton disabled={loading} onClick={handleSubmit}>
+            {loading ? "Saving..." : "Save"}
+          </SaveButton>
           <CancelButton onClick={handleCancel}>Cancel</CancelButton>
         </ButtonGroup>
       </StyledDialogContent>

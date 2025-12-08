@@ -25,9 +25,10 @@ import {
 import CreateClass from "./CreateClass";
 import CreateCourse from "./CreateCourse";
 import { useDispatch, useSelector } from "react-redux";
-import Loading from "../../../loading";
+import Loading from "@/app/loading";
 import ConfirmationDialog from "@/app/components/confirmation-dialog/ConfirmationDialog";
-import { deleteCourse } from "@/redux/slices/courseSlice";
+import { deleteCourse, updateClass } from "@/redux/slices/courseSlice";
+import dayjs from "dayjs";
 
 // ==================== STYLED COMPONENTS ====================
 
@@ -314,7 +315,7 @@ const SessionsArea = styled(Box)({
 });
 
 // ==================== COMPONENT ====================
-const CourseCard = ({ course, categories, setAlert }) => {
+const CourseCard = ({ course, categories, setAlert, setOverlayLoading }) => {
   // Color array for class item borders
   const { locations } = useSelector((state) => state.location);
   const { staffs } = useSelector((state) => state.user);
@@ -402,6 +403,7 @@ const CourseCard = ({ course, categories, setAlert }) => {
 
   const deleteSelectedCourse = async () => {
     try {
+      setOverlayLoading(true);
       setDeleteLoading(true);
       await dispatch(deleteCourse(course.id))
         .unwrap()
@@ -424,6 +426,7 @@ const CourseCard = ({ course, categories, setAlert }) => {
       console.log(error);
     } finally {
       setDeleteLoading(false);
+      setOverlayLoading(false);
     }
   };
 
@@ -444,8 +447,48 @@ const CourseCard = ({ course, categories, setAlert }) => {
     setClassDetails(classDetails);
   };
 
-  const handleToggleClassStatus = (classId, currentStatus) => {
-    console.log("Toggle class status:", classId, currentStatus);
+  const handleToggleClassStatus = async (classDetails) => {
+    setOverlayLoading(true);
+    const payload = {
+      ...classDetails,
+      startDate: classDetails.startDate
+        ? dayjs(classDetails.startDate).format("YYYY-MM-DD")
+        : null,
+      endDate: classDetails.endDate
+        ? dayjs(classDetails.endDate).format("YYYY-MM-DD")
+        : null,
+      startTime: classDetails.startTime
+        ? dayjs(classDetails.startTime).format("HH:mm")
+        : null,
+      endTime: classDetails.endTime
+        ? dayjs(classDetails.endTime).format("HH:mm")
+        : null,
+      isActive: !classDetails.isActive,
+    };
+    try {
+      await dispatch(updateClass({ id: payload.id, data: payload }))
+        .unwrap()
+        .then(() => {
+          setAlert({
+            severity: "success",
+            message: `Class is ${
+              payload.isActive ? "activated" : "deactivated"
+            } successfully`,
+          });
+        })
+        .catch((error) => {
+          console.log("Error updating class status:", error);
+          setAlert({
+            severity: "error",
+            message:
+              error || "Something went wrong while updating class status",
+          });
+        });
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setOverlayLoading(false);
+    }
   };
 
   const isVideo = course?.mediaType.startsWith("video");
@@ -600,12 +643,7 @@ const CourseCard = ({ course, categories, setAlert }) => {
                     >
                       <StyledSwitch
                         checked={classItem.isActive === true}
-                        onChange={() =>
-                          handleToggleClassStatus(
-                            classItem.id,
-                            classItem.status
-                          )
-                        }
+                        onChange={() => handleToggleClassStatus(classItem)}
                         size="small"
                       />
                       <Typography sx={{ color: "#000000", fontSize: "10px" }}>
@@ -643,6 +681,7 @@ const CourseCard = ({ course, categories, setAlert }) => {
         data={course}
         categories={categories}
         setAlert={setAlert}
+        setOverlayLoading={setOverlayLoading}
       />
       <CreateClass
         open={openClassModal}
@@ -653,6 +692,7 @@ const CourseCard = ({ course, categories, setAlert }) => {
         type={type}
         classData={classDetails}
         setAlert={setAlert}
+        setOverlayLoading={setOverlayLoading}
       />
       <ConfirmationDialog
         open={openDeleteModal}

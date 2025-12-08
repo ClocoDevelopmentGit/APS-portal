@@ -1,7 +1,8 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const API_URL = "https://aps-backend.cloco.com.au";
+// const API_URL = "https://aps-backend.cloco.com.au";
+const API_URL = "http://localhost:9000";
 
 export const fetchAllCategories = createAsyncThunk(
   "category/fetchAll",
@@ -54,7 +55,7 @@ export const createCategory = createAsyncThunk(
         `${API_URL}/api/category/add`,
         formData,
         {
-          headers: { "Content-Type": "multipart/form-data" },
+          headers: { "Content-Type": "application/json" },
         }
       );
       return response?.data?.category;
@@ -77,7 +78,7 @@ export const updateCategory = createAsyncThunk(
         `${API_URL}/api/category/update/${id}`,
         formData,
         {
-          headers: { "Content-Type": "multipart/form-data" },
+          headers: { "Content-Type": "application/json" },
         }
       );
       return response?.data?.category;
