@@ -1,8 +1,9 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-// const API_URL = "https://aps-backend.cloco.com.au";
-const API_URL = "http://localhost:9000";
+const API_URL = "https://aps-backend.cloco.com.au";
+// const API_URL = "http://localhost:9000";
+
 export const fetchAllCourses = createAsyncThunk(
   "course/fetchAll",
   async (paramsObj = {}, { rejectWithValue }) => {
