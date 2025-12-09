@@ -463,68 +463,82 @@ const CourseCategory = () => {
               </TableRow>
             </StyledTableHead>
             <TableBody>
-              {categoriesList?.map((category) => (
-                <TableRow key={category.id}>
-                  {/* Category Name */}
-                  <StyledTableCell>
-                    {editingId === category.id ? (
-                      <StyledTextField
-                        fullWidth
-                        value={editForm.name}
-                        onChange={(e) => handleChange("name", e.target.value)}
-                        size="small"
+              {categoriesList.length === 0 ? (
+                categoriesList?.map((category) => (
+                  <TableRow key={category.id}>
+                    {/* Category Name */}
+                    <StyledTableCell>
+                      {editingId === category.id ? (
+                        <StyledTextField
+                          fullWidth
+                          value={editForm.name}
+                          onChange={(e) => handleChange("name", e.target.value)}
+                          size="small"
+                        />
+                      ) : (
+                        category.name
+                      )}
+                    </StyledTableCell>
+
+                    {/* Status Toggle */}
+                    <StyledTableCell align="center">
+                      <StyledSwitch
+                        checked={category.isActive === true}
+                        onChange={() => handleToggleStatus(category.id)}
                       />
-                    ) : (
-                      category.name
-                    )}
-                  </StyledTableCell>
+                    </StyledTableCell>
 
-                  {/* Status Toggle */}
-                  <StyledTableCell align="center">
-                    <StyledSwitch
-                      checked={category.isActive === true}
-                      onChange={() => handleToggleStatus(category.id)}
-                    />
-                  </StyledTableCell>
-
-                  {/* Edit/Delete Actions */}
-                  <StyledTableCell align="center">
-                    {editingId === category.id ? (
-                      <Box
-                        sx={{
-                          display: "flex",
-                          gap: 2,
-                          justifyContent: "center",
-                        }}
-                      >
-                        <SaveIconButton onClick={() => handleSave(category.id)}>
-                          <IconCheck size={15} />
-                        </SaveIconButton>
-                        <CancelIconButton onClick={handleCancel}>
-                          <IconX size={15} />
-                        </CancelIconButton>
-                      </Box>
-                    ) : (
-                      <Box
-                        sx={{
-                          display: "flex",
-                          gap: 1,
-                          justifyContent: "center",
-                        }}
-                      >
-                        <EditIconButton onClick={() => handleEdit(category)}>
-                          <FiEdit size={20} />
-                        </EditIconButton>
-                        <DeleteIconButton
-                          onClick={() => handleDelete(category)}
+                    {/* Edit/Delete Actions */}
+                    <StyledTableCell align="center">
+                      {editingId === category.id ? (
+                        <Box
+                          sx={{
+                            display: "flex",
+                            gap: 2,
+                            justifyContent: "center",
+                          }}
                         >
-                          <RiDeleteBin6Line size={20} />
-                        </DeleteIconButton>
-                      </Box>
-                    )}
+                          <SaveIconButton
+                            onClick={() => handleSave(category.id)}
+                          >
+                            <IconCheck size={15} />
+                          </SaveIconButton>
+                          <CancelIconButton onClick={handleCancel}>
+                            <IconX size={15} />
+                          </CancelIconButton>
+                        </Box>
+                      ) : (
+                        <Box
+                          sx={{
+                            display: "flex",
+                            gap: 1,
+                            justifyContent: "center",
+                          }}
+                        >
+                          <EditIconButton onClick={() => handleEdit(category)}>
+                            <FiEdit size={20} />
+                          </EditIconButton>
+                          <DeleteIconButton
+                            onClick={() => handleDelete(category)}
+                          >
+                            <RiDeleteBin6Line size={20} />
+                          </DeleteIconButton>
+                        </Box>
+                      )}
+                    </StyledTableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <StyledTableCell
+                    align="center"
+                    colSpan={3}
+                    sx={{ padding: "40px" }}
+                  >
+                    No Categories found
                   </StyledTableCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
           </Table>
         </StyledTableContainer>
