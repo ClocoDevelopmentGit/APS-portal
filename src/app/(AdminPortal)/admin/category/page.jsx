@@ -463,7 +463,7 @@ const CourseCategory = () => {
               </TableRow>
             </StyledTableHead>
             <TableBody>
-              {categoriesList.length === 0 ? (
+              {categoriesList.length > 0 ? (
                 categoriesList?.map((category) => (
                   <TableRow key={category.id}>
                     {/* Category Name */}
