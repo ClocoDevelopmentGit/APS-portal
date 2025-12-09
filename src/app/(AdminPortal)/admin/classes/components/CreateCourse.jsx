@@ -239,6 +239,7 @@ const CreateCourse = ({
   data = null,
   categories = {},
   setAlert,
+  setOverlayLoading,
 }) => {
   const dispatch = useDispatch();
   const [errors, setErrors] = useState({});
@@ -333,7 +334,6 @@ const CreateCourse = ({
   };
 
   const handleSubmit = async (e) => {
-    console.log(formData);
     e.preventDefault();
     const id = data?.id;
     const newErrors = validateCourseForm(formData);
@@ -341,6 +341,7 @@ const CreateCourse = ({
 
     if (Object.keys(newErrors).length > 0) return;
 
+    setOverlayLoading(true);
     setLoading(true);
     const ageString = Array.isArray(formData.ageRange)
       ? formData.ageRange.includes(18)
@@ -400,6 +401,7 @@ const CreateCourse = ({
       setAlert({ severity: "error", message: error || "Something went wrong" });
     } finally {
       setLoading(false);
+      setOverlayLoading(false);
     }
   };
 

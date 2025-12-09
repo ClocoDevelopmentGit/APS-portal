@@ -21,7 +21,7 @@ const StyledAlert = styled(Alert)(({ severity }) => ({
   }),
 }));
 
-const Alerts = ({ severity, message, onClose, duration = 5000 }) => {
+const Alerts = ({ severity, message, onClose, duration = 3000 }) => {
   useEffect(() => {
     if (!onClose) return;
     const timer = setTimeout(onClose, duration);
@@ -33,7 +33,7 @@ const Alerts = ({ severity, message, onClose, duration = 5000 }) => {
     <Stack
       sx={{
         width: "25%",
-        position: "absolute",
+        position: "fixed",
         top: "30px",
         right: "30px",
         zIndex: 99999999999999,

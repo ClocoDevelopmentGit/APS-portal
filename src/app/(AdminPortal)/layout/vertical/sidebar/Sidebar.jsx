@@ -32,6 +32,7 @@ const Sidebar = () => {
     dispatch(fetchAllCategories());
     dispatch(fetchAllLocations());
     dispatch(fetchAllStaffs());
+    dispatch(fetchAllCategories());
   }, [dispatch]);
 
   const theme = useTheme();

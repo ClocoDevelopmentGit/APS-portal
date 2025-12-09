@@ -336,6 +336,7 @@ const CreateClass = ({
   type,
   classData = null,
   setAlert,
+  setOverlayLoading,
 }) => {
   const dispatch = useDispatch();
   const [formData, setFormData] = useState({
@@ -453,6 +454,7 @@ const CreateClass = ({
 
     if (Object.keys(newErrors).length > 0) return;
 
+    setOverlayLoading(true);
     setLoading(true);
     const payload = {
       description: formData.description || "",
@@ -517,6 +519,7 @@ const CreateClass = ({
       console.log(error);
     } finally {
       setLoading(false);
+      setOverlayLoading(false);
     }
   };
 
@@ -559,6 +562,7 @@ const CreateClass = ({
   const deleteSelectedClass = async () => {
     try {
       setDeleteLoading(true);
+      setOverlayLoading(true);
       await dispatch(deleteClass(classData.id))
         .unwrap()
         .then(() => {
@@ -580,6 +584,7 @@ const CreateClass = ({
       console.log(error);
     } finally {
       setDeleteLoading(false);
+      setOverlayLoading(false);
     }
   };
 

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import {
   Box,
   Typography,
@@ -8,6 +8,7 @@ import {
   Select,
   FormControl,
   IconButton,
+  Portal,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import {
@@ -22,9 +23,10 @@ import "swiper/css/navigation";
 import CourseCard from "./components/CourseCard";
 import "./classes.css";
 import CreateCourse from "./components/CreateCourse";
-import { useSelector } from "react-redux";
-import Loading from "../../loading";
+import { useDispatch, useSelector } from "react-redux";
+import Loading from "@/app/loading";
 import Alerts from "@/app/components/Alert/Alert";
+import { fetchAllCourses } from "@/redux/slices/courseSlice";
 
 // ==================== STYLED COMPONENTS ====================
 
@@ -182,232 +184,18 @@ const NavButton = styled(IconButton)(({ position }) => ({
   },
 }));
 
-// ==================== SAMPLE DATA ====================
-const coursesData = [
-  {
-    id: 1,
-    title: "Kinder Kids Acting",
-    description: "Acting Technique: Senior Kids Bold Choices...",
-    image: "/images/classes.png",
-    category: "Acting Classes",
-    age: "Age 4-6",
-    term: "Term 4",
-    status: "Active",
-    classes: [
-      {
-        id: 1,
-        day: "Tuesday, 7 Oct - 2 Dec 2025",
-        time: "4:45pm - 5:45pm",
-        location: "Ringwood",
-        instructor: "Harrison Lane",
-        status: "Active",
-        totalSlots: 20,
-        availableSlots: 5,
-        price: "$325.00",
-      },
-      {
-        id: 2,
-        day: "Tuesday, 7 Oct - 2 Dec 2025",
-        time: "4:45pm - 5:45pm",
-        location: "Moorabbin",
-        instructor: "Chi Nguyen",
-        status: "Active",
-        totalSlots: 15,
-        availableSlots: 0,
-        price: "$325.00",
-      },
-      {
-        id: 3,
-        day: "Tuesday, 7 Oct - 2 Dec 2025",
-        time: "4:45pm - 5:45pm",
-        location: "Yarraville",
-        instructor: "Naomi Derrick",
-        status: "Inactive",
-        totalSlots: 18,
-        availableSlots: 12,
-        price: "$325.00",
-      },
-      {
-        id: 4,
-        day: "Tuesday, 7 Oct - 2 Dec 2025",
-        time: "4:45pm - 6:45pm",
-        location: "Narre Warren",
-        instructor: "Catherine",
-        status: "Active",
-        totalSlots: 25,
-        availableSlots: 8,
-        price: "$325.00",
-      },
-    ],
-  },
-  {
-    id: 2,
-    title: "Junior Kids Acting",
-    description: "Acting Technique: Senior Kids Bold Choices...",
-    image: "/images/classes.png",
-    category: "Acting Classes",
-    age: "Age 7-11",
-    term: "Term 4",
-    status: "Active",
-    classes: [
-      {
-        id: 1,
-        day: "Tuesday, 7 Oct - 2 Dec 2025",
-        time: "4:45pm - 5:45pm",
-        location: "Ringwood",
-        instructor: "Harrison Lane",
-        status: "Active",
-        totalSlots: 20,
-        availableSlots: 3,
-        price: "$325.00",
-      },
-      {
-        id: 2,
-        day: "Tuesday, 7 Oct - 2 Dec 2025",
-        time: "4:45pm - 5:45pm",
-        location: "Moorabbin",
-        instructor: "Chi Nguyen",
-        status: "Active",
-        totalSlots: 15,
-        availableSlots: 7,
-        price: "$325.00",
-      },
-      {
-        id: 3,
-        day: "Tuesday, 7 Oct - 2 Dec 2025",
-        time: "4:45pm - 5:45pm",
-        location: "Yarraville",
-        instructor: "Naomi Derrick",
-        status: "Inactive",
-        totalSlots: 18,
-        availableSlots: 15,
-        price: "$325.00",
-      },
-      {
-        id: 4,
-        day: "Tuesday, 7 Oct - 2 Dec 2025",
-        time: "4:45pm - 6:45pm",
-        location: "Narre Warren",
-        instructor: "Catherine",
-        status: "Active",
-        totalSlots: 25,
-        availableSlots: 10,
-        price: "$325.00",
-      },
-    ],
-  },
-  {
-    id: 3,
-    title: "Kids Musical Theatre",
-    description: "A fun filled course designed to spark the child's...",
-    image: "/images/classes.png",
-    category: "Musical Theatre",
-    age: "Age upto 6",
-    term: "Term 4",
-    status: "Active",
-    classes: [
-      {
-        id: 1,
-        day: "Tuesday, 7 Oct - 2 Dec 2025",
-        time: "4:45pm - 5:45pm",
-        location: "Ringwood",
-        instructor: "Harrison Lane",
-        status: "Active",
-        totalSlots: 20,
-        availableSlots: 12,
-        price: "$325.00",
-      },
-      {
-        id: 2,
-        day: "Tuesday, 7 Oct - 2 Dec 2025",
-        time: "4:45pm - 5:45pm",
-        location: "Moorabbin",
-        instructor: "Chi Nguyen",
-        status: "Active",
-        totalSlots: 15,
-        availableSlots: 2,
-        price: "$325.00",
-      },
-      {
-        id: 3,
-        day: "Tuesday, 7 Oct - 2 Dec 2025",
-        time: "4:45pm - 5:45pm",
-        location: "Yarraville",
-        instructor: "Naomi Derrick",
-        status: "Inactive",
-        totalSlots: 18,
-        availableSlots: 18,
-        price: "$325.00",
-      },
-      {
-        id: 4,
-        day: "Tuesday, 7 Oct - 2 Dec 2025",
-        time: "4:45pm - 6:45pm",
-        location: "Narre Warren",
-        instructor: "Catherine",
-        status: "Active",
-        totalSlots: 25,
-        availableSlots: 6,
-        price: "$325.00",
-      },
-    ],
-  },
-  {
-    id: 4,
-    title: "Teen Acting Advanced",
-    description: "Advanced acting techniques for teenagers...",
-    image: "/images/classes.png",
-    category: "Acting Classes",
-    age: "Age 13-17",
-    term: "Term 4",
-    status: "Active",
-    classes: [
-      {
-        id: 1,
-        day: "Wednesday, 8 Oct - 3 Dec 2025",
-        time: "5:00pm - 6:30pm",
-        location: "Ringwood",
-        instructor: "Sarah Johnson",
-        status: "Active",
-        totalSlots: 15,
-        availableSlots: 4,
-        price: "$375.00",
-      },
-    ],
-  },
-  {
-    id: 5,
-    title: "Adults Acting Workshop",
-    description: "Professional acting workshop for adults...",
-    image: "/images/classes.png",
-    category: "Acting Classes",
-    age: "Age 18+",
-    term: "Term 4",
-    status: "Active",
-    classes: [
-      {
-        id: 1,
-        day: "Thursday, 9 Oct - 4 Dec 2025",
-        time: "7:00pm - 9:00pm",
-        location: "Melbourne CBD",
-        instructor: "Michael Roberts",
-        status: "Active",
-        totalSlots: 12,
-        availableSlots: 9,
-        price: "$425.00",
-      },
-    ],
-  },
-];
-
 // ==================== COMPONENT ====================
 const ClassesPage = () => {
-  const { courses, error } = useSelector((state) => state.course);
+  const dispatch = useDispatch();
+  const { courses, filteredCourses, error } = useSelector(
+    (state) => state.course
+  );
   const { categories } = useSelector((state) => state.category);
   const [coursesList, setCoursesList] = useState([]);
   const [categoriesList, setCategoriesList] = useState([]);
   const [alert, setAlert] = useState({ severity: "", message: "" });
   const [loading, setLoading] = useState(true);
+  const [overlayLoading, setOverlayLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = () => {
@@ -422,8 +210,8 @@ const ClassesPage = () => {
         storedCategories = categoriesData ? JSON.parse(categoriesData) : [];
       }
 
-      if (courses && courses.length > 0) {
-        setCoursesList(courses);
+      if (filteredCourses && filteredCourses.length > 0) {
+        setCoursesList(filteredCourses);
       } else {
         setCoursesList(storedCourses);
       }
@@ -438,7 +226,7 @@ const ClassesPage = () => {
     };
 
     fetchData();
-  }, [courses, categories]);
+  }, [filteredCourses, categories]);
 
   useEffect(() => {
     const errorSet = () => {
@@ -475,6 +263,43 @@ const ClassesPage = () => {
     }
   };
 
+  const buildFilters = useCallback(() => {
+    const filters = {};
+    let filterLength = 0;
+
+    if (courseFilter !== "all" && courseFilter !== "") {
+      filters.title = courseFilter;
+      filterLength++;
+    }
+
+    if (categoryFilter !== "all") {
+      filters.courseCategoryId = categoryFilter;
+      filterLength++;
+    }
+
+    if (statusFilter !== "all") {
+      filters.isActive = statusFilter === "active" ? true : false;
+      filterLength++;
+    }
+
+    return { filters, length: filterLength };
+  }, [courseFilter, categoryFilter, statusFilter]);
+
+  useEffect(() => {
+    const setFilters = async () => {
+      setOverlayLoading(true);
+      try {
+        const filters = buildFilters();
+        await dispatch(fetchAllCourses(filters)).unwrap();
+      } catch (error) {
+        setAlert({ severity: "error", message: error });
+      } finally {
+        setOverlayLoading(false);
+      }
+    };
+    setFilters();
+  }, [courseFilter, categoryFilter, statusFilter, buildFilters, dispatch]);
+
   if (loading) {
     return <Loading />;
   }
@@ -487,6 +312,11 @@ const ClassesPage = () => {
           message={alert.message}
           onClose={() => setAlert({ severity: "", message: "" })}
         />
+      )}
+      {overlayLoading && (
+        <Portal>
+          <Loading overlay={true} />
+        </Portal>
       )}
       <HeaderBox>
         <HeaderContent>
@@ -518,20 +348,16 @@ const ClassesPage = () => {
               if (!selected || selected === "all") {
                 return <span style={{ color: "#757575" }}>Course Name</span>;
               }
-              const courseNames = {
-                kinder: "Kinder Kids Acting",
-                junior: "Junior Kids Acting",
-                musical: "Kids Musical Theatre",
-              };
-              return courseNames[selected] || "Course Name";
+              const selectedCourse = courses.find((c) => c.title === selected);
+              return selectedCourse?.title || "Course Name";
             }}
           >
             <StyledMenuItem value="all">All Courses</StyledMenuItem>
-            <StyledMenuItem value="kinder">Kinder Kids Acting</StyledMenuItem>
-            <StyledMenuItem value="junior">Junior Kids Acting</StyledMenuItem>
-            <StyledMenuItem value="musical">
-              Kids Musical Theatre
-            </StyledMenuItem>
+            {courses?.map((course) => (
+              <StyledMenuItem key={course.title} value={course.title}>
+                {course.title}
+              </StyledMenuItem>
+            ))}
           </Select>
         </StyledFormControl>
 
@@ -547,16 +373,18 @@ const ClassesPage = () => {
                   <span style={{ color: "#757575" }}>Course Category</span>
                 );
               }
-              const categoryNames = {
-                acting: "Acting Classes",
-                musical: "Musical Theatre",
-              };
-              return categoryNames[selected] || "Course Category";
+              const selectedCourse = categoriesList.find(
+                (c) => c.id === selected
+              );
+              return selectedCourse?.name || "Course Name";
             }}
           >
             <StyledMenuItem value="all">All Categories</StyledMenuItem>
-            <StyledMenuItem value="acting">Acting Classes</StyledMenuItem>
-            <StyledMenuItem value="musical">Musical Theatre</StyledMenuItem>
+            {categoriesList?.map((category) => (
+              <StyledMenuItem key={category.id} value={category.id}>
+                {category.name}
+              </StyledMenuItem>
+            ))}
           </Select>
         </StyledFormControl>
 
@@ -586,52 +414,72 @@ const ClassesPage = () => {
 
       {/* Course Cards Swiper */}
       <NavigationContainer className="nav-container">
-        {/* Left Navigation Arrow */}
-        <NavButton className="nav-btn" position="left" onClick={handlePrev}>
-          <IconChevronLeft size={20} />
-        </NavButton>
+        {coursesList.length > 0 ? (
+          <>
+            {/* Left Navigation Arrow */}
+            <NavButton className="nav-btn" position="left" onClick={handlePrev}>
+              <IconChevronLeft size={20} />
+            </NavButton>
 
-        <Swiper
-          ref={swiperRef}
-          modules={[Navigation, Autoplay]}
-          spaceBetween={24}
-          slidesPerView={1}
-          autoplay={{
-            delay: 20000,
-            disableOnInteraction: false,
-          }}
-          loop={true}
-          breakpoints={{
-            640: {
-              slidesPerView: 1,
-              spaceBetween: 20,
-            },
-            768: {
-              slidesPerView: 2,
-              spaceBetween: 24,
-            },
-            1100: {
-              slidesPerView: 3,
-              spaceBetween: 24,
-            },
-          }}
-        >
-          {coursesList.length > 0 &&
-            coursesList.map((course) => (
-              <SwiperSlide key={course.id}>
-                <CourseCard
-                  course={course}
-                  categories={categoriesList}
-                  setAlert={setAlert}
-                />
-              </SwiperSlide>
-            ))}
-        </Swiper>
+            <Swiper
+              ref={swiperRef}
+              modules={[Navigation, Autoplay]}
+              spaceBetween={24}
+              slidesPerView={1}
+              autoplay={{
+                delay: 20000,
+                disableOnInteraction: false,
+              }}
+              loop={true}
+              breakpoints={{
+                640: {
+                  slidesPerView: 1,
+                  spaceBetween: 20,
+                },
+                768: {
+                  slidesPerView: 2,
+                  spaceBetween: 24,
+                },
+                1100: {
+                  slidesPerView: 3,
+                  spaceBetween: 24,
+                },
+              }}
+            >
+              {coursesList.map((course) => (
+                <SwiperSlide key={course.id}>
+                  <CourseCard
+                    course={course}
+                    categories={categoriesList}
+                    setAlert={setAlert}
+                    setOverlayLoading={setOverlayLoading}
+                  />
+                </SwiperSlide>
+              ))}
+            </Swiper>
 
-        {/* Right Navigation Arrow */}
-        <NavButton className="nav-btn" position="right" onClick={handleNext}>
-          <IconChevronRight size={20} />
-        </NavButton>
+            {/* Right Navigation Arrow */}
+            <NavButton
+              className="nav-btn"
+              position="right"
+              onClick={handleNext}
+            >
+              <IconChevronRight size={20} />
+            </NavButton>
+          </>
+        ) : (
+          <Typography
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "20px",
+            }}
+            variant="body2"
+          >
+            No courses found.
+          </Typography>
+        )}
       </NavigationContainer>
       <CreateCourse
         open={openModal}
@@ -639,6 +487,7 @@ const ClassesPage = () => {
         type="add"
         categories={categoriesList}
         setAlert={setAlert}
+        setOverlayLoading={setOverlayLoading}
       />
     </PageContainer>
   );
