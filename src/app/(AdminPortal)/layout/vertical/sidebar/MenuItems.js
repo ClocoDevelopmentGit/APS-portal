@@ -1,5 +1,4 @@
 import { uniqueId } from "lodash";
-
 import { RiDashboardHorizontalFill } from "react-icons/ri";
 import { MdFormatListBulleted } from "react-icons/md";
 import { BiCalendarEvent } from "react-icons/bi";
@@ -10,7 +9,7 @@ const Menuitems = [
     id: uniqueId(),
     title: "Dashboard",
     icon: RiDashboardHorizontalFill,
-    href: "/",
+    href: "/admin",
     chipColor: "secondary",
   },
   {

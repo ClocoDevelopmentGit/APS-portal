@@ -90,7 +90,14 @@ const CancelButton = styled(Button)({
 
 // ==================== COMPONENT ====================
 
-const ConfirmationDialog = ({ open, onClose, onConfirm, message }) => {
+const ConfirmationDialog = ({
+  open,
+  onClose,
+  onConfirm,
+  title,
+  message,
+  showDelete,
+}) => {
   const handleConfirm = () => {
     onConfirm();
     onClose();
@@ -107,15 +114,19 @@ const ConfirmationDialog = ({ open, onClose, onConfirm, message }) => {
         </IconWrapper>
 
         {/* Title */}
-        <Title>Are you sure?</Title>
+        <Title>{title}</Title>
 
         {/* Message */}
         <Message>{message}</Message>
 
         {/* Action Buttons */}
         <ButtonGroup>
-          <DeleteButton onClick={handleConfirm}>Yes, delete it!</DeleteButton>
-          <CancelButton onClick={onClose}>Cancel</CancelButton>
+          {showDelete && (
+            <DeleteButton onClick={handleConfirm}>Yes, delete it!</DeleteButton>
+          )}
+          <CancelButton onClick={onClose}>
+            {showDelete ? "Cancel" : "Okay"}
+          </CancelButton>
         </ButtonGroup>
       </StyledDialogContent>
     </StyledDialog>

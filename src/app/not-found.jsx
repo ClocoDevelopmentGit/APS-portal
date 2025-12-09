@@ -47,7 +47,7 @@ const Error = () => (
         color="primary"
         variant="contained"
         component={Link}
-        href="/"
+        href="/admin"
         disableElevation
       >
         Go Back to Home

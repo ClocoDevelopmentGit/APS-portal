@@ -24,6 +24,7 @@ import "./classes.css";
 import CreateCourse from "./components/CreateCourse";
 import { useSelector } from "react-redux";
 import Loading from "../../loading";
+import Alerts from "@/app/components/Alert/Alert";
 
 // ==================== STYLED COMPONENTS ====================
 
@@ -402,31 +403,52 @@ const coursesData = [
 // ==================== COMPONENT ====================
 const ClassesPage = () => {
   const { courses, error } = useSelector((state) => state.course);
-  const [coursesList, setCoursesList] = useState(courses);
+  const { categories } = useSelector((state) => state.category);
+  const [coursesList, setCoursesList] = useState([]);
+  const [categoriesList, setCategoriesList] = useState([]);
+  const [alert, setAlert] = useState({ severity: "", message: "" });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!courses) return;
-
-    const load = () => {
+    const fetchData = () => {
       let storedCourses = [];
+      let storedCategories = [];
 
       if (typeof window !== "undefined") {
-        const data = localStorage.getItem("allCourses");
-        storedCourses = data ? JSON.parse(data) : [];
+        const coursesData = localStorage.getItem("allCourses");
+        const categoriesData = localStorage.getItem("allCategories");
+
+        storedCourses = coursesData ? JSON.parse(coursesData) : [];
+        storedCategories = categoriesData ? JSON.parse(categoriesData) : [];
       }
 
-      if (courses.length > 0) {
+      if (courses && courses.length > 0) {
         setCoursesList(courses);
       } else {
         setCoursesList(storedCourses);
       }
 
+      if (categories && categories.length > 0) {
+        setCategoriesList(categories);
+      } else {
+        setCategoriesList(storedCategories);
+      }
+
       setLoading(false);
     };
 
-    load();
-  }, [courses]);
+    fetchData();
+  }, [courses, categories]);
+
+  useEffect(() => {
+    const errorSet = () => {
+      if (error) {
+        setAlert({ severity: "error", message: error });
+      }
+    };
+    errorSet();
+  }, [error]);
+
   const [courseFilter, setCourseFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -456,13 +478,16 @@ const ClassesPage = () => {
   if (loading) {
     return <Loading />;
   }
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
 
   return (
     <PageContainer className="classes-swiper">
-      {/* Header */}
+      {alert.message && (
+        <Alerts
+          severity={alert.severity}
+          message={alert.message}
+          onClose={() => setAlert({ severity: "", message: "" })}
+        />
+      )}
       <HeaderBox>
         <HeaderContent>
           <PageTitle variant="h4">Courses Management</PageTitle>
@@ -594,7 +619,11 @@ const ClassesPage = () => {
           {coursesList.length > 0 &&
             coursesList.map((course) => (
               <SwiperSlide key={course.id}>
-                <CourseCard course={course} />
+                <CourseCard
+                  course={course}
+                  categories={categoriesList}
+                  setAlert={setAlert}
+                />
               </SwiperSlide>
             ))}
         </Swiper>
@@ -604,7 +633,13 @@ const ClassesPage = () => {
           <IconChevronRight size={20} />
         </NavButton>
       </NavigationContainer>
-      <CreateCourse open={openModal} onClose={handleCloseModal} />
+      <CreateCourse
+        open={openModal}
+        onClose={handleCloseModal}
+        type="add"
+        categories={categoriesList}
+        setAlert={setAlert}
+      />
     </PageContainer>
   );
 };
