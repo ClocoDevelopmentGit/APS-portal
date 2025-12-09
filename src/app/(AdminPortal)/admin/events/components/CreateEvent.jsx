@@ -122,7 +122,6 @@ const FormLabel = styled(Typography)({
 });
 
 const StyledTextField = styled(TextField)({
-  marginBottom: "20px",
   "& .MuiOutlinedInput-root": {
     borderRadius: "8px",
     padding: "0px",
@@ -152,7 +151,6 @@ const StyledTextField = styled(TextField)({
 
 const StyledDatePicker = styled(DatePicker)({
   width: "100%",
-  marginBottom: "20px",
   "& .MuiOutlinedInput-root": {
     borderRadius: "8px",
     backgroundColor: "#FFFFFF",
@@ -174,7 +172,6 @@ const StyledDatePicker = styled(DatePicker)({
 
 const StyledTimePicker = styled(TimePicker)({
   width: "100%",
-  marginBottom: "20px",
   "& .MuiOutlinedInput-root": {
     borderRadius: "8px",
     backgroundColor: "#FFFFFF",
@@ -195,7 +192,6 @@ const StyledTimePicker = styled(TimePicker)({
 });
 
 const StyledFormControl = styled(FormControl)({
-  marginBottom: "20px",
   width: "100%",
   "& .MuiOutlinedInput-root": {
     borderRadius: "8px",
@@ -282,6 +278,16 @@ const CancelButton = styled(Button)({
     boxShadow: "rgba(0, 0, 0, 0.35) 0px 5px 15px",
     backgroundColor: "#FFF",
     color: "#191919",
+  },
+});
+
+const FormBox = styled(Box)({
+  display: "flex",
+  gap: "10px",
+  marginBottom: "20px",
+  "@media (max-width: 578px)": {
+    flexDirection: "column",
+    gap: "20px",
   },
 });
 
@@ -373,7 +379,7 @@ const CreateEvent = ({ open, onClose, courseId }) => {
 
           <StyledDialogContent>
             {/* Instructor Name */}
-            <Box>
+            <Box sx={{ marginBottom: "20px" }}>
               <FormLabel>Event Name:</FormLabel>
               <StyledTextField
                 fullWidth
@@ -403,7 +409,7 @@ const CreateEvent = ({ open, onClose, courseId }) => {
               />
             </Box>
 
-            <Box sx={{ display: "flex", gap: 2 }}>
+            <FormBox>
               {/* Location */}
               <Box sx={{ flex: 1 }}>
                 <FormLabel>Location:</FormLabel>
@@ -462,9 +468,9 @@ const CreateEvent = ({ open, onClose, courseId }) => {
                   </Select>
                 </StyledFormControl>
               </Box>
-            </Box>
+            </FormBox>
 
-            <Box sx={{ display: "flex", gap: 2 }}>
+            <FormBox>
               {/* Day */}
               <Box sx={{ flex: 1 }}>
                 <FormLabel>Day:</FormLabel>
@@ -505,9 +511,9 @@ const CreateEvent = ({ open, onClose, courseId }) => {
                   }
                 />
               </Box>
-            </Box>
+            </FormBox>
 
-            <Box sx={{ display: "flex", gap: 2 }}>
+            <FormBox>
               {/* Fees */}
               <Box sx={{ flex: 1 }}>
                 <FormLabel>Fees:</FormLabel>
@@ -529,9 +535,9 @@ const CreateEvent = ({ open, onClose, courseId }) => {
                   onChange={(e) => handleChange("slots", e.target.value)}
                 />
               </Box>
-            </Box>
+            </FormBox>
 
-            <Box sx={{ display: "flex", gap: 2 }}>
+            <FormBox>
               {/* From Date */}
               <Box sx={{ flex: 1 }}>
                 <FormLabel>From Date:</FormLabel>
@@ -575,9 +581,9 @@ const CreateEvent = ({ open, onClose, courseId }) => {
                   }}
                 />
               </Box>
-            </Box>
+            </FormBox>
 
-            <Box sx={{ display: "flex", gap: 2 }}>
+            <FormBox>
               {/* Start Time */}
               <Box sx={{ flex: 1 }}>
                 <FormLabel>Start Time:</FormLabel>
@@ -621,7 +627,7 @@ const CreateEvent = ({ open, onClose, courseId }) => {
                   }}
                 />
               </Box>
-            </Box>
+            </FormBox>
 
             {/* Action Buttons */}
             <ButtonGroup>

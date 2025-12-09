@@ -199,7 +199,7 @@ const StyledTimePicker = styled(TimePicker)({
 });
 
 const StyledFormControl = styled(FormControl)({
-  marginBottom: "20px",
+  // marginBottom: "20px",
   width: "100%",
   "& .MuiOutlinedInput-root": {
     borderRadius: "8px",
@@ -303,7 +303,7 @@ const CancelButton = styled(Button)({
 });
 
 const DeleteButton = styled(Button)({
-  backgroundColor: "#f60c0cff",
+  backgroundColor: "#B38349",
   color: "#FFFFFF",
   textTransform: "none",
   fontSize: "14px",
@@ -315,14 +315,24 @@ const DeleteButton = styled(Button)({
   letterSpacing: "-0.14px",
   "&:hover": {
     boxShadow: "rgba(0, 0, 0, 0.35) 0px 5px 15px",
-    backgroundColor: "#ff0000",
+    backgroundColor: "#B38349",
   },
   "&:disabled": {
-    backgroundColor: "#db0f0fff",
+    backgroundColor: "#B38349",
     color: "#FFFFFF",
     boxShadow: "none",
     cursor: "not-allowed",
     opacity: 0.6,
+  },
+});
+
+const FormBox = styled(Box)({
+  display: "flex",
+  gap: "10px",
+  marginBottom: "20px",
+  "@media (max-width: 578px)": {
+    flexDirection: "column",
+    gap: "20px",
   },
 });
 
@@ -607,7 +617,7 @@ const CreateClass = ({
 
           <StyledDialogContent>
             {/* Instructor Name */}
-            <Box sx={{ flex: 1 }}>
+            <Box sx={{ flex: 1, marginBottom: "20px" }}>
               <FormLabel>Instructor Name:</FormLabel>
               <StyledFormControl fullWidth>
                 <Select
@@ -658,7 +668,7 @@ const CreateClass = ({
               />
             </Box>
 
-            <Box sx={{ display: "flex", gap: 2 }}>
+            <FormBox>
               {/* Location */}
               <Box sx={{ flex: 1 }}>
                 <FormLabel>Location:</FormLabel>
@@ -736,7 +746,9 @@ const CreateClass = ({
                   {errors.status && <ErrorText>{errors.status}</ErrorText>}
                 </StyledFormControl>
               </Box>
-            </Box>
+            </FormBox>
+
+            {/* <Box sx={{ display: "flex", gap: 2 }}></Box> */}
 
             {isRoomPresent && (
               <Box>
@@ -770,7 +782,7 @@ const CreateClass = ({
             )}
 
             {/* Day */}
-            <Box>
+            <Box sx={{ marginBottom: "20px" }}>
               <FormLabel>Day:</FormLabel>
               <StyledFormControl fullWidth>
                 <Select
@@ -798,7 +810,7 @@ const CreateClass = ({
               </StyledFormControl>
             </Box>
 
-            <Box sx={{ display: "flex", gap: 2, marginBottom: "20px" }}>
+            <FormBox>
               {/* From Date */}
               <Box sx={{ flex: 1 }}>
                 <FormLabel>From Date:</FormLabel>
@@ -844,9 +856,9 @@ const CreateClass = ({
                 />
                 {errors.toDate && <ErrorText>{errors.toDate}</ErrorText>}
               </Box>
-            </Box>
+            </FormBox>
 
-            <Box sx={{ display: "flex", gap: 2, marginBottom: "20px" }}>
+            <FormBox>
               {/* Start Time */}
               <Box sx={{ flex: 1 }}>
                 <FormLabel>Start Time:</FormLabel>
@@ -892,9 +904,9 @@ const CreateClass = ({
                 />
                 {errors.endTime && <ErrorText>{errors.endTime}</ErrorText>}
               </Box>
-            </Box>
+            </FormBox>
 
-            <Box sx={{ display: "flex", gap: 2, marginBottom: "20px" }}>
+            <FormBox>
               {/* Fees */}
               <Box sx={{ flex: 1 }}>
                 <FormLabel>Fees:</FormLabel>
@@ -918,7 +930,7 @@ const CreateClass = ({
                 />
                 {errors.slots && <ErrorText>{errors.slots}</ErrorText>}
               </Box>
-            </Box>
+            </FormBox>
 
             {/* Action Buttons */}
             <ButtonGroup>

@@ -96,7 +96,7 @@ const StyledTextField = styled(TextField)({
 });
 
 const StyledFormControl = styled(FormControl)({
-  marginBottom: "20px",
+  // marginBottom: "20px",
   width: "100%",
   "& .MuiOutlinedInput-root": {
     borderRadius: "8px",
@@ -228,6 +228,16 @@ const CancelButton = styled(Button)({
     boxShadow: "rgba(0, 0, 0, 0.35) 0px 5px 15px",
     backgroundColor: "#FFF",
     color: "#191919",
+  },
+});
+
+const FormBox = styled(Box)({
+  display: "flex",
+  gap: "10px",
+  marginBottom: "20px",
+  "@media (max-width: 578px)": {
+    flexDirection: "column",
+    gap: "20px",
   },
 });
 
@@ -447,7 +457,7 @@ const CreateCourse = ({
         </Box>
 
         {/* Course Category */}
-        <Box>
+        <Box sx={{ marginBottom: "20px" }}>
           <FormLabel>Course Category:</FormLabel>
           <StyledFormControl fullWidth>
             <Select
@@ -519,7 +529,7 @@ const CreateCourse = ({
           {errors.courseImage && <ErrorText>{errors.courseImage}</ErrorText>}
         </Box>
 
-        <Box sx={{ display: "flex", gap: 2 }}>
+        <FormBox>
           {/* Status */}
           <Box sx={{ flex: 1 }}>
             <FormLabel>Status:</FormLabel>
@@ -571,7 +581,7 @@ const CreateCourse = ({
               )}
             </StyledFormControl>
           </Box>
-        </Box>
+        </FormBox>
 
         {/* Action Buttons */}
         <ButtonGroup>
