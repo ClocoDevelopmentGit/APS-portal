@@ -335,25 +335,27 @@ const CourseCard = ({ course, categories, setAlert, setOverlayLoading }) => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (!locations.length === 0 && !staffs.length === 0) return;
-
     const fetchData = () => {
-      let storedCourses = [];
-      let storedCategories = [];
+      let storedLocations = [];
+      let storedStaffs = [];
 
       if (typeof window !== "undefined") {
         const locationsData = localStorage.getItem("allLocations");
         const staffsData = localStorage.getItem("allStaffs");
-        storedCourses = locationsData ? JSON.parse(locationsData) : [];
-        storedCategories = staffsData ? JSON.parse(staffsData) : [];
+        storedLocations = locationsData ? JSON.parse(locationsData) : [];
+        storedStaffs = staffsData ? JSON.parse(staffsData) : [];
       }
 
       if (locations.length > 0) {
         setLocationList(locations);
-        setInstructorList(staffs.length > 0 ? staffs : storedCategories);
       } else {
-        setLocationList(storedCourses);
-        setInstructorList(storedCategories);
+        setLocationList(storedLocations);
+      }
+
+      if (staffs.length > 0) {
+        setInstructorList(staffs.length > 0 ? staffs : storedStaffs);
+      } else {
+        setInstructorList(storedStaffs);
       }
 
       setLoading(false);
@@ -368,7 +370,7 @@ const CourseCard = ({ course, categories, setAlert, setOverlayLoading }) => {
         hour: "2-digit",
         minute: "2-digit",
         hour12: true,
-        timeZone: "Asia/Kolkata",
+        timeZone: "UTC",
       });
 
     return `${toIST(start)} - ${toIST(end)}`;
@@ -494,7 +496,7 @@ const CourseCard = ({ course, categories, setAlert, setOverlayLoading }) => {
   const isVideo = course?.mediaType.startsWith("video");
 
   if (loading) {
-    return <Loading />;
+    return <Loading overlay={false} />;
   }
 
   return (
@@ -588,8 +590,8 @@ const CourseCard = ({ course, categories, setAlert, setOverlayLoading }) => {
                         <IconClock size={14} color="#AE9964" />
                         <ClassDetailText>
                           {formatISTTimeRange(
-                            classItem.startDate,
-                            classItem.endDate
+                            classItem.startTime,
+                            classItem.endTime
                           )}
                         </ClassDetailText>
                       </ClassInfoRow>

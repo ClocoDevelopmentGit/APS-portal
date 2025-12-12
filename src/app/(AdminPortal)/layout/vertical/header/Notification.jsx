@@ -37,7 +37,7 @@ const Notifications = () => {
         sx={{
           color: anchorEl2 ? "primary.main" : "text.secondary",
         }}
-        onClick={handleClick2}
+        // onClick={handleClick2}
       >
         <Badge
           variant="dot"

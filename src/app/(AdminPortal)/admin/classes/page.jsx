@@ -217,9 +217,15 @@ const ClassesPage = () => {
       }
 
       if (categories && categories.length > 0) {
-        setCategoriesList(categories);
+        const courseCategories = categories.filter(
+          (category) => category.type === "Course"
+        );
+        setCategoriesList(courseCategories);
       } else {
-        setCategoriesList(storedCategories);
+        const courseCategories = storedCategories.filter(
+          (category) => category.type === "Course"
+        );
+        setCategoriesList(courseCategories);
       }
 
       setLoading(false);
@@ -301,7 +307,7 @@ const ClassesPage = () => {
   }, [courseFilter, categoryFilter, statusFilter, buildFilters, dispatch]);
 
   if (loading) {
-    return <Loading />;
+    return <Loading overlay={false} />;
   }
 
   return (

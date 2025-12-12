@@ -343,6 +343,17 @@ const CreateCourse = ({
     return newErrors;
   };
 
+  const generateSlug = (text = "") => {
+    return text
+      .toString()
+      .toLowerCase()
+      .trim()
+      .replace(/[\s\_]+/g, "-")
+      .replace(/[^\w\-]+/g, "-")
+      .replace(/\-\-+/g, "-")
+      .replace(/^-+|-+$/g, "");
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const id = data?.id;
@@ -365,6 +376,7 @@ const CreateCourse = ({
     payload.append("courseCategoryId", formData.courseCategory);
     payload.append("isActive", formData.status === "Active");
     payload.append("displayOnHomePage", formData.homePageStatus === "Active");
+    payload.append("link", generateSlug(formData.courseName || ""));
     payload.append("createdBy", "admin");
     if (formData.description) {
       payload.append("description", formData.description);
@@ -426,6 +438,7 @@ const CreateCourse = ({
       courseImage: null,
       imageType: "",
     });
+    setCourseImage({ file: null, previewUrl: null });
     setErrors({});
     onClose();
   };

@@ -483,7 +483,7 @@ const CreateClass = ({
       availableSeats: Number(formData.slots) || 0,
       createdBy: "admin",
       isActive: formData.status === "Active",
-      fees: formData.fees,
+      fees: parseFloat(formData.fees || 0),
     };
 
     try {

@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+axios.defaults.withCredentials = true;
 
 const API_URL = "https://aps-backend.cloco.com.au";
 // const API_URL = "http://localhost:9000";
@@ -262,6 +263,7 @@ const courseSlice = createSlice({
       .addCase(createCourse.fulfilled, (state, action) => {
         state.loading = false;
         state.courses.unshift(action.payload);
+        state.filteredCourses.unshift(action.payload);
         localStorage.setItem("allCourses", JSON.stringify(state.courses));
       })
       .addCase(createCourse.rejected, (state, action) => {
@@ -275,9 +277,15 @@ const courseSlice = createSlice({
       .addCase(updateCourse.fulfilled, (state, action) => {
         state.loading = false;
         const updated = action.payload;
-        const index = state.courses.findIndex((c) => c.id === updated.id);
-        if (index !== -1) {
-          state.courses[index] = updated;
+        const mainIndex = state.courses.findIndex((c) => c.id === updated.id);
+        if (mainIndex !== -1) {
+          state.courses[mainIndex] = updated;
+        }
+        const filteredIndex = state.filteredCourses.findIndex(
+          (c) => c.id === updated.id
+        );
+        if (filteredIndex !== -1) {
+          state.filteredCourses[filteredIndex] = updated;
         }
         localStorage.setItem("allCourses", JSON.stringify(state.courses));
       })
@@ -292,6 +300,9 @@ const courseSlice = createSlice({
       .addCase(deleteCourse.fulfilled, (state, action) => {
         state.loading = false;
         state.courses = state.courses.filter((c) => c.id !== action.payload);
+        state.filteredCourses = state.filteredCourses.filter(
+          (c) => c.id !== action.payload
+        );
       })
       .addCase(deleteCourse.rejected, (state, action) => {
         state.loading = false;
@@ -304,6 +315,7 @@ const courseSlice = createSlice({
       .addCase(createClass.fulfilled, (state, action) => {
         state.loading = false;
         state.courses = action.payload;
+        state.filteredCourses = action.payload;
         localStorage.setItem("allCourses", JSON.stringify(state.courses));
       })
       .addCase(createClass.rejected, (state, action) => {
@@ -317,6 +329,7 @@ const courseSlice = createSlice({
       .addCase(updateClass.fulfilled, (state, action) => {
         state.loading = false;
         state.courses = action.payload;
+        state.filteredCourses = action.payload;
         localStorage.setItem("allCourses", JSON.stringify(state.courses));
       })
       .addCase(updateClass.rejected, (state, action) => {
