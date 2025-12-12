@@ -370,7 +370,7 @@ const CourseCard = ({ course, categories, setAlert, setOverlayLoading }) => {
         hour: "2-digit",
         minute: "2-digit",
         hour12: true,
-        timeZone: "Asia/Kolkata",
+        timeZone: "UTC",
       });
 
     return `${toIST(start)} - ${toIST(end)}`;

@@ -249,7 +249,7 @@ const EventCard = ({
         day: "numeric",
         month: "short",
         year: "numeric",
-        timeZone: "Asia/Kolkata",
+        timeZone: "UTC",
       });
 
     return `${toISTDate(startDate)} - ${toISTDate(endDate)}`;
@@ -261,7 +261,7 @@ const EventCard = ({
         hour: "2-digit",
         minute: "2-digit",
         hour12: true,
-        timeZone: "Asia/Kolkata",
+        timeZone: "UTC",
       });
 
     return `${toIST(start)} - ${toIST(end)}`;
