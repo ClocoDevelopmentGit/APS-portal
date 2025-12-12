@@ -13,6 +13,7 @@ import { fetchAllCourses } from "@/redux/slices/courseSlice";
 import { fetchAllCategories } from "@/redux/slices/categorySlice";
 import { fetchAllLocations } from "@/redux/slices/locationSlice";
 import { fetchAllStaffs } from "@/redux/slices/userSlice";
+import { fetchAllEvents } from "@/redux/slices/eventSlice";
 
 const Sidebar = () => {
   const lgUp = useMediaQuery((theme) => theme.breakpoints.down("lg"));
@@ -32,7 +33,7 @@ const Sidebar = () => {
     dispatch(fetchAllCategories());
     dispatch(fetchAllLocations());
     dispatch(fetchAllStaffs());
-    dispatch(fetchAllCategories());
+    dispatch(fetchAllEvents());
   }, [dispatch]);
 
   const theme = useTheme();

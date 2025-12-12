@@ -9,7 +9,6 @@ import {
   Box,
   Typography,
   Button,
-  Switch,
   Divider,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
@@ -23,6 +22,9 @@ import {
   IconArmchair,
 } from "@tabler/icons-react";
 import CreateEvent from "./CreateEvent";
+import ConfirmationDialog from "@/app/components/confirmation-dialog/ConfirmationDialog";
+import { deleteEvent } from "@/redux/slices/eventSlice";
+import { useDispatch } from "react-redux";
 
 // ==================== STYLED COMPONENTS ====================
 
@@ -177,42 +179,95 @@ const DividerLine = styled(Divider)({
 });
 
 // ==================== COMPONENT ====================
-const EventCard = ({ event }) => {
+const EventCard = ({
+  event,
+  categories = {},
+  setAlert,
+  setOverlayLoading,
+  locationList,
+  instructorList,
+}) => {
+  const dispatch = useDispatch();
   const [openEventModal, setOpenEventModal] = useState(false);
+  const [deleteTitle, setDeleteTitle] = useState(null);
+  const [deleteMessage, setDeleteMessage] = useState(null);
+  const [deleteStatus, setDeleteStatus] = useState(false);
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const handleEditEvent = () => {
-    console.log("Edit event:", event.id);
+    setOpenEventModal(true);
   };
 
   const handleDeleteEvent = () => {
-    console.log("Delete event:", event.id);
-  };
-
-  const handleAddEvent = () => {
-    setOpenEventModal(true);
+    setDeleteTitle("Are you Sure?");
+    setDeleteStatus(true);
+    setDeleteMessage(`The event "${event?.title}" will be deleted.`);
+    setOpenDeleteModal(true);
   };
 
   const handleCloseEventModal = () => {
     setOpenEventModal(false);
   };
 
-  // Function to determine media type
-  const getMediaType = (url) => {
-    if (!url) return "image";
-    const extension = url.split(".").pop().toLowerCase();
-    const videoExtensions = ["mp4", "webm", "ogg", "mov"];
-    const imageExtensions = ["jpg", "jpeg", "png", "gif", "webp"];
-
-    if (videoExtensions.includes(extension)) {
-      return "video";
-    } else if (imageExtensions.includes(extension)) {
-      return "image";
+  const deleteSelectedEvent = async () => {
+    try {
+      setDeleteLoading(true);
+      setOverlayLoading(true);
+      await dispatch(deleteEvent(event.id))
+        .unwrap()
+        .then(() => {
+          handleCloseDeleteModal();
+          setAlert({
+            severity: "success",
+            message: "Event Deleted Successfully",
+          });
+        })
+        .catch((error) => {
+          console.log("Error deleting event:", error);
+          setAlert({
+            severity: "error",
+            message: error,
+          });
+          handleCloseDeleteModal();
+        });
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setDeleteLoading(false);
+      setOverlayLoading(false);
     }
-    return "image"; // default to image
   };
 
-  const mediaType = getMediaType(event.image);
-  const isVideo = mediaType === "video";
+  const handleCloseDeleteModal = () => {
+    setOpenDeleteModal(false);
+  };
+
+  const formatISTDateRange = (startDate, endDate) => {
+    const toISTDate = (date) =>
+      new Date(date).toLocaleDateString("en-IN", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        timeZone: "Asia/Kolkata",
+      });
+
+    return `${toISTDate(startDate)} - ${toISTDate(endDate)}`;
+  };
+
+  const formatISTTimeRange = (start, end) => {
+    const toIST = (time) =>
+      new Date(time).toLocaleTimeString("en-IN", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+        timeZone: "Asia/Kolkata",
+      });
+
+    return `${toIST(start)} - ${toIST(end)}`;
+  };
+
+  const isVideo = event.mediaType.startsWith("video");
 
   return (
     <StyledCard>
@@ -220,7 +275,7 @@ const EventCard = ({ event }) => {
       <ImageContainer>
         {isVideo ? (
           <StyledVideo
-            src={event.image}
+            src={event.mediaUrl}
             controls
             preload="metadata"
             onError={(e) => {
@@ -232,11 +287,14 @@ const EventCard = ({ event }) => {
         ) : (
           <StyledCardMedia
             component="img"
-            image={event.image}
+            image={event.mediaUrl}
             alt={event.title}
           />
         )}
-        <StatusChip label={event.status} size="small" />
+        <StatusChip
+          label={event.isActive ? "Active" : "Inactive"}
+          size="small"
+        />
       </ImageContainer>
 
       <CardContent
@@ -249,7 +307,11 @@ const EventCard = ({ event }) => {
       >
         {/* Event Title & Description */}
         <EventTitle variant="h6">{event.title}</EventTitle>
-        <EventDescription variant="body2">{event.description}</EventDescription>
+        <EventDescription
+          className="rich-text-editor"
+          variant="body2"
+          dangerouslySetInnerHTML={{ __html: event.description }}
+        ></EventDescription>
 
         <DividerLine />
 
@@ -259,18 +321,25 @@ const EventCard = ({ event }) => {
             {/* Date */}
             <EventInfoRow>
               <IconCalendar size={15} color="#AE9964" />
-              <EventDetailText>{event.date}</EventDetailText>
+              <EventDetailText>
+                {`${event.day}, ${formatISTDateRange(
+                  event.startDate,
+                  event.endDate
+                )}`}
+              </EventDetailText>
             </EventInfoRow>
 
             {/* Time & Location */}
             <Stack direction="row" spacing={2}>
               <EventInfoRow>
                 <IconClock size={15} color="#AE9964" />
-                <EventDetailText>{event.time}</EventDetailText>
+                <EventDetailText>
+                  {formatISTTimeRange(event.startTime, event.endTime)}
+                </EventDetailText>
               </EventInfoRow>
               <EventInfoRow>
                 <IconMapPin size={15} color="#AE9964" />
-                <EventDetailText>{event.location}</EventDetailText>
+                <EventDetailText>{event.location.name}</EventDetailText>
               </EventInfoRow>
             </Stack>
 
@@ -278,19 +347,23 @@ const EventCard = ({ event }) => {
             <Stack direction="row" spacing={2}>
               <EventInfoRow>
                 <IconUser size={15} color="#AE9964" />
-                <EventDetailText>{event.instructor}</EventDetailText>
+                <EventDetailText>
+                  {`${event.instructor.firstName.trim() || ""} ${
+                    event.instructor.lastName.trim() || ""
+                  }`.trim()}
+                </EventDetailText>
               </EventInfoRow>
               <EventInfoRow>
                 <IconArmchair size={15} color="#AE9964" />
                 <EventDetailText>
-                  {event.availableSlots}/{event.totalSlots}
+                  {event?.slots || event.availableSeats}/{event.availableSeats}
                 </EventDetailText>
               </EventInfoRow>
             </Stack>
           </EventItemContent>
 
           <EventActions>
-            <DetailChip label={event.price} size="small" />
+            <DetailChip label={`$${event.fees ?? 0}`} size="small" />
           </EventActions>
         </EventItemHeader>
 
@@ -305,6 +378,7 @@ const EventCard = ({ event }) => {
           <DeleteButton
             startIcon={<IconTrash size={12} />}
             onClick={handleDeleteEvent}
+            disabled={deleteLoading}
           >
             Delete Event
           </DeleteButton>
@@ -313,7 +387,22 @@ const EventCard = ({ event }) => {
       <CreateEvent
         open={openEventModal}
         onClose={handleCloseEventModal}
-        eventId={event.id}
+        eventData={event}
+        type="edit"
+        categories={categories}
+        setAlert={setAlert}
+        setOverlayLoading={setOverlayLoading}
+        locations={locationList}
+        instructors={instructorList}
+      />
+
+      <ConfirmationDialog
+        open={openDeleteModal}
+        onClose={handleCloseDeleteModal}
+        title={deleteTitle}
+        message={deleteMessage}
+        showDelete={deleteStatus}
+        onConfirm={deleteSelectedEvent}
       />
     </StyledCard>
   );

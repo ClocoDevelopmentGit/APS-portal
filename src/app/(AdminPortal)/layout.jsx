@@ -2,11 +2,13 @@
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import { styled, useTheme } from "@mui/material/styles";
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import Header from "./layout/vertical/header/Header";
 import Sidebar from "./layout/vertical/sidebar/Sidebar";
 import { CustomizerContext } from "@/app/context/customizerContext";
 import config from "@/app/context/config";
+import { useDispatch } from "react-redux";
+import { fetchCurrentUser } from "@/redux/slices/userSlice";
 
 const MainWrapper = styled("div")(() => ({
   display: "flex",
@@ -28,6 +30,11 @@ export default function RootLayout({ children }) {
   const { isLayout, activeMode, isCollapse } = useContext(CustomizerContext);
   const theme = useTheme();
   const MiniSidebarWidth = config.miniSidebarWidth;
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(fetchCurrentUser());
+  }, [dispatch]);
 
   return (
     <MainWrapper className="mainwrapper">

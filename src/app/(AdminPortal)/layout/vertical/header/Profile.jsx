@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
@@ -7,20 +7,70 @@ import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
 import Menu from "@mui/material/Menu";
 import Typography from "@mui/material/Typography";
+import { styled } from "@mui/material/styles";
 import * as dropdownData from "./data";
-
 import { IconMail } from "@tabler/icons-react";
 import { Stack } from "@mui/system";
 import Image from "next/image";
+import { useDispatch, useSelector } from "react-redux";
+import { RiNumbersFill } from "react-icons/ri";
+import { logoutUser } from "@/redux/slices/userSlice";
+import { useRouter } from "next/navigation";
+
+const LogoutButton = styled(Button)({
+  backgroundColor: "#AE9964",
+  color: "#FFFFFF",
+  border: " none",
+  "&:hover": {
+    backgroundColor: "#9d8757",
+  },
+});
 
 const Profile = () => {
   const [anchorEl2, setAnchorEl2] = useState(null);
+  const [userData, setUserData] = useState(null);
+  const dispatch = useDispatch();
+  const router = useRouter();
+
+  const { user } = useSelector((state) => state.user);
   const handleClick2 = (event) => {
     setAnchorEl2(event.currentTarget);
   };
   const handleClose2 = () => {
     setAnchorEl2(null);
   };
+
+  const logout = async () => {
+    await dispatch(logoutUser())
+      .unwrap()
+      .then(() => {
+        console.log("User logged out successfully");
+        // router.replace("http://localhost:3000/Pages/LoginPage");
+        router.replace("https://apsdev.cloco.com.au/Pages/LoginPage");
+      })
+      .catch((error) => {
+        console.error("Error logging out user:", error);
+      });
+  };
+
+  useEffect(() => {
+    const fetchData = () => {
+      let storedUser = null;
+
+      if (typeof window !== "undefined") {
+        const userDetails = localStorage.getItem("user");
+        storedUser = userDetails ? JSON.parse(userDetails) : RiNumbersFill;
+      }
+
+      if (user) {
+        setUserData(user);
+      } else {
+        setUserData(storedUser);
+      }
+    };
+
+    fetchData();
+  }, [user]);
 
   return (
     <Box>
@@ -38,7 +88,7 @@ const Profile = () => {
       >
         <Avatar
           src={"/images/profile/user-1.jpg"}
-          alt={"Cloco"}
+          alt={userData?.firstName}
           sx={{
             width: 30,
             height: 30,
@@ -75,7 +125,7 @@ const Profile = () => {
         >
           <Avatar
             src={"/images/profile/user-1.jpg"}
-            alt={"ProfileImg"}
+            alt={userData?.firstName}
             sx={{ width: 95, height: 95 }}
           />
           <Box>
@@ -86,11 +136,11 @@ const Profile = () => {
                 fontWeight: 600,
               }}
             >
-              Mathew Anderson
+              {userData?.firstName} {userData?.lastName}
             </Typography>
-            <Typography variant="subtitle2" color="textSecondary">
+            {/* <Typography variant="subtitle2" color="textSecondary">
               Designer
-            </Typography>
+            </Typography> */}
             <Typography
               variant="subtitle2"
               color="textSecondary"
@@ -101,12 +151,12 @@ const Profile = () => {
               }}
             >
               <IconMail width={15} height={15} />
-              info@modernize.com
+              {userData?.email}
             </Typography>
           </Box>
         </Stack>
         <Divider />
-        {dropdownData.profile.map((profile) => (
+        {/* {dropdownData.profile.map((profile) => (
           <Box key={profile.title}>
             <Box sx={{ py: 2, px: 0 }} className="hover-text-primary">
               <Link href={profile.href}>
@@ -160,13 +210,13 @@ const Profile = () => {
               </Link>
             </Box>
           </Box>
-        ))}
+        ))} */}
         <Box
           sx={{
             mt: 2,
           }}
         >
-          <Box
+          {/* <Box
             sx={{
               bgcolor: "primary.light",
               p: 3,
@@ -208,16 +258,15 @@ const Profile = () => {
                 className="signup-bg"
               />
             </Box>
-          </Box>
-          <Button
-            href="/auth/auth1/login"
+          </Box> */}
+          <LogoutButton
+            onClick={logout}
             variant="outlined"
             color="primary"
-            component={Link}
             fullWidth
           >
             Logout
-          </Button>
+          </LogoutButton>
         </Box>
       </Menu>
     </Box>

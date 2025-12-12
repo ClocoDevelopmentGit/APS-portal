@@ -15,6 +15,9 @@ import {
   IconButton,
   TextField,
   Portal,
+  FormControl,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { IconCheck, IconX } from "@tabler/icons-react";
@@ -203,6 +206,53 @@ const CancelIconButton = styled(IconButton)({
   },
 });
 
+const StyledFormControl = styled(FormControl)({
+  width: "100%",
+  "& .MuiOutlinedInput-root": {
+    borderRadius: "8px",
+    backgroundColor: "#FFFFFF",
+    fontSize: "13px",
+    fontWeight: 400,
+    "& fieldset": {
+      borderColor: "#E0E0E0",
+    },
+    "&:hover fieldset": {
+      borderColor: "#AE9964",
+    },
+    "&.Mui-focused fieldset": {
+      borderColor: "#AE9964",
+      borderWidth: "2px",
+    },
+  },
+  "& .MuiSelect-select": {
+    padding: "10px 14px",
+    fontSize: "13px",
+    fontWeight: 400,
+    color: "#181818",
+  },
+  "& .MuiSelect-icon": {
+    color: "#2A3547",
+  },
+});
+
+const StyledMenuItem = styled(MenuItem)({
+  fontSize: "13px",
+  color: "#181818",
+  fontWeight: 400,
+  padding: "10px 16px",
+  "&:hover": {
+    backgroundColor: "#FEF7EA",
+  },
+  "&.Mui-selected": {
+    backgroundColor: "#FEF7EA",
+    color: "#B38349",
+    fontWeight: 500,
+    "&:hover": {
+      backgroundColor: "#FEF7EA",
+    },
+  },
+});
+
 const StyledTextField = styled(TextField)({
   "& .MuiOutlinedInput-root": {
     fontSize: "14px",
@@ -228,7 +278,7 @@ const CourseCategory = () => {
   const { categories, error } = useSelector((state) => state.category);
   const [categoriesList, setCategoriesList] = useState();
   const [editingId, setEditingId] = useState(null);
-  const [editForm, setEditForm] = useState({ name: "" });
+  const [editForm, setEditForm] = useState({ name: "", type: "" });
   const [openModal, setOpenModal] = useState(false);
   const [alert, setAlert] = useState({ severity: "", message: "" });
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
@@ -332,6 +382,7 @@ const CourseCategory = () => {
 
     const toggled = {
       name: updatedData.name,
+      type: updatedData.type,
       isActive: !updatedData.isActive,
     };
 
@@ -367,6 +418,7 @@ const CourseCategory = () => {
     setEditingId(category.id);
     setEditForm({
       name: category.name,
+      type: category.type,
     });
   };
 
@@ -378,6 +430,7 @@ const CourseCategory = () => {
 
     const editedData = {
       name: editForm.name,
+      type: editForm.type,
       isActive: updatedData.isActive,
     };
 
@@ -393,7 +446,7 @@ const CourseCategory = () => {
           setCategoriesList(newList);
           setAlert({
             severity: "success",
-            message: "Category Name Updated Successfully",
+            message: "Category Updated Successfully",
           });
         });
     } catch (error) {
@@ -405,12 +458,12 @@ const CourseCategory = () => {
       setOverlayLoading(false);
     }
     setEditingId(null);
-    setEditForm({ name: "" });
+    setEditForm({ name: "", type: "" });
   };
 
   const handleCancel = () => {
     setEditingId(null);
-    setEditForm({ name: "" });
+    setEditForm({ name: "", type: "" });
   };
 
   const handleChange = (field, value) => {
@@ -421,7 +474,7 @@ const CourseCategory = () => {
   };
 
   if (loading) {
-    return <Loading />;
+    return <Loading overlay={false} />;
   }
 
   return (
@@ -458,6 +511,7 @@ const CourseCategory = () => {
             <StyledTableHead>
               <TableRow>
                 <StyledHeaderCell>Category Name</StyledHeaderCell>
+                <StyledHeaderCell>Category Type</StyledHeaderCell>
                 <StyledHeaderCell align="center">Status</StyledHeaderCell>
                 <StyledHeaderCell align="center">Edit</StyledHeaderCell>
               </TableRow>
@@ -477,6 +531,37 @@ const CourseCategory = () => {
                         />
                       ) : (
                         category.name
+                      )}
+                    </StyledTableCell>
+
+                    <StyledTableCell>
+                      {editingId === category.id ? (
+                        <StyledFormControl fullWidth>
+                          <Select
+                            value={editForm.type}
+                            onChange={(e) =>
+                              handleChange("type", e.target.value)
+                            }
+                            displayEmpty
+                            renderValue={(selected) => {
+                              if (!selected) {
+                                return (
+                                  <span style={{ color: "#999999" }}>
+                                    Select Type
+                                  </span>
+                                );
+                              }
+                              return selected;
+                            }}
+                          >
+                            <StyledMenuItem value="Course">
+                              Course
+                            </StyledMenuItem>
+                            <StyledMenuItem value="Event">Event</StyledMenuItem>
+                          </Select>
+                        </StyledFormControl>
+                      ) : (
+                        category.type
                       )}
                     </StyledTableCell>
 
