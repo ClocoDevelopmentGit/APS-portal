@@ -329,17 +329,19 @@ const CourseCategory = () => {
 
   const handleDelete = (category) => {
     setCategoryToDelete(category);
+    const coursesCount = category?.courses?.length || 0;
+    const eventsCount = category?.events?.length || 0;
+    const totalCount = coursesCount + eventsCount;
     setDeleteTitle(
-      category?.courses?.length === 0
-        ? "Are you Sure?"
-        : "Cannot Delete Category!"
+      totalCount === 0 ? "Are you Sure?" : "Cannot Delete Category!"
     );
-    setDeleteStatus(category?.courses?.length === 0 ? true : false);
+    setDeleteStatus(totalCount === 0 ? true : false);
+
     setDeleteMessage(
-      category?.courses?.length === 0
+      totalCount === 0
         ? `The category "${category?.name}" will be deleted.`
-        : `This category has ${category?.courses?.length} course${
-            category?.courses?.length > 1 ? "s" : ""
+        : `This category has ${totalCount} item${
+            totalCount > 1 ? "s" : ""
           } assigned to it. Therefore, "${category?.name}" cannot be deleted.`
     );
     setOpenConfirmDialog(true);
@@ -363,7 +365,7 @@ const CourseCategory = () => {
           message: error,
         });
       } finally {
-        setLoading(false);
+        setOverlayLoading(false);
       }
       setCategoryToDelete(null);
     }
@@ -503,7 +505,7 @@ const CourseCategory = () => {
 
       {/* Content Card */}
       <ContentCard>
-        <SectionTitle>List of Course Categories</SectionTitle>
+        <SectionTitle>List of Categories</SectionTitle>
 
         {/* Table */}
         <StyledTableContainer>
@@ -557,7 +559,9 @@ const CourseCategory = () => {
                             <StyledMenuItem value="Course">
                               Course
                             </StyledMenuItem>
-                            <StyledMenuItem value="Event">Event</StyledMenuItem>
+                            <StyledMenuItem value="Workshop">
+                              Workshop
+                            </StyledMenuItem>
                           </Select>
                         </StyledFormControl>
                       ) : (

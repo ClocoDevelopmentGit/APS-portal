@@ -263,8 +263,9 @@ const eventsData = [
 
 const EventsPage = () => {
   const dispatch = useDispatch();
-  const [eventNameFilter, setEventNameFilter] = useState("");
+  const [eventNameFilter, setEventNameFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState("all");
   const [openModal, setOpenModal] = useState(false);
   const { events, filteredEvents, error } = useSelector((state) => state.event);
   const { categories } = useSelector((state) => state.category);
@@ -304,26 +305,28 @@ const EventsPage = () => {
 
       if (categories && categories.length > 0) {
         const courseCategories = categories.filter(
-          (category) => category.type === "Event"
+          (category) => category.type === "Workshop" && category.isActive
         );
         setCategoriesList(courseCategories);
       } else {
         const courseCategories = storedCategories.filter(
-          (category) => category.type === "Event"
+          (category) => category.type === "Workshop" && category.isActive
         );
         setCategoriesList(courseCategories);
       }
 
       if (locations.length > 0) {
-        setLocationList(locations);
+        setLocationList(locations.filter((location) => location.isActive));
       } else {
-        setLocationList(storedLocations);
+        setLocationList(
+          storedLocations.filter((location) => location.isActive)
+        );
       }
 
       if (staffs.length > 0) {
-        setInstructorList(staffs.length > 0 ? staffs : storedStaffs);
+        setInstructorList(staffs.filter((staff) => staff.isActive));
       } else {
-        setInstructorList(storedStaffs);
+        setInstructorList(storedStaffs.filter((staff) => staff.isActive));
       }
       setLoading(false);
     };
@@ -357,13 +360,18 @@ const EventsPage = () => {
       filterLength++;
     }
 
+    if (categoryFilter !== "all") {
+      filters.categoryId = categoryFilter;
+      filterLength++;
+    }
+
     if (statusFilter !== "all") {
       filters.isActive = statusFilter === "active" ? true : false;
       filterLength++;
     }
 
     return { filters, length: filterLength };
-  }, [eventNameFilter, statusFilter]);
+  }, [eventNameFilter, statusFilter, categoryFilter]);
 
   useEffect(() => {
     const setFilters = async () => {
@@ -400,11 +408,11 @@ const EventsPage = () => {
       )}
       <HeaderSection>
         <TitleSection>
-          <PageTitle>Events Management</PageTitle>
-          <PageSubtitle>Manage Events, Workshops etc...</PageSubtitle>
+          <PageTitle>Workshops Management</PageTitle>
+          <PageSubtitle>Manage Workshops, Holiday Programs etc...</PageSubtitle>
         </TitleSection>
         <AddButton startIcon={<IconPlus size={18} />} onClick={handleOpenModal}>
-          Add New Event
+          Add New Workshop
         </AddButton>
       </HeaderSection>
 
@@ -420,16 +428,44 @@ const EventsPage = () => {
             onChange={(e) => setEventNameFilter(e.target.value)}
             displayEmpty
             renderValue={(selected) => {
-              if (!selected) {
+              if (!selected && selected === "all") {
                 return <span style={{ color: "#999999" }}>Event Name</span>;
               }
-              return <span style={{ color: "#181818" }}>{selected}</span>;
+              const selectedEvent = events.find((c) => c.id === selected);
+              return selectedEvent?.title || "Event Name";
             }}
           >
-            <StyledMenuItem value="">All Events</StyledMenuItem>
+            <StyledMenuItem value="all">All Events</StyledMenuItem>
             {events?.map((event) => (
               <StyledMenuItem key={event.title} value={event.title}>
                 {event.title}
+              </StyledMenuItem>
+            ))}
+          </Select>
+        </StyledFormControl>
+
+        {/* Course Category Filter */}
+        <StyledFormControl size="small" width="150px">
+          <Select
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+            displayEmpty
+            renderValue={(selected) => {
+              if (!selected || selected === "all") {
+                return (
+                  <span style={{ color: "#999999" }}>Course Category</span>
+                );
+              }
+              const selectedCourse = categoriesList.find(
+                (c) => c.id === selected
+              );
+              return selectedCourse?.name || "Course Name";
+            }}
+          >
+            <StyledMenuItem value="all">All Categories</StyledMenuItem>
+            {categoriesList?.map((category) => (
+              <StyledMenuItem key={category.id} value={category.id}>
+                {category.name}
               </StyledMenuItem>
             ))}
           </Select>

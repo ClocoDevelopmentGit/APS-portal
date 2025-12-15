@@ -294,7 +294,7 @@ const CreateCourse = ({
       }
     };
     fetchData();
-  }, [data]);
+  }, [data, open]);
 
   const handleFileSelect = (file, previewUrl) => {
     setCourseImage({ file, previewUrl });

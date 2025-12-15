@@ -20,13 +20,13 @@ const Menuitems = [
   },
   {
     id: uniqueId(),
-    title: "Events",
+    title: "Workshops",
     icon: BiCalendarEvent,
     href: "/admin/events",
   },
   {
     id: uniqueId(),
-    title: "Course Category",
+    title: "Category",
     icon: IoMdPricetag,
     href: "/admin/category",
   },

@@ -202,6 +202,7 @@ const CancelButton = styled(Button)({
 const CreateCategory = ({ open, onClose, setAlert, setOverlayLoading }) => {
   const [formData, setFormData] = useState({
     categoryName: "",
+    type: "",
     status: "",
   });
   const [errors, setErrors] = useState({});
@@ -219,6 +220,7 @@ const CreateCategory = ({ open, onClose, setAlert, setOverlayLoading }) => {
     const newErrors = {};
     const fieldLabels = {
       categoryName: "Category Name",
+      type: "Type",
       status: "Status",
     };
 
@@ -249,6 +251,7 @@ const CreateCategory = ({ open, onClose, setAlert, setOverlayLoading }) => {
 
     const payload = {
       name: formData.categoryName,
+      type: formData.type,
       isActive: formData.status === "Active",
     };
 
@@ -282,6 +285,7 @@ const CreateCategory = ({ open, onClose, setAlert, setOverlayLoading }) => {
   const handleCancel = () => {
     setFormData({
       categoryName: "",
+      type: "",
       status: "",
     });
     onClose();
@@ -307,6 +311,28 @@ const CreateCategory = ({ open, onClose, setAlert, setOverlayLoading }) => {
             onChange={(e) => handleChange("categoryName", e.target.value)}
           />
           {errors.categoryName && <ErrorText>{errors.categoryName}</ErrorText>}
+        </Box>
+
+        {/* Status */}
+        <Box>
+          <FormLabel>Type:</FormLabel>
+          <StyledFormControl fullWidth>
+            <Select
+              value={formData.type}
+              onChange={(e) => handleChange("type", e.target.value)}
+              displayEmpty
+              renderValue={(selected) => {
+                if (!selected) {
+                  return <span style={{ color: "#999999" }}>Select Type</span>;
+                }
+                return selected;
+              }}
+            >
+              <StyledMenuItem value="Course">Course</StyledMenuItem>
+              <StyledMenuItem value="Workshop">Workshop</StyledMenuItem>
+            </Select>
+            {errors.status && <ErrorText>{errors.status}</ErrorText>}
+          </StyledFormControl>
         </Box>
 
         {/* Status */}

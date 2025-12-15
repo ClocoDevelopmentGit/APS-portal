@@ -374,7 +374,7 @@ const CreateEvent = ({
       setEventMedia({ file: null, previewUrl: eventData.mediaUrl || null });
     };
     fetchData();
-  }, [eventData]);
+  }, [eventData, open]);
 
   const handleFileSelect = (file, previewUrl) => {
     setEventMedia({ file, previewUrl });
@@ -589,7 +589,7 @@ const CreateEvent = ({
           fullWidth
         >
           <StyledDialogTitle>
-            Create New Event
+            {type === "add" ? "Create New Workshop" : "Update Workshop"}
             <CloseButton onClick={handleCancel}>
               <IconX size={20} />
             </CloseButton>
@@ -598,7 +598,7 @@ const CreateEvent = ({
           <StyledDialogContent>
             {/* Instructor Name */}
             <Box sx={{ marginBottom: "20px" }}>
-              <FormLabel>Event Name:</FormLabel>
+              <FormLabel>Name:</FormLabel>
               <StyledTextField
                 fullWidth
                 placeholder="Acting Basics"

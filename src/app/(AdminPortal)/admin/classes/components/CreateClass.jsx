@@ -396,7 +396,7 @@ const CreateClass = ({
       setIsRoomPresent(classData.room ? true : false);
     };
     fetchData();
-  }, [classData]);
+  }, [classData, open]);
 
   const handleChange = (field, value) => {
     setFormData({
