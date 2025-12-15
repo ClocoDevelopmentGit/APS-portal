@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+axios.defaults.withCredentials = true;
 
 const API_URL = "https://aps-backend.cloco.com.au";
 // const API_URL = "http://localhost:9000";
