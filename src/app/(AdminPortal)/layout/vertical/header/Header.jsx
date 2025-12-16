@@ -70,7 +70,7 @@ const Header = () => {
         {/* ------------------------------------------- */}
         {/* Search Dropdown */}
         {/* ------------------------------------------- */}
-        <Search />
+        {/* <Search /> */}
 
         <Box
           sx={{
@@ -85,7 +85,7 @@ const Header = () => {
           }}
         >
           <Notifications />
-          <Cart />
+          {/* <Cart /> */}
           <Profile />
         </Stack>
       </ToolbarStyled>

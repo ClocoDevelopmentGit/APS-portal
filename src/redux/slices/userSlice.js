@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+axios.defaults.withCredentials = true;
 
 const API_URL = "https://aps-backend.cloco.com.au";
 // const API_URL = "http://localhost:9000";
@@ -24,15 +25,13 @@ export const fetchAllStaffs = createAsyncThunk(
   }
 );
 
-export const fetchCategoryId = createAsyncThunk(
+export const fetchCurrentUser = createAsyncThunk(
   "user/fetchById",
-  async (id, { rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
-      if (!id) {
-        return rejectWithValue("Category ID is required for fetching");
-      }
-      const response = await axios.get(`${API_URL}/api/user/get/${id}`);
-      localStorage.setItem("userById", JSON.stringify(response?.data?.user));
+      const response = await axios.get(`${API_URL}/api/user/me`);
+      localStorage.setItem("user", JSON.stringify(response?.data?.user));
+      localStorage.setItem("token", response?.data?.token);
       return response?.data?.user;
     } catch (error) {
       const message =
@@ -44,58 +43,26 @@ export const fetchCategoryId = createAsyncThunk(
   }
 );
 
-export const createCategory = createAsyncThunk(
-  "user/create",
-  async ({ formData }, { rejectWithValue }) => {
+export const logoutUser = createAsyncThunk(
+  "auth/logout",
+  async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${API_URL}/api/user/add`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      return response?.data?.user;
+      await axios.post(
+        `${API_URL}/api/user/logout`,
+        {},
+        { withCredentials: true }
+      );
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      return null;
     } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.message || "Failed to create user"
-      );
-    }
-  }
-);
-
-export const updateCategory = createAsyncThunk(
-  "user/update",
-  async ({ id, formData }, { rejectWithValue }) => {
-    try {
-      if (!id) {
-        return rejectWithValue("Category ID is required for update");
-      }
-      const response = await axios.put(
-        `${API_URL}/api/user/update/${id}`,
-        formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
-      );
-      return response?.data?.user;
-    } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.message || "Failed to create user"
-      );
-    }
-  }
-);
-
-export const deleteCategory = createAsyncThunk(
-  "user/delete",
-  async (id, { rejectWithValue }) => {
-    try {
-      if (!id) {
-        return rejectWithValue("Category ID is required for delete");
-      }
-      await axios.delete(`${API_URL}/api/user/delete/${id}`);
-      return id;
-    } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.message || "Failed to create user"
-      );
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      const message =
+        error.response?.data?.message ||
+        error.message ||
+        "Logout failed. Please try again.";
+      return rejectWithValue(message);
     }
   }
 );
@@ -110,10 +77,10 @@ const getInitialUsers = () => {
 
 const getInitialUser = () => {
   if (typeof window !== "undefined") {
-    const saved = localStorage.getItem("userById");
-    return saved ? JSON.parse(saved) : [];
+    const saved = localStorage.getItem("user");
+    return saved || saved !== "undefined" ? JSON.parse(saved) : null;
   }
-  return [];
+  return null;
 };
 
 const getInitialStaffs = () => {
@@ -140,64 +107,35 @@ const userSlice = createSlice({
       })
       .addCase(fetchAllStaffs.fulfilled, (state, action) => {
         state.loading = false;
-        state.users = action.payload;
+        state.staffs = action.payload;
       })
       .addCase(fetchAllStaffs.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       })
-      .addCase(fetchCategoryId.pending, (state) => {
+      .addCase(fetchCurrentUser.pending, (state) => {
         state.loading = true;
       })
-      .addCase(fetchCategoryId.fulfilled, (state, action) => {
+      .addCase(fetchCurrentUser.fulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload;
       })
-      .addCase(fetchCategoryId.rejected, (state, action) => {
+      .addCase(fetchCurrentUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       })
-      .addCase(createCategory.pending, (state) => {
+      .addCase(logoutUser.pending, (state) => {
         state.loading = true;
+      })
+      .addCase(logoutUser.fulfilled, (state) => {
+        state.loading = false;
+        state.user = null;
         state.error = null;
       })
-      .addCase(createCategory.fulfilled, (state, action) => {
-        state.loading = false;
-        state.users.unshift(action.payload);
-        localStorage.setItem("allUsers", JSON.stringify(state.users));
-      })
-      .addCase(createCategory.rejected, (state, action) => {
+      .addCase(logoutUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-      })
-      .addCase(updateCategory.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(updateCategory.fulfilled, (state, action) => {
-        state.loading = false;
-        const updated = action.payload;
-        const index = state.users.findIndex((c) => c.id === updated.id);
-        if (index !== -1) {
-          state.users[index] = updated;
-        }
-        localStorage.setItem("allUsers", JSON.stringify(state.users));
-      })
-      .addCase(updateCategory.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
-      .addCase(deleteCategory.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(deleteCategory.fulfilled, (state, action) => {
-        state.loading = false;
-        state.users = state.users.filter((c) => c.id !== action.payload);
-      })
-      .addCase(deleteCategory.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
+        state.user = null;
       });
   },
 });

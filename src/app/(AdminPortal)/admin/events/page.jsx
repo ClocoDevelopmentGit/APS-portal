@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -7,11 +7,16 @@ import {
   Select,
   MenuItem,
   FormControl,
+  Portal,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { IconPlus } from "@tabler/icons-react";
 import EventCard from "./components/EventCard";
 import CreateEvent from "./components/CreateEvent";
+import { useDispatch, useSelector } from "react-redux";
+import Alerts from "@/app/components/Alert/Alert";
+import Loading from "@/app/loading";
+import { fetchAllEvents } from "@/redux/slices/eventSlice";
 
 // ==================== STYLED COMPONENTS ====================
 
@@ -161,7 +166,7 @@ const eventsData = [
     title: "Casting Workshop with Thea McLeod",
     description:
       "This 4-hour workshop gives actors the chance to work with a professional casting director...",
-    image: "/images/classes.png",
+    image: "/Images/classes.png",
     category: "Workshop",
     date: "Tuesday, 7 Oct - 2 Dec 2025",
     time: "4:45pm - 6:45pm",
@@ -177,7 +182,7 @@ const eventsData = [
     title: "Casting Workshop with Thea McLeod",
     description:
       "This 4-hour workshop gives actors the chance to work with a professional casting director...",
-    image: "/images/classes.png",
+    image: "/Images/classes.png",
     category: "Workshop",
     date: "Tuesday, 7 Oct - 2 Dec 2025",
     time: "4:45pm - 6:45pm",
@@ -193,7 +198,7 @@ const eventsData = [
     title: "January Summer Holiday Program",
     description:
       "This 10-day workshop gives actors the chance to work with a professional casting director...",
-    image: "/images/classes.png",
+    image: "/Images/classes.png",
     category: "Program",
     date: "Tuesday, 7 Oct - 2 Dec 2025",
     time: "4:45pm - 6:45pm",
@@ -209,7 +214,7 @@ const eventsData = [
     title: "Casting Workshop with Thea McLeod",
     description:
       "This 4-hour workshop gives actors the chance to work with a professional casting director...",
-    image: "/images/classes.png",
+    image: "/Images/classes.png",
     category: "Workshop",
     date: "Tuesday, 7 Oct - 2 Dec 2025",
     time: "4:45pm - 6:45pm",
@@ -225,7 +230,7 @@ const eventsData = [
     title: "Casting Workshop with Thea McLeod",
     description:
       "This 4-hour workshop gives actors the chance to work with a professional casting director...",
-    image: "/images/classes.png",
+    image: "/Images/classes.png",
     category: "Workshop",
     date: "Tuesday, 7 Oct - 2 Dec 2025",
     time: "4:45pm - 6:45pm",
@@ -241,7 +246,7 @@ const eventsData = [
     title: "January Summer Holiday Program",
     description:
       "This 10-day workshop gives actors the chance to work with a professional casting director...",
-    image: "/images/classes.png",
+    image: "/Images/classes.png",
     category: "Program",
     date: "Tuesday, 7 Oct - 2 Dec 2025",
     time: "4:45pm - 6:45pm",
@@ -257,9 +262,83 @@ const eventsData = [
 // ==================== COMPONENT ====================
 
 const EventsPage = () => {
+  const dispatch = useDispatch();
   const [eventNameFilter, setEventNameFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [openModal, setOpenModal] = useState(false);
+  const { events, filteredEvents, error } = useSelector((state) => state.event);
+  const { categories } = useSelector((state) => state.category);
+  const { locations } = useSelector((state) => state.location);
+  const { staffs } = useSelector((state) => state.user);
+  const [eventsList, setEventsList] = useState([]);
+  const [categoriesList, setCategoriesList] = useState([]);
+  const [alert, setAlert] = useState({ severity: "", message: "" });
+  const [loading, setLoading] = useState(true);
+  const [overlayLoading, setOverlayLoading] = useState(false);
+  const [locationList, setLocationList] = useState([]);
+  const [instructorList, setInstructorList] = useState([]);
+
+  useEffect(() => {
+    const fetchData = () => {
+      let storedEvents = [];
+      let storedCategories = [];
+      let storedStaffs = [];
+      let storedLocations = [];
+
+      if (typeof window !== "undefined") {
+        const eventsData = localStorage.getItem("allEvents");
+        const categoriesData = localStorage.getItem("allCategories");
+        const locationsData = localStorage.getItem("allLocations");
+        const staffsData = localStorage.getItem("allStaffs");
+        storedEvents = eventsData ? JSON.parse(eventsData) : [];
+        storedCategories = categoriesData ? JSON.parse(categoriesData) : [];
+        storedLocations = locationsData ? JSON.parse(locationsData) : [];
+        storedStaffs = staffsData ? JSON.parse(staffsData) : [];
+      }
+
+      if (filteredEvents && filteredEvents.length > 0) {
+        setEventsList(filteredEvents);
+      } else {
+        setEventsList(storedEvents);
+      }
+
+      if (categories && categories.length > 0) {
+        const courseCategories = categories.filter(
+          (category) => category.type === "Event"
+        );
+        setCategoriesList(courseCategories);
+      } else {
+        const courseCategories = storedCategories.filter(
+          (category) => category.type === "Event"
+        );
+        setCategoriesList(courseCategories);
+      }
+
+      if (locations.length > 0) {
+        setLocationList(locations);
+      } else {
+        setLocationList(storedLocations);
+      }
+
+      if (staffs.length > 0) {
+        setInstructorList(staffs.length > 0 ? staffs : storedStaffs);
+      } else {
+        setInstructorList(storedStaffs);
+      }
+      setLoading(false);
+    };
+
+    fetchData();
+  }, [filteredEvents, categories, locations, staffs]);
+
+  useEffect(() => {
+    const errorSet = () => {
+      if (error) {
+        setAlert({ severity: "error", message: error });
+      }
+    };
+    errorSet();
+  }, [error]);
 
   const handleOpenModal = () => {
     setOpenModal(true);
@@ -269,9 +348,56 @@ const EventsPage = () => {
     setOpenModal(false);
   };
 
+  const buildFilters = useCallback(() => {
+    const filters = {};
+    let filterLength = 0;
+
+    if (eventNameFilter !== "all" && eventNameFilter !== "") {
+      filters.title = eventNameFilter;
+      filterLength++;
+    }
+
+    if (statusFilter !== "all") {
+      filters.isActive = statusFilter === "active" ? true : false;
+      filterLength++;
+    }
+
+    return { filters, length: filterLength };
+  }, [eventNameFilter, statusFilter]);
+
+  useEffect(() => {
+    const setFilters = async () => {
+      setOverlayLoading(true);
+      try {
+        const filters = buildFilters();
+        await dispatch(fetchAllEvents(filters)).unwrap();
+      } catch (error) {
+        setAlert({ severity: "error", message: error });
+      } finally {
+        setOverlayLoading(false);
+      }
+    };
+    setFilters();
+  }, [eventNameFilter, statusFilter, buildFilters, dispatch]);
+
+  if (loading) {
+    return <Loading overlay={false} />;
+  }
+
   return (
     <PageContainer>
-      {/* Header */}
+      {alert.message && (
+        <Alerts
+          severity={alert.severity}
+          message={alert.message}
+          onClose={() => setAlert({ severity: "", message: "" })}
+        />
+      )}
+      {overlayLoading && (
+        <Portal>
+          <Loading overlay={true} />
+        </Portal>
+      )}
       <HeaderSection>
         <TitleSection>
           <PageTitle>Events Management</PageTitle>
@@ -301,15 +427,11 @@ const EventsPage = () => {
             }}
           >
             <StyledMenuItem value="">All Events</StyledMenuItem>
-            <StyledMenuItem value="Casting Workshop">
-              Casting Workshop
-            </StyledMenuItem>
-            <StyledMenuItem value="Summer Program">
-              Summer Program
-            </StyledMenuItem>
-            <StyledMenuItem value="Acting Workshop">
-              Acting Workshop
-            </StyledMenuItem>
+            {events?.map((event) => (
+              <StyledMenuItem key={event.title} value={event.title}>
+                {event.title}
+              </StyledMenuItem>
+            ))}
           </Select>
         </StyledFormControl>
 
@@ -320,28 +442,64 @@ const EventsPage = () => {
             onChange={(e) => setStatusFilter(e.target.value)}
             displayEmpty
             renderValue={(selected) => {
-              if (!selected) {
+              if (!selected || selected === "all") {
                 return <span style={{ color: "#999999" }}>Status</span>;
               }
-              return <span style={{ color: "#181818" }}>{selected}</span>;
+              const statusNames = {
+                active: "Active",
+                inactive: "Inactive",
+              };
+              return statusNames[selected] || "Status";
             }}
           >
-            <StyledMenuItem value="">All Status</StyledMenuItem>
-            <StyledMenuItem value="Active">Active</StyledMenuItem>
-            <StyledMenuItem value="Inactive">Inactive</StyledMenuItem>
+            <StyledMenuItem value="all">All Status</StyledMenuItem>
+            <StyledMenuItem value="active">Active</StyledMenuItem>
+            <StyledMenuItem value="inactive">Inactive</StyledMenuItem>
           </Select>
         </StyledFormControl>
       </FilterSection>
 
       {/* Events Grid */}
-      <EventsGrid>
-        {eventsData.map((event) => (
-          <EventCard key={event.id} event={event} />
-        ))}
-      </EventsGrid>
+
+      {eventsList.length > 0 ? (
+        <EventsGrid>
+          {eventsList.map((event) => (
+            <EventCard
+              key={event.id}
+              event={event}
+              categories={categoriesList}
+              setAlert={setAlert}
+              setOverlayLoading={setOverlayLoading}
+              locationList={locationList}
+              instructorList={instructorList}
+            />
+          ))}
+        </EventsGrid>
+      ) : (
+        <Typography
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "20px",
+          }}
+          variant="body2"
+        >
+          No events found.
+        </Typography>
+      )}
 
       {/* Create Event Modal */}
-      <CreateEvent open={openModal} onClose={handleCloseModal} />
+      <CreateEvent
+        open={openModal}
+        onClose={handleCloseModal}
+        type="add"
+        categories={categoriesList}
+        setAlert={setAlert}
+        setOverlayLoading={setOverlayLoading}
+        locations={locationList}
+        instructors={instructorList}
+      />
     </PageContainer>
   );
 };
