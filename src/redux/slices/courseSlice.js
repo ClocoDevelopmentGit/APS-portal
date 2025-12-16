@@ -343,6 +343,8 @@ const courseSlice = createSlice({
       .addCase(deleteClass.fulfilled, (state, action) => {
         state.loading = false;
         state.courses = action.payload;
+        state.filteredCourses = action.payload;
+        localStorage.setItem("allCourses", JSON.stringify(state.courses));
       })
       .addCase(deleteClass.rejected, (state, action) => {
         state.loading = false;

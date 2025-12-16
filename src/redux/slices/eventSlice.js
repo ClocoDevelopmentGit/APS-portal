@@ -180,10 +180,15 @@ const eventSlice = createSlice({
       .addCase(updateEvent.fulfilled, (state, action) => {
         state.loading = false;
         const updated = action.payload;
-        const index = state.events.findIndex((c) => c.id === updated.id);
-        if (index !== -1) {
-          state.events[index] = updated;
-          state.filteredEvents[index] = updated;
+        const mainIndex = state.events.findIndex((c) => c.id === updated.id);
+        if (mainIndex !== -1) {
+          state.events[mainIndex] = updated;
+        }
+        const filteredIndex = state.filteredEvents.findIndex(
+          (c) => c.id === updated.id
+        );
+        if (filteredIndex !== -1) {
+          state.filteredEvents[filteredIndex] = updated;
         }
         localStorage.setItem("allEvents", JSON.stringify(state.events));
       })

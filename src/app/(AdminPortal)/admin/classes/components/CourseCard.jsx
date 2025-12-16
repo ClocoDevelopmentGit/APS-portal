@@ -347,13 +347,15 @@ const CourseCard = ({ course, categories, setAlert, setOverlayLoading }) => {
       }
 
       if (locations.length > 0) {
-        setLocationList(locations);
+        setLocationList(locations.filter((location) => location.isActive));
       } else {
-        setLocationList(storedLocations);
+        setLocationList(
+          storedLocations.filter((location) => location.isActive)
+        );
       }
 
       if (staffs.length > 0) {
-        setInstructorList(staffs.length > 0 ? staffs : storedStaffs);
+        setInstructorList(staffs.filter((staff) => staff.isActive));
       } else {
         setInstructorList(storedStaffs);
       }

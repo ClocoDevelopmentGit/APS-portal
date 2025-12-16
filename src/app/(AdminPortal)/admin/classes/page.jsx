@@ -218,12 +218,12 @@ const ClassesPage = () => {
 
       if (categories && categories.length > 0) {
         const courseCategories = categories.filter(
-          (category) => category.type === "Course"
+          (category) => category.type === "Course" && category.isActive
         );
         setCategoriesList(courseCategories);
       } else {
         const courseCategories = storedCategories.filter(
-          (category) => category.type === "Course"
+          (category) => category.type === "Course" && category.isActive
         );
         setCategoriesList(courseCategories);
       }
@@ -423,9 +423,15 @@ const ClassesPage = () => {
         {coursesList.length > 0 ? (
           <>
             {/* Left Navigation Arrow */}
-            <NavButton className="nav-btn" position="left" onClick={handlePrev}>
-              <IconChevronLeft size={20} />
-            </NavButton>
+            {coursesList.length > 3 && (
+              <NavButton
+                className="nav-btn"
+                position="left"
+                onClick={handlePrev}
+              >
+                <IconChevronLeft size={20} />
+              </NavButton>
+            )}
 
             <Swiper
               ref={swiperRef}
@@ -465,13 +471,15 @@ const ClassesPage = () => {
             </Swiper>
 
             {/* Right Navigation Arrow */}
-            <NavButton
-              className="nav-btn"
-              position="right"
-              onClick={handleNext}
-            >
-              <IconChevronRight size={20} />
-            </NavButton>
+            {coursesList.length > 3 && (
+              <NavButton
+                className="nav-btn"
+                position="right"
+                onClick={handleNext}
+              >
+                <IconChevronRight size={20} />
+              </NavButton>
+            )}
           </>
         ) : (
           <Typography
