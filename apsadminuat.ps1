@@ -1,0 +1,62 @@
+param(
+    [string]$Project = "aps-australia",
+    [string]$Region = "us-central1"
+)
+
+# Read env vars from .env.uat
+$envFile = ".env.uat"
+if (-not (Test-Path $envFile)) {
+    Write-Host "Error: $envFile not found!" -ForegroundColor Red
+    exit 1
+}
+
+$envVars = @{}
+Get-Content $envFile | ForEach-Object {
+    $line = $_.Trim()
+    # Skip empty lines and comments
+    if ([string]::IsNullOrWhiteSpace($line) -or $line.StartsWith('#')) {
+        return
+    }
+
+    if ($line -match '^([^=]+)=(.*)$') {
+        $key = $matches[1].Trim()
+        $value = $matches[2].Trim()
+        # Remove quotes (both single and double)
+        $value = $value -replace '^["\x27]|["\x27]$', ''
+        $envVars[$key] = $value
+    }
+}
+
+$baseApiUrl = $envVars['NEXT_PUBLIC_BASE_API_URL']
+$redirectUrl = $envVars['NEXT_PUBLIC_REDIRECT_URL']
+
+if (-not $baseApiUrl -or -not $redirectUrl) {
+    Write-Host "Error: Missing env vars in $envFile" -ForegroundColor Red
+    exit 1
+}
+
+Write-Host "Building Docker image..." -ForegroundColor Green
+gcloud builds submit `
+    --config=cloudbuild.yaml `
+    --substitutions "_NEXT_PUBLIC_BASE_API_URL=$baseApiUrl,_NEXT_PUBLIC_REDIRECT_URL=$redirectUrl" `
+    --project $Project
+
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "Build failed!" -ForegroundColor Red
+    exit 1
+}
+
+Write-Host "Deploying to Cloud Run..." -ForegroundColor Green
+gcloud run deploy aps-admin-frontend-uat `
+    --image "gcr.io/$Project/aps-admin-frontend:latest" `
+    --region $Region `
+    --allow-unauthenticated `
+    --memory 2Gi `
+    --cpu 2 `
+    --timeout 3600 `
+    --max-instances 10 `
+    --cpu-boost `
+    --service-account="aps-frontend@$Project.iam.gserviceaccount.com" `
+    --project $Project
+
+Write-Host "Deployment complete!" -ForegroundColor Green

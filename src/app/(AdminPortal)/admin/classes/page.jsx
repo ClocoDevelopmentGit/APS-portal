@@ -355,7 +355,7 @@ const ClassesPage = () => {
                 return <span style={{ color: "#757575" }}>Course Name</span>;
               }
               const selectedCourse = courses.find((c) => c.title === selected);
-              return selectedCourse?.title || "Course Name";
+              return selectedCourse?.title || "All Courses";
             }}
           >
             <StyledMenuItem value="all">All Courses</StyledMenuItem>
@@ -382,7 +382,7 @@ const ClassesPage = () => {
               const selectedCourse = categoriesList.find(
                 (c) => c.id === selected
               );
-              return selectedCourse?.name || "Course Name";
+              return selectedCourse?.name || "All Categories";
             }}
           >
             <StyledMenuItem value="all">All Categories</StyledMenuItem>
@@ -408,7 +408,7 @@ const ClassesPage = () => {
                 active: "Active",
                 inactive: "Inactive",
               };
-              return statusNames[selected] || "Status";
+              return statusNames[selected] || "All Status";
             }}
           >
             <StyledMenuItem value="all">All Status</StyledMenuItem>

@@ -45,8 +45,9 @@ const Profile = () => {
       .unwrap()
       .then(() => {
         console.log("User logged out successfully");
-        // router.replace("http://localhost:3000/Pages/LoginPage");
-        router.replace("https://apsdev.cloco.com.au/Pages/LoginPage");
+        router.replace(
+          `${process.env.NEXT_PUBLIC_REDIRECT_URL}/Pages/LoginPage`
+        );
       })
       .catch((error) => {
         console.error("Error logging out user:", error);
