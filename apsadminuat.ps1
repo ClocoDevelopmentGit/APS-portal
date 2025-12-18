@@ -1,6 +1,7 @@
 param(
     [string]$Project = "aps-australia",
-    [string]$Region = "us-central1"
+    [string]$Region = "us-central1",
+    [string]$Service = "aps-admin-frontend-uat"
 )
 
 # Read env vars from .env.uat
@@ -35,9 +36,11 @@ if (-not $baseApiUrl -or -not $redirectUrl) {
     exit 1
 }
 
+$gcsPath = "gs://run-sources-$Project-$Region/services/$Service"
 Write-Host "Building Docker image..." -ForegroundColor Green
 gcloud builds submit `
     --config=cloudbuild.yaml `
+    --gcs-source-staging-dir=$gcsPath `
     --substitutions "_NEXT_PUBLIC_BASE_API_URL=$baseApiUrl,_NEXT_PUBLIC_REDIRECT_URL=$redirectUrl" `
     --project $Project
 
