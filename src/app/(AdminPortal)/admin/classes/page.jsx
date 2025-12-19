@@ -17,7 +17,7 @@ import {
   IconChevronRight,
 } from "@tabler/icons-react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Autoplay } from "swiper/modules";
+import { Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import CourseCard from "./components/CourseCard";
@@ -352,7 +352,7 @@ const ClassesPage = () => {
             displayEmpty
             renderValue={(selected) => {
               if (!selected || selected === "all") {
-                return <span style={{ color: "#757575" }}>Course Name</span>;
+                return <span style={{ color: "#757575" }}>All Courses</span>;
               }
               const selectedCourse = courses.find((c) => c.title === selected);
               return selectedCourse?.title || "All Courses";
@@ -375,9 +375,7 @@ const ClassesPage = () => {
             displayEmpty
             renderValue={(selected) => {
               if (!selected || selected === "all") {
-                return (
-                  <span style={{ color: "#757575" }}>Course Category</span>
-                );
+                return <span style={{ color: "#757575" }}>All Categories</span>;
               }
               const selectedCourse = categoriesList.find(
                 (c) => c.id === selected
@@ -402,7 +400,7 @@ const ClassesPage = () => {
             displayEmpty
             renderValue={(selected) => {
               if (!selected || selected === "all") {
-                return <span style={{ color: "#757575" }}>Status</span>;
+                return <span style={{ color: "#757575" }}>All Status</span>;
               }
               const statusNames = {
                 active: "Active",
@@ -435,7 +433,7 @@ const ClassesPage = () => {
 
             <Swiper
               ref={swiperRef}
-              modules={[Navigation, Autoplay]}
+              modules={[Navigation]}
               spaceBetween={24}
               slidesPerView={1}
               autoplay={{

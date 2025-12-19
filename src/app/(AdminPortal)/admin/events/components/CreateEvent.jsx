@@ -951,6 +951,7 @@ const CreateEvent = ({
                   value={formData.toDate}
                   onChange={(newValue) => handleChange("toDate", newValue)}
                   format="DD-MM-YYYY"
+                  minDate={dayjs()}
                   slotProps={{
                     textField: {
                       placeholder: "dd-mm-yyyy",
