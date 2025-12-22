@@ -336,7 +336,7 @@ const CreateCourse = ({
       }
     });
 
-    if (!courseImage) {
+    if (!courseImage.file) {
       newErrors.courseImage = "Course Image/Video is required";
     }
 
@@ -569,7 +569,7 @@ const CreateCourse = ({
 
           {/* Disply in HomePage Status */}
           <Box sx={{ flex: 1 }}>
-            <FormLabel>Display in HomePage:</FormLabel>
+            <FormLabel>Display On HomePage:</FormLabel>
             <StyledFormControl fullWidth>
               <Select
                 value={formData.homePageStatus}

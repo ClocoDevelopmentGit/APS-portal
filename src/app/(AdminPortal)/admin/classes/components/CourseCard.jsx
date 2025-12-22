@@ -27,7 +27,10 @@ import CreateCourse from "./CreateCourse";
 import { useDispatch, useSelector } from "react-redux";
 import Loading from "@/app/loading";
 import ConfirmationDialog from "@/app/components/confirmation-dialog/ConfirmationDialog";
-import { deleteCourse, updateClass } from "@/redux/slices/courseSlice";
+import {
+  // deleteCourse,
+  updateClass,
+} from "@/redux/slices/courseSlice";
 import dayjs from "dayjs";
 
 // ==================== STYLED COMPONENTS ====================
@@ -272,17 +275,17 @@ const EditButton = styled(Button)({
   },
 });
 
-const DeleteButton = styled(Button)({
-  backgroundColor: "#AE9964",
-  color: "white",
-  textTransform: "none",
-  fontSize: "11px",
-  padding: "4px 10px",
-  borderRadius: "6px",
-  "&:hover": {
-    backgroundColor: "#a07d5a",
-  },
-});
+// const DeleteButton = styled(Button)({
+//   backgroundColor: "#AE9964",
+//   color: "white",
+//   textTransform: "none",
+//   fontSize: "11px",
+//   padding: "4px 10px",
+//   borderRadius: "6px",
+//   "&:hover": {
+//     backgroundColor: "#a07d5a",
+//   },
+// });
 
 const DividerLine = styled(Divider)({
   width: "100%",
@@ -405,34 +408,34 @@ const CourseCard = ({ course, categories, setAlert, setOverlayLoading }) => {
     setOpenDeleteModal(false);
   };
 
-  const deleteSelectedCourse = async () => {
-    try {
-      setOverlayLoading(true);
-      setDeleteLoading(true);
-      await dispatch(deleteCourse(course.id))
-        .unwrap()
-        .then(() => {
-          handleCloseDeleteModal();
-          setAlert({
-            severity: "success",
-            message: "Course Deleted Successfully",
-          });
-        })
-        .catch((error) => {
-          console.log("Error deleting course:", error);
-          setAlert({
-            severity: "error",
-            message: error,
-          });
-          handleCloseDeleteModal();
-        });
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setDeleteLoading(false);
-      setOverlayLoading(false);
-    }
-  };
+  // const deleteSelectedCourse = async () => {
+  //   try {
+  //     setOverlayLoading(true);
+  //     setDeleteLoading(true);
+  //     await dispatch(deleteCourse(course.id))
+  //       .unwrap()
+  //       .then(() => {
+  //         handleCloseDeleteModal();
+  //         setAlert({
+  //           severity: "success",
+  //           message: "Course Deleted Successfully",
+  //         });
+  //       })
+  //       .catch((error) => {
+  //         console.log("Error deleting course:", error);
+  //         setAlert({
+  //           severity: "error",
+  //           message: error,
+  //         });
+  //         handleCloseDeleteModal();
+  //       });
+  //   } catch (error) {
+  //     console.log(error);
+  //   } finally {
+  //     setDeleteLoading(false);
+  //     setOverlayLoading(false);
+  //   }
+  // };
 
   // Update handleAddClass function:
   const handleAddClass = () => {
@@ -493,6 +496,25 @@ const CourseCard = ({ course, categories, setAlert, setOverlayLoading }) => {
     } finally {
       setOverlayLoading(false);
     }
+  };
+
+  const formatISTDateRange = (startDate, endDate) => {
+    const toISTDate = (date) =>
+      new Date(date).toLocaleDateString("en-IN", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        timeZone: "UTC",
+      });
+
+    return `${toISTDate(startDate)} - ${toISTDate(endDate)}`;
+  };
+
+  const getLocationIndex = (classItem) => {
+    const index = locationList.findIndex(
+      (loc) => loc.name.toLowerCase() === classItem.location.name.toLowerCase()
+    );
+    return index !== -1 ? index : 0;
   };
 
   const isVideo = course?.mediaType.startsWith("video");
@@ -571,93 +593,113 @@ const CourseCard = ({ course, categories, setAlert, setOverlayLoading }) => {
 
           {/* Class Items */}
           <SessionsArea>
-            {course.classes.map((classItem, index) => (
-              <ClassItem
-                key={classItem.id}
-                backgroundcolor={
-                  backgroundColors[index % backgroundColors.length]
-                }
-              >
-                <ClassItemHeader>
-                  <ClassItemContent>
-                    {/* Date */}
-                    <ClassInfoRow>
-                      <IconCalendar size={14} color="#AE9964" />
-                      <ClassDetailText>{classItem.day}</ClassDetailText>
-                    </ClassInfoRow>
+            {course.classes.length > 0 ? (
+              course.classes.map((classItem) => (
+                <ClassItem
+                  key={classItem.id}
+                  backgroundcolor={
+                    backgroundColors[
+                      getLocationIndex(classItem) % backgroundColors.length
+                    ]
+                  }
+                >
+                  <ClassItemHeader>
+                    <ClassItemContent>
+                      {/* Date */}
+                      <ClassInfoRow>
+                        <IconCalendar size={14} color="#AE9964" />
+                        <ClassDetailText>{`${
+                          classItem.day
+                        }, ${formatISTDateRange(
+                          classItem.startDate,
+                          classItem.endDate
+                        )}`}</ClassDetailText>
+                      </ClassInfoRow>
 
-                    {/* Time & Location */}
-                    <Stack direction="row" spacing={2}>
-                      <ClassInfoRow>
-                        <IconClock size={14} color="#AE9964" />
-                        <ClassDetailText>
-                          {formatISTTimeRange(
-                            classItem.startTime,
-                            classItem.endTime
-                          )}
-                        </ClassDetailText>
-                      </ClassInfoRow>
-                      <ClassInfoRow>
-                        <IconMapPin size={14} color="#AE9964" />
-                        <ClassDetailText>
-                          {classItem.location.name}
-                        </ClassDetailText>
-                      </ClassInfoRow>
-                    </Stack>
+                      {/* Time & Location */}
+                      <Stack direction="row" spacing={2}>
+                        <ClassInfoRow>
+                          <IconClock size={14} color="#AE9964" />
+                          <ClassDetailText>
+                            {formatISTTimeRange(
+                              classItem.startTime,
+                              classItem.endTime
+                            )}
+                          </ClassDetailText>
+                        </ClassInfoRow>
+                        <ClassInfoRow>
+                          <IconMapPin size={14} color="#AE9964" />
+                          <ClassDetailText>
+                            {classItem.location.name}
+                          </ClassDetailText>
+                        </ClassInfoRow>
+                      </Stack>
 
-                    {/* Instructor */}
-                    <Stack direction="row" spacing={2}>
-                      <ClassInfoRow>
-                        <IconUser size={14} color="#AE9964" />
-                        <ClassDetailText>
-                          {`${classItem.tutor.firstName.trim() || ""} ${
-                            classItem.tutor.lastName.trim() || ""
-                          }`.trim()}
-                        </ClassDetailText>
-                      </ClassInfoRow>
-                      <ClassInfoRow>
-                        <IconArmchair size={14} color="#AE9964" />
-                        <ClassDetailText>
-                          {classItem?.slots || classItem.availableSeats}/
-                          {classItem.availableSeats}
-                        </ClassDetailText>
-                      </ClassInfoRow>
-                    </Stack>
-                  </ClassItemContent>
+                      {/* Instructor */}
+                      <Stack direction="row" spacing={2}>
+                        <ClassInfoRow>
+                          <IconUser size={14} color="#AE9964" />
+                          <ClassDetailText>
+                            {`${classItem.tutor.firstName.trim() || ""} ${
+                              classItem.tutor.lastName.trim() || ""
+                            }`.trim()}
+                          </ClassDetailText>
+                        </ClassInfoRow>
+                        <ClassInfoRow>
+                          <IconArmchair size={14} color="#AE9964" />
+                          <ClassDetailText>
+                            {classItem?.slots || classItem.availableSeats}/
+                            {classItem.availableSeats}
+                          </ClassDetailText>
+                        </ClassInfoRow>
+                      </Stack>
+                    </ClassItemContent>
 
-                  <ClassActions>
-                    <ClassFees>${classItem.fees}</ClassFees>
-                    <EditIconButton
-                      size="small"
-                      onClick={() => handleEditClass(classItem)}
-                    >
-                      <IconEdit
-                        size={12}
-                        style={{ marginRight: "5px", color: "#AE9964" }}
-                      />
-                      Edit
-                    </EditIconButton>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        gap: "5px",
-                      }}
-                    >
-                      <StyledSwitch
-                        checked={classItem.isActive === true}
-                        onChange={() => handleToggleClassStatus(classItem)}
+                    <ClassActions>
+                      <ClassFees>${classItem.fees.toFixed(2)}</ClassFees>
+                      <EditIconButton
                         size="small"
-                      />
-                      <Typography sx={{ color: "#000000", fontSize: "10px" }}>
-                        {classItem.isActive ? "Active" : "Inactive"}
-                      </Typography>
-                    </Box>
-                  </ClassActions>
-                </ClassItemHeader>
-              </ClassItem>
-            ))}
+                        onClick={() => handleEditClass(classItem)}
+                      >
+                        <IconEdit
+                          size={12}
+                          style={{ marginRight: "5px", color: "#AE9964" }}
+                        />
+                        Edit
+                      </EditIconButton>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          gap: "5px",
+                        }}
+                      >
+                        <StyledSwitch
+                          checked={classItem.isActive === true}
+                          onChange={() => handleToggleClassStatus(classItem)}
+                          size="small"
+                        />
+                        <Typography sx={{ color: "#000000", fontSize: "10px" }}>
+                          {classItem.isActive ? "Active" : "Inactive"}
+                        </Typography>
+                      </Box>
+                    </ClassActions>
+                  </ClassItemHeader>
+                </ClassItem>
+              ))
+            ) : (
+              <Typography
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: "20px",
+                }}
+              >
+                No classes found
+              </Typography>
+            )}
           </SessionsArea>
         </div>
 
@@ -669,13 +711,13 @@ const CourseCard = ({ course, categories, setAlert, setOverlayLoading }) => {
           >
             Edit Course
           </EditButton>
-          <DeleteButton
+          {/* <DeleteButton
             startIcon={<IconTrash size={12} />}
             onClick={handleDeleteCourse}
             disabled={deleteLoading}
           >
             {deleteLoading ? "Deleting" : "Delete Course"}
-          </DeleteButton>
+          </DeleteButton> */}
         </ActionButtonsContainer>
       </CardContent>
       <CreateCourse
@@ -698,14 +740,14 @@ const CourseCard = ({ course, categories, setAlert, setOverlayLoading }) => {
         setAlert={setAlert}
         setOverlayLoading={setOverlayLoading}
       />
-      <ConfirmationDialog
+      {/* <ConfirmationDialog
         open={openDeleteModal}
         onClose={handleCloseDeleteModal}
         title={deleteTitle}
         message={deleteMessage}
         showDelete={deleteStatus}
         onConfirm={deleteSelectedCourse}
-      />
+      /> */}
     </StyledCard>
   );
 };

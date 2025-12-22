@@ -363,7 +363,7 @@ const EventCard = ({
           </EventItemContent>
 
           <EventActions>
-            <DetailChip label={`$${event.fees ?? 0}`} size="small" />
+            <DetailChip label={`$${event.fees.toFixed(2) ?? 0}`} size="small" />
           </EventActions>
         </EventItemHeader>
 

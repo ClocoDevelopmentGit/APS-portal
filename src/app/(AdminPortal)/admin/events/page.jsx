@@ -428,8 +428,8 @@ const EventsPage = () => {
             onChange={(e) => setEventNameFilter(e.target.value)}
             displayEmpty
             renderValue={(selected) => {
-              if (!selected && selected === "all") {
-                return <span style={{ color: "#999999" }}>Event Name</span>;
+              if (!selected || selected === "all") {
+                return <span style={{ color: "#999999" }}>All Events</span>;
               }
               const selectedEvent = events.find((c) => c.id === selected);
               return selectedEvent?.title || "All Events";
@@ -452,9 +452,7 @@ const EventsPage = () => {
             displayEmpty
             renderValue={(selected) => {
               if (!selected || selected === "all") {
-                return (
-                  <span style={{ color: "#999999" }}>Course Category</span>
-                );
+                return <span style={{ color: "#999999" }}>All Categories</span>;
               }
               const selectedCourse = categoriesList.find(
                 (c) => c.id === selected
@@ -479,7 +477,7 @@ const EventsPage = () => {
             displayEmpty
             renderValue={(selected) => {
               if (!selected || selected === "all") {
-                return <span style={{ color: "#999999" }}>Status</span>;
+                return <span style={{ color: "#999999" }}>All Status</span>;
               }
               const statusNames = {
                 active: "Active",

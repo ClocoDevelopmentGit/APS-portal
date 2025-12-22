@@ -23,7 +23,7 @@ import "./CreateClass.css";
 import { useDispatch } from "react-redux";
 import {
   createClass,
-  deleteClass,
+  // deleteClass,
   updateClass,
 } from "@/redux/slices/courseSlice";
 import DescriptionBox from "./DescriptionBox";
@@ -302,29 +302,29 @@ const CancelButton = styled(Button)({
   },
 });
 
-const DeleteButton = styled(Button)({
-  backgroundColor: "#B38349",
-  color: "#FFFFFF",
-  textTransform: "none",
-  fontSize: "14px",
-  fontWeight: 700,
-  height: "35px",
-  padding: "8px 24px",
-  borderRadius: "5px",
-  lineHeight: "19px",
-  letterSpacing: "-0.14px",
-  "&:hover": {
-    boxShadow: "rgba(0, 0, 0, 0.35) 0px 5px 15px",
-    backgroundColor: "#B38349",
-  },
-  "&:disabled": {
-    backgroundColor: "#B38349",
-    color: "#FFFFFF",
-    boxShadow: "none",
-    cursor: "not-allowed",
-    opacity: 0.6,
-  },
-});
+// const DeleteButton = styled(Button)({
+//   backgroundColor: "#B38349",
+//   color: "#FFFFFF",
+//   textTransform: "none",
+//   fontSize: "14px",
+//   fontWeight: 700,
+//   height: "35px",
+//   padding: "8px 24px",
+//   borderRadius: "5px",
+//   lineHeight: "19px",
+//   letterSpacing: "-0.14px",
+//   "&:hover": {
+//     boxShadow: "rgba(0, 0, 0, 0.35) 0px 5px 15px",
+//     backgroundColor: "#B38349",
+//   },
+//   "&:disabled": {
+//     backgroundColor: "#B38349",
+//     color: "#FFFFFF",
+//     boxShadow: "none",
+//     cursor: "not-allowed",
+//     opacity: 0.6,
+//   },
+// });
 
 const FormBox = styled(Box)({
   display: "flex",
@@ -569,34 +569,34 @@ const CreateClass = ({
     handleCancel();
   };
 
-  const deleteSelectedClass = async () => {
-    try {
-      setDeleteLoading(true);
-      setOverlayLoading(true);
-      await dispatch(deleteClass(classData.id))
-        .unwrap()
-        .then(() => {
-          handleCloseDeleteModal();
-          setAlert({
-            severity: "success",
-            message: "Class Deleted Successfully",
-          });
-        })
-        .catch((error) => {
-          console.log("Error deleting class:", error);
-          setAlert({
-            severity: "error",
-            message: error,
-          });
-          handleCloseDeleteModal();
-        });
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setDeleteLoading(false);
-      setOverlayLoading(false);
-    }
-  };
+  // const deleteSelectedClass = async () => {
+  //   try {
+  //     setDeleteLoading(true);
+  //     setOverlayLoading(true);
+  //     await dispatch(deleteClass(classData.id))
+  //       .unwrap()
+  //       .then(() => {
+  //         handleCloseDeleteModal();
+  //         setAlert({
+  //           severity: "success",
+  //           message: "Class Deleted Successfully",
+  //         });
+  //       })
+  //       .catch((error) => {
+  //         console.log("Error deleting class:", error);
+  //         setAlert({
+  //           severity: "error",
+  //           message: error,
+  //         });
+  //         handleCloseDeleteModal();
+  //       });
+  //   } catch (error) {
+  //     console.log(error);
+  //   } finally {
+  //     setDeleteLoading(false);
+  //     setOverlayLoading(false);
+  //   }
+  // };
 
   return (
     <ThemeProvider theme={pickerTheme}>
@@ -841,6 +841,7 @@ const CreateClass = ({
                   value={formData.toDate}
                   onChange={(newValue) => handleChange("toDate", newValue)}
                   format="DD-MM-YYYY"
+                  minDate={dayjs()}
                   slotProps={{
                     textField: {
                       placeholder: "dd-mm-yyyy",
@@ -938,25 +939,25 @@ const CreateClass = ({
                 {loading ? "Saving..." : "Save"}
               </SaveButton>
               <CancelButton onClick={handleCancel}>Cancel</CancelButton>
-              {type === "edit" && (
+              {/* {type === "edit" && (
                 <DeleteButton
                   disabled={deleteLoading}
                   onClick={handleDeleteCourse}
                 >
                   {deleteLoading ? "Deleting..." : "Delete"}
                 </DeleteButton>
-              )}
+              )} */}
             </ButtonGroup>
           </StyledDialogContent>
         </StyledDialog>
-        <ConfirmationDialog
+        {/* <ConfirmationDialog
           open={openDeleteModal}
           onClose={handleCloseDeleteModal}
           title={deleteTitle}
           message={deleteMessage}
           showDelete={deleteStatus}
           onConfirm={deleteSelectedClass}
-        />
+        /> */}
       </LocalizationProvider>
     </ThemeProvider>
   );
