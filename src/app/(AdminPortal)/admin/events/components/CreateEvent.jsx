@@ -339,6 +339,7 @@ const CreateEvent = ({
     imageType: "",
     eventCategory: "",
     homePageStatus: "",
+    canEnroll: "",
   });
   const [isRoomPresent, setIsRoomPresent] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState(null);
@@ -369,6 +370,7 @@ const CreateEvent = ({
         imageType: eventData.mediaType || "",
         eventCategory: eventData.categoryId || "",
         homePageStatus: eventData.displayOnHomePage ? "Active" : "Inactive",
+        canEnroll: eventData.canEnroll ? "Active" : "Inactive",
       });
       setIsRoomPresent(eventData.room ? true : false);
       setEventMedia({ file: null, previewUrl: eventData.mediaUrl || null });
@@ -403,6 +405,7 @@ const CreateEvent = ({
       title: "Event Name",
       eventCategory: "Category",
       homePageStatus: "Display On HomePage",
+      canEnroll: "Enrollment Status",
     };
 
     Object.keys(fieldLabels).forEach((key) => {
@@ -503,6 +506,10 @@ const CreateEvent = ({
       "displayOnHomePage",
       formData.homePageStatus === "Active" ? "true" : "false"
     );
+    payload.append(
+      "canEnroll",
+      formData.canEnroll === "Active" ? "true" : "false"
+    );
 
     try {
       if (type === "edit" && id) {
@@ -571,6 +578,7 @@ const CreateEvent = ({
       imageType: "",
       eventCategory: "",
       homePageStatus: "",
+      canEnroll: "",
     });
     setIsRoomPresent(false);
     setEventMedia({ file: null, previewUrl: null });
@@ -606,6 +614,49 @@ const CreateEvent = ({
                 onChange={(e) => handleChange("title", e.target.value)}
               />
               {errors.title && <ErrorText>{errors.title}</ErrorText>}
+            </Box>
+
+            <Box sx={{ marginBottom: "20px" }}>
+              <FormLabel>Instructor Name:</FormLabel>
+              <StyledFormControl fullWidth>
+                <Select
+                  value={formData.instructorId}
+                  onChange={(e) => handleChange("instructorId", e.target.value)}
+                  displayEmpty
+                  renderValue={(selected) => {
+                    if (!selected) {
+                      return (
+                        <span style={{ color: "#999999" }}>
+                          Select Instructor
+                        </span>
+                      );
+                    }
+                    const selectedInstructor = instructors.find(
+                      (cat) => cat.id === selected
+                    );
+                    return selectedInstructor
+                      ? `${selectedInstructor?.firstName?.trim() || ""} ${
+                          selectedInstructor?.lastName?.trim() || ""
+                        }`.trim()
+                      : "";
+                  }}
+                >
+                  {instructors.length > 0 ? (
+                    instructors?.map((instructor) => (
+                      <StyledMenuItem key={instructor.id} value={instructor.id}>
+                        {`${instructor.firstName?.trim() || ""} ${
+                          instructor.lastName?.trim() || ""
+                        }`.trim()}
+                      </StyledMenuItem>
+                    ))
+                  ) : (
+                    <StyledMenuItem>Loading...</StyledMenuItem>
+                  )}
+                </Select>
+                {errors.instructorId && (
+                  <ErrorText>{errors.instructorId}</ErrorText>
+                )}
+              </StyledFormControl>
             </Box>
 
             {/* Description */}
@@ -846,49 +897,28 @@ const CreateEvent = ({
 
               {/* Slots */}
               <Box sx={{ flex: 1 }}>
-                <FormLabel>Instructor Name:</FormLabel>
+                <FormLabel>Enrollment Status:</FormLabel>
                 <StyledFormControl fullWidth>
                   <Select
-                    value={formData.instructorId}
-                    onChange={(e) =>
-                      handleChange("instructorId", e.target.value)
-                    }
+                    value={formData.canEnroll}
+                    onChange={(e) => handleChange("canEnroll", e.target.value)}
                     displayEmpty
                     renderValue={(selected) => {
                       if (!selected) {
                         return (
                           <span style={{ color: "#999999" }}>
-                            Select Instructor
+                            Select Enrollment Status
                           </span>
                         );
                       }
-                      const selectedInstructor = instructors.find(
-                        (cat) => cat.id === selected
-                      );
-                      return selectedInstructor
-                        ? `${selectedInstructor?.firstName?.trim() || ""} ${
-                            selectedInstructor?.lastName?.trim() || ""
-                          }`.trim()
-                        : "";
+                      return selected;
                     }}
                   >
-                    {instructors.length > 0 ? (
-                      instructors?.map((instructor) => (
-                        <StyledMenuItem
-                          key={instructor.id}
-                          value={instructor.id}
-                        >
-                          {`${instructor.firstName?.trim() || ""} ${
-                            instructor.lastName?.trim() || ""
-                          }`.trim()}
-                        </StyledMenuItem>
-                      ))
-                    ) : (
-                      <StyledMenuItem>Loading...</StyledMenuItem>
-                    )}
+                    <StyledMenuItem value="Active">True</StyledMenuItem>
+                    <StyledMenuItem value="Inactive">False</StyledMenuItem>
                   </Select>
-                  {errors.instructorId && (
-                    <ErrorText>{errors.instructorId}</ErrorText>
+                  {errors.canEnroll && (
+                    <ErrorText>{errors.canEnroll}</ErrorText>
                   )}
                 </StyledFormControl>
               </Box>

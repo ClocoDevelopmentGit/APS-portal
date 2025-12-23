@@ -21,6 +21,7 @@ import {
   IconMapPin,
   IconUser,
   IconArmchair,
+  IconCalendarMonth,
 } from "@tabler/icons-react";
 import CreateClass from "./CreateClass";
 import CreateCourse from "./CreateCourse";
@@ -321,6 +322,7 @@ const SessionsArea = styled(Box)({
 const CourseCard = ({ course, categories, setAlert, setOverlayLoading }) => {
   // Color array for class item borders
   const { locations } = useSelector((state) => state.location);
+  const { terms } = useSelector((state) => state.term);
   const { staffs } = useSelector((state) => state.user);
   const backgroundColors = ["#FFE5E5", "#E0EDFF", "#E5FFE5", "#FFF7E0"];
   const [openClassModal, setOpenClassModal] = useState(false);
@@ -328,6 +330,7 @@ const CourseCard = ({ course, categories, setAlert, setOverlayLoading }) => {
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [locationList, setLocationList] = useState([]);
   const [instructorList, setInstructorList] = useState([]);
+  const [termList, setTermList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [type, setType] = useState(null);
   const [classDetails, setClassDetails] = useState(null);
@@ -341,12 +344,15 @@ const CourseCard = ({ course, categories, setAlert, setOverlayLoading }) => {
     const fetchData = () => {
       let storedLocations = [];
       let storedStaffs = [];
+      let storedTerms = [];
 
       if (typeof window !== "undefined") {
         const locationsData = localStorage.getItem("allLocations");
         const staffsData = localStorage.getItem("allStaffs");
+        const termsData = localStorage.getItem("allTerms");
         storedLocations = locationsData ? JSON.parse(locationsData) : [];
         storedStaffs = staffsData ? JSON.parse(staffsData) : [];
+        storedTerms = termsData ? JSON.parse(termsData) : [];
       }
 
       if (locations.length > 0) {
@@ -363,11 +369,17 @@ const CourseCard = ({ course, categories, setAlert, setOverlayLoading }) => {
         setInstructorList(storedStaffs);
       }
 
+      if (terms.length > 0) {
+        setTermList(terms.filter((term) => term.isActive));
+      } else {
+        setTermList(storedTerms);
+      }
+
       setLoading(false);
     };
 
     fetchData();
-  }, [locations, staffs]);
+  }, [locations, staffs, terms]);
 
   const formatISTTimeRange = (start, end) => {
     const toIST = (time) =>
@@ -653,6 +665,14 @@ const CourseCard = ({ course, categories, setAlert, setOverlayLoading }) => {
                           </ClassDetailText>
                         </ClassInfoRow>
                       </Stack>
+                      <Stack direction="row" spacing={2}>
+                        <ClassInfoRow>
+                          <IconCalendarMonth size={14} color="#AE9964" />
+                          <ClassDetailText>
+                            {classItem?.term?.name}
+                          </ClassDetailText>
+                        </ClassInfoRow>
+                      </Stack>
                     </ClassItemContent>
 
                     <ClassActions>
@@ -737,6 +757,7 @@ const CourseCard = ({ course, categories, setAlert, setOverlayLoading }) => {
         instructors={instructorList}
         type={type}
         classData={classDetails}
+        terms={termList}
         setAlert={setAlert}
         setOverlayLoading={setOverlayLoading}
       />

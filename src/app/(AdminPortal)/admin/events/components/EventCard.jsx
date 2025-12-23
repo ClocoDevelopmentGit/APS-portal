@@ -23,7 +23,7 @@ import {
 } from "@tabler/icons-react";
 import CreateEvent from "./CreateEvent";
 import ConfirmationDialog from "@/app/components/confirmation-dialog/ConfirmationDialog";
-import { deleteEvent } from "@/redux/slices/eventSlice";
+// import { deleteEvent } from "@/redux/slices/eventSlice";
 import { useDispatch } from "react-redux";
 
 // ==================== STYLED COMPONENTS ====================
@@ -158,17 +158,17 @@ const EditButton = styled(Button)({
   },
 });
 
-const DeleteButton = styled(Button)({
-  backgroundColor: "#AE9964",
-  color: "white",
-  textTransform: "none",
-  fontSize: "11px",
-  padding: "4px 10px",
-  borderRadius: "6px",
-  "&:hover": {
-    backgroundColor: "#a07d5a",
-  },
-});
+// const DeleteButton = styled(Button)({
+//   backgroundColor: "#AE9964",
+//   color: "white",
+//   textTransform: "none",
+//   fontSize: "11px",
+//   padding: "4px 10px",
+//   borderRadius: "6px",
+//   "&:hover": {
+//     backgroundColor: "#a07d5a",
+//   },
+// });
 
 const DividerLine = styled(Divider)({
   width: "100%",
@@ -210,34 +210,34 @@ const EventCard = ({
     setOpenEventModal(false);
   };
 
-  const deleteSelectedEvent = async () => {
-    try {
-      setDeleteLoading(true);
-      setOverlayLoading(true);
-      await dispatch(deleteEvent(event.id))
-        .unwrap()
-        .then(() => {
-          handleCloseDeleteModal();
-          setAlert({
-            severity: "success",
-            message: "Event Deleted Successfully",
-          });
-        })
-        .catch((error) => {
-          console.log("Error deleting event:", error);
-          setAlert({
-            severity: "error",
-            message: error,
-          });
-          handleCloseDeleteModal();
-        });
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setDeleteLoading(false);
-      setOverlayLoading(false);
-    }
-  };
+  // const deleteSelectedEvent = async () => {
+  //   try {
+  //     setDeleteLoading(true);
+  //     setOverlayLoading(true);
+  //     await dispatch(deleteEvent(event.id))
+  //       .unwrap()
+  //       .then(() => {
+  //         handleCloseDeleteModal();
+  //         setAlert({
+  //           severity: "success",
+  //           message: "Event Deleted Successfully",
+  //         });
+  //       })
+  //       .catch((error) => {
+  //         console.log("Error deleting event:", error);
+  //         setAlert({
+  //           severity: "error",
+  //           message: error,
+  //         });
+  //         handleCloseDeleteModal();
+  //       });
+  //   } catch (error) {
+  //     console.log(error);
+  //   } finally {
+  //     setDeleteLoading(false);
+  //     setOverlayLoading(false);
+  //   }
+  // };
 
   const handleCloseDeleteModal = () => {
     setOpenDeleteModal(false);
@@ -375,13 +375,13 @@ const EventCard = ({
           >
             Edit Event
           </EditButton>
-          <DeleteButton
+          {/* <DeleteButton
             startIcon={<IconTrash size={12} />}
             onClick={handleDeleteEvent}
             disabled={deleteLoading}
           >
             Delete Event
-          </DeleteButton>
+          </DeleteButton> */}
         </ActionButtonsContainer>
       </CardContent>
       <CreateEvent
@@ -396,14 +396,14 @@ const EventCard = ({
         instructors={instructorList}
       />
 
-      <ConfirmationDialog
+      {/* <ConfirmationDialog
         open={openDeleteModal}
         onClose={handleCloseDeleteModal}
         title={deleteTitle}
         message={deleteMessage}
         showDelete={deleteStatus}
         onConfirm={deleteSelectedEvent}
-      />
+      /> */}
     </StyledCard>
   );
 };

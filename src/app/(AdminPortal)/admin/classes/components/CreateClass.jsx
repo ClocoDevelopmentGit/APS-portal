@@ -347,12 +347,15 @@ const CreateClass = ({
   classData = null,
   setAlert,
   setOverlayLoading,
+  terms,
 }) => {
   const dispatch = useDispatch();
   const [formData, setFormData] = useState({
     tutorId: "",
     locationId: "",
+    termId: "",
     status: "",
+    canEnroll: "",
     day: "",
     fromDate: null,
     toDate: null,
@@ -366,6 +369,7 @@ const CreateClass = ({
   });
   const [isRoomPresent, setIsRoomPresent] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState(null);
+  const [selectedTerm, setSelectedTerm] = useState({});
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [deleteTitle, setDeleteTitle] = useState(null);
@@ -381,7 +385,9 @@ const CreateClass = ({
       setFormData({
         tutorId: classData.tutorId || "",
         locationId: classData.locationId || "",
+        termId: classData.termId || "",
         status: classData.isActive ? "Active" : "Inactive",
+        canEnroll: classData.canEnroll ? "Active" : "Inactive",
         day: classData.day || "",
         fromDate: classData.startDate ? dayjs(classData.startDate) : null,
         toDate: classData.endDate ? dayjs(classData.endDate) : null,
@@ -410,6 +416,8 @@ const CreateClass = ({
     const fieldLabels = {
       locationId: "Location",
       tutorId: "Instructor",
+      termId: "Term",
+      canEnroll: "Enrollment Status",
       day: "Day",
       fromDate: "Start Date",
       toDate: "End Date",
@@ -472,6 +480,8 @@ const CreateClass = ({
       locationId: formData.locationId,
       tutorId: formData.tutorId,
       day: formData.day,
+      termId: formData.termId,
+      canEnroll: formData.canEnroll === "Active",
       startDate: formData.fromDate
         ? formData.fromDate.format("YYYY-MM-DD")
         : null,
@@ -537,6 +547,8 @@ const CreateClass = ({
     setFormData({
       tutorId: "",
       locationId: "",
+      termId: "",
+      canEnroll: "",
       status: "",
       day: "",
       fromDate: null,
@@ -669,6 +681,45 @@ const CreateClass = ({
             </Box>
 
             <FormBox>
+              {/* Status */}
+              <Box sx={{ flex: 1 }}>
+                <FormLabel>Term:</FormLabel>
+                <StyledFormControl fullWidth>
+                  <Select
+                    value={formData.termId}
+                    onChange={(e) => {
+                      handleChange("termId", e.target.value);
+                      const termSelected = terms.find(
+                        (cat) => cat.id === e.target.value
+                      );
+                      setSelectedTerm(termSelected);
+                    }}
+                    displayEmpty
+                    renderValue={(selected) => {
+                      if (!selected) {
+                        return (
+                          <span style={{ color: "#999999" }}>Select Term</span>
+                        );
+                      }
+                      const selectedTerm = terms.find(
+                        (cat) => cat.id === selected
+                      );
+                      return selectedTerm ? `${selectedTerm?.name}` : "";
+                    }}
+                  >
+                    {terms.length > 0 ? (
+                      terms?.map((term) => (
+                        <StyledMenuItem key={term.id} value={term.id}>
+                          {term.name}
+                        </StyledMenuItem>
+                      ))
+                    ) : (
+                      <StyledMenuItem>Loading...</StyledMenuItem>
+                    )}
+                  </Select>
+                  {errors.termId && <ErrorText>{errors.termId}</ErrorText>}
+                </StyledFormControl>
+              </Box>
               {/* Location */}
               <Box sx={{ flex: 1 }}>
                 <FormLabel>Location:</FormLabel>
@@ -720,38 +771,12 @@ const CreateClass = ({
                   )}
                 </StyledFormControl>
               </Box>
-
-              {/* Status */}
-              <Box sx={{ flex: 1 }}>
-                <FormLabel>Status:</FormLabel>
-                <StyledFormControl fullWidth>
-                  <Select
-                    value={formData.status}
-                    onChange={(e) => handleChange("status", e.target.value)}
-                    displayEmpty
-                    renderValue={(selected) => {
-                      if (!selected) {
-                        return (
-                          <span style={{ color: "#999999" }}>
-                            Select Status
-                          </span>
-                        );
-                      }
-                      return selected;
-                    }}
-                  >
-                    <StyledMenuItem value="Active">Active</StyledMenuItem>
-                    <StyledMenuItem value="Inactive">Inactive</StyledMenuItem>
-                  </Select>
-                  {errors.status && <ErrorText>{errors.status}</ErrorText>}
-                </StyledFormControl>
-              </Box>
             </FormBox>
 
             {/* <Box sx={{ display: "flex", gap: 2 }}></Box> */}
 
             {isRoomPresent && (
-              <Box>
+              <Box sx={{ flex: 1, marginBottom: "20px" }}>
                 <FormLabel>Room:</FormLabel>
                 <StyledFormControl fullWidth>
                   <Select
@@ -780,6 +805,61 @@ const CreateClass = ({
                 </StyledFormControl>
               </Box>
             )}
+
+            <FormBox>
+              {/* Status */}
+              <Box sx={{ flex: 1 }}>
+                <FormLabel>Status:</FormLabel>
+                <StyledFormControl fullWidth>
+                  <Select
+                    value={formData.status}
+                    onChange={(e) => handleChange("status", e.target.value)}
+                    displayEmpty
+                    renderValue={(selected) => {
+                      if (!selected) {
+                        return (
+                          <span style={{ color: "#999999" }}>
+                            Select Status
+                          </span>
+                        );
+                      }
+                      return selected;
+                    }}
+                  >
+                    <StyledMenuItem value="Active">Active</StyledMenuItem>
+                    <StyledMenuItem value="Inactive">Inactive</StyledMenuItem>
+                  </Select>
+                  {errors.status && <ErrorText>{errors.status}</ErrorText>}
+                </StyledFormControl>
+              </Box>
+              {/* Location */}
+              <Box sx={{ flex: 1 }}>
+                <FormLabel>Enrollment Status:</FormLabel>
+                <StyledFormControl fullWidth>
+                  <Select
+                    value={formData.canEnroll}
+                    onChange={(e) => handleChange("canEnroll", e.target.value)}
+                    displayEmpty
+                    renderValue={(selected) => {
+                      if (!selected) {
+                        return (
+                          <span style={{ color: "#999999" }}>
+                            Select Enrollment Status
+                          </span>
+                        );
+                      }
+                      return selected;
+                    }}
+                  >
+                    <StyledMenuItem value="Active">True</StyledMenuItem>
+                    <StyledMenuItem value="Inactive">False</StyledMenuItem>
+                  </Select>
+                  {errors.canEnroll && (
+                    <ErrorText>{errors.canEnroll}</ErrorText>
+                  )}
+                </StyledFormControl>
+              </Box>
+            </FormBox>
 
             {/* Day */}
             <Box sx={{ marginBottom: "20px" }}>
@@ -818,6 +898,8 @@ const CreateClass = ({
                   value={formData.fromDate}
                   onChange={(newValue) => handleChange("fromDate", newValue)}
                   format="DD-MM-YYYY"
+                  minDate={dayjs(selectedTerm?.startDate)}
+                  maxDate={dayjs(selectedTerm?.endDate)}
                   slotProps={{
                     textField: {
                       placeholder: "dd-mm-yyyy",
@@ -842,6 +924,7 @@ const CreateClass = ({
                   onChange={(newValue) => handleChange("toDate", newValue)}
                   format="DD-MM-YYYY"
                   minDate={dayjs()}
+                  maxDate={dayjs(selectedTerm?.endDate)}
                   slotProps={{
                     textField: {
                       placeholder: "dd-mm-yyyy",

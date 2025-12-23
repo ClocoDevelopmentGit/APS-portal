@@ -14,6 +14,7 @@ import { fetchAllCategories } from "@/redux/slices/categorySlice";
 import { fetchAllLocations } from "@/redux/slices/locationSlice";
 import { fetchAllStaffs } from "@/redux/slices/userSlice";
 import { fetchAllEvents } from "@/redux/slices/eventSlice";
+import { fetchAllTerms } from "@/redux/slices/termSlice";
 
 const Sidebar = () => {
   const lgUp = useMediaQuery((theme) => theme.breakpoints.down("lg"));
@@ -34,6 +35,7 @@ const Sidebar = () => {
     dispatch(fetchAllLocations());
     dispatch(fetchAllStaffs());
     dispatch(fetchAllEvents());
+    dispatch(fetchAllTerms());
   }, [dispatch]);
 
   const theme = useTheme();
