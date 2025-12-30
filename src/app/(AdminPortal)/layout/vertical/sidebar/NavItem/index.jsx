@@ -27,7 +27,7 @@ const ListItemStyled = styled(ListItemButton, {
   marginBottom: "2px",
   padding: "8px 10px",
   borderRadius: `${borderRadius}px`,
-  backgroundColor: level > 1 ? "transparent !important" : "inherit",
+  backgroundColor: level > 1 ? "transperant" : "inherit",
   color: level > 1 && isActive ? `${"#AE9964"}!important` : "#FFF",
   paddingLeft: hideMenu ? "10px" : level > 2 ? `${level * 15}px` : "10px",
   "&:hover": {
@@ -59,7 +59,7 @@ export default function NavItem({
   const { t } = useTranslation();
   const itemIcon =
     level > 1 ? (
-      <Icon stroke={1.5} size="1rem" />
+      <Icon stroke={1.5} size="1.3rem" />
     ) : (
       <Icon stroke={1.5} size="1.3rem" />
     );
@@ -87,10 +87,7 @@ export default function NavItem({
             sx={{
               minWidth: "36px",
               p: "3px 0",
-              color:
-                level > 1 && isActive
-                  ? `${theme.palette.primary.main}!important`
-                  : "inherit",
+              color: level > 1 && isActive ? `#AE9964` : "inherit",
             }}
           >
             {itemIcon}

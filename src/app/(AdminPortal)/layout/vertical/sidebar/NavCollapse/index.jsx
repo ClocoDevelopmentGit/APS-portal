@@ -32,21 +32,13 @@ const ListItemStyled = styled(ListItemButton, {
   marginBottom: "2px",
   padding: "8px 10px",
   paddingLeft: hideMenu ? "10px" : level > 2 ? `${level * 15}px` : "10px",
-  backgroundColor: isOpen && level < 2 ? theme.palette.primary.main : "",
+  backgroundColor: isOpen && level < 2 ? "" : "",
   whiteSpace: "nowrap",
   "&:hover": {
-    backgroundColor:
-      pathIncludes || isOpen
-        ? theme.palette.primary.main
-        : theme.palette.primary.light,
-    color: pathIncludes || isOpen ? "white" : theme.palette.primary.main,
+    backgroundColor: "white",
+    color: "#AE9964",
   },
-  color:
-    isOpen && level < 2
-      ? "white"
-      : `inherit` && level > 1 && isOpen
-      ? theme.palette.primary.main
-      : theme.palette.text.secondary,
+  color: "white",
   borderRadius: `${borderRadius}px`,
 }));
 
