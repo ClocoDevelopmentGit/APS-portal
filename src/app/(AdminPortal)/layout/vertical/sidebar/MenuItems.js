@@ -2,7 +2,8 @@ import { uniqueId } from "lodash";
 import { RiDashboardHorizontalFill } from "react-icons/ri";
 import { MdFormatListBulleted } from "react-icons/md";
 import { BiCalendarEvent } from "react-icons/bi";
-import { IoMdPricetag } from "react-icons/io";
+import { IoMdPricetag, IoIosGlobe } from "react-icons/io";
+import { TbPointFilled } from "react-icons/tb";
 
 const Menuitems = [
   {
@@ -30,56 +31,56 @@ const Menuitems = [
     icon: IoMdPricetag,
     href: "/admin/category",
   },
-  // {
-  //   id: uniqueId(),
-  //   title: 'Frontend pages',
-  //   icon: IconAppWindow,
-  //   href: '/frontend-pages/',
-  //   children: [
-  //     {
-  //       id: uniqueId(),
-  //       title: 'Homepage',
-  //       icon: IconPoint,
-  //       href: '/frontend-pages/homepage',
-  //     },
-  //     {
-  //       id: uniqueId(),
-  //       title: 'About Us',
-  //       icon: IconPoint,
-  //       href: '/frontend-pages/about',
-  //     },
-  //     {
-  //       id: uniqueId(),
-  //       title: 'Blog',
-  //       icon: IconPoint,
-  //       href: '/frontend-pages/blog',
-  //     },
-  //     {
-  //       id: uniqueId(),
-  //       title: 'Blog Details',
-  //       icon: IconPoint,
-  //       href: '/frontend-pages/blog/Blog_1',
-  //     },
-  //     {
-  //       id: uniqueId(),
-  //       title: 'Contact',
-  //       icon: IconPoint,
-  //       href: '/frontend-pages/contact',
-  //     },
-  //     {
-  //       id: uniqueId(),
-  //       title: 'Portfolio',
-  //       icon: IconPoint,
-  //       href: '/frontend-pages/portfolio',
-  //     },
-  //     {
-  //       id: uniqueId(),
-  //       title: 'Pricing',
-  //       icon: IconPoint,
-  //       href: '/frontend-pages/pricing',
-  //     },
-  //   ],
-  // },
+  {
+    id: uniqueId(),
+    title: 'APS CMS',
+    icon: IoIosGlobe,
+    href: '/admin/cms/',
+    children: [
+      {
+        id: uniqueId(),
+        title: 'Homepage',
+        icon: TbPointFilled,
+        href: '/admin/cms/homepage',
+      },
+      // {
+      //   id: uniqueId(),
+      //   title: 'About Us',
+      //   icon: IconPoint,
+      //   href: '/frontend-pages/about',
+      // },
+      // {
+      //   id: uniqueId(),
+      //   title: 'Blog',
+      //   icon: IconPoint,
+      //   href: '/frontend-pages/blog',
+      // },
+      // {
+      //   id: uniqueId(),
+      //   title: 'Blog Details',
+      //   icon: IconPoint,
+      //   href: '/frontend-pages/blog/Blog_1',
+      // },
+      // {
+      //   id: uniqueId(),
+      //   title: 'Contact',
+      //   icon: IconPoint,
+      //   href: '/frontend-pages/contact',
+      // },
+      // {
+      //   id: uniqueId(),
+      //   title: 'Portfolio',
+      //   icon: IconPoint,
+      //   href: '/frontend-pages/portfolio',
+      // },
+      // {
+      //   id: uniqueId(),
+      //   title: 'Pricing',
+      //   icon: IconPoint,
+      //   href: '/frontend-pages/pricing',
+      // },
+    ],
+  },
 ];
 
 export default Menuitems;
