@@ -1,9 +1,10 @@
 import { uniqueId } from "lodash";
 import { RiDashboardHorizontalFill } from "react-icons/ri";
-import { MdFormatListBulleted } from "react-icons/md";
+import { MdFormatListBulleted, MdStickyNote2 } from "react-icons/md";
 import { BiCalendarEvent } from "react-icons/bi";
 import { IoMdPricetag, IoIosGlobe } from "react-icons/io";
 import { TbPointFilled } from "react-icons/tb";
+import { GrNotes } from "react-icons/gr";
 
 const Menuitems = [
   {
@@ -30,6 +31,12 @@ const Menuitems = [
     title: "Category",
     icon: IoMdPricetag,
     href: "/admin/category",
+  },
+  {
+    id: uniqueId(),
+    title: "Enrollments",
+    icon: MdStickyNote2,
+    href: "/admin/enrollment",
   },
   {
     id: uniqueId(),

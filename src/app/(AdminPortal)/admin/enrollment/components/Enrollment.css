@@ -1,0 +1,13 @@
+.step1-student-info .MuiPickersSectionList-root {
+  font-size: 14px;
+  padding: 12px 0px;
+  line-height: 19.6px;
+  letter-spacing: -0.28px;
+  color: #181818;
+  font-weight: 400;
+  height: 45px;
+}
+
+.step1-student-info .MuiPickersOutlinedInput-root {
+  border-radius: 6px;
+}
