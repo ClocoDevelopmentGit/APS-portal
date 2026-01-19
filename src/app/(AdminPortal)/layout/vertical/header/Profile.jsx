@@ -32,7 +32,7 @@ const Profile = () => {
   const dispatch = useDispatch();
   const router = useRouter();
 
-  const { user } = useSelector((state) => state.user);
+  const { user, error } = useSelector((state) => state.user);
   const handleClick2 = (event) => {
     setAnchorEl2(event.currentTarget);
   };
@@ -40,13 +40,19 @@ const Profile = () => {
     setAnchorEl2(null);
   };
 
+  useEffect(() => {
+    if (error) {
+      router.replace(`${process.env.NEXT_PUBLIC_REDIRECT_URL}/Pages/LoginPage`);
+    }
+  });
+
   const logout = async () => {
     await dispatch(logoutUser())
       .unwrap()
       .then(() => {
         console.log("User logged out successfully");
         router.replace(
-          `${process.env.NEXT_PUBLIC_REDIRECT_URL}/Pages/LoginPage`
+          `${process.env.NEXT_PUBLIC_REDIRECT_URL}/Pages/LoginPage`,
         );
       })
       .catch((error) => {
@@ -60,7 +66,10 @@ const Profile = () => {
 
       if (typeof window !== "undefined") {
         const userDetails = localStorage.getItem("user");
-        storedUser = userDetails ? JSON.parse(userDetails) : RiNumbersFill;
+        storedUser =
+          userDetails && userDetails !== "undefined"
+            ? JSON.parse(userDetails)
+            : RiNumbersFill;
       }
 
       if (user) {

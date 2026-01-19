@@ -9,6 +9,9 @@ export const metadata = {
   description: "Acting Performance Studio",
 };
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>

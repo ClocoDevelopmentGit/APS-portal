@@ -10,7 +10,7 @@ export const fetchAllStaffs = createAsyncThunk(
     try {
       const response = await axios.get(`${API_URL}/api/user/get`);
       const staffs = response?.data?.users.filter(
-        (user) => user.role === "Staff"
+        (user) => user.role === "Staff",
       );
       localStorage.setItem("allStaffs", JSON.stringify(staffs));
       return staffs;
@@ -21,7 +21,7 @@ export const fetchAllStaffs = createAsyncThunk(
         "Failed to fetch users";
       return rejectWithValue(message);
     }
-  }
+  },
 );
 
 export const fetchCurrentUser = createAsyncThunk(
@@ -39,7 +39,7 @@ export const fetchCurrentUser = createAsyncThunk(
         "Failed to fetch users";
       return rejectWithValue(message);
     }
-  }
+  },
 );
 
 export const logoutUser = createAsyncThunk(
@@ -49,7 +49,7 @@ export const logoutUser = createAsyncThunk(
       await axios.post(
         `${API_URL}/api/user/logout`,
         {},
-        { withCredentials: true }
+        { withCredentials: true },
       );
       localStorage.removeItem("token");
       localStorage.removeItem("user");
@@ -63,7 +63,7 @@ export const logoutUser = createAsyncThunk(
         "Logout failed. Please try again.";
       return rejectWithValue(message);
     }
-  }
+  },
 );
 
 const getInitialUsers = () => {
@@ -77,7 +77,8 @@ const getInitialUsers = () => {
 const getInitialUser = () => {
   if (typeof window !== "undefined") {
     const saved = localStorage.getItem("user");
-    return saved || saved !== "undefined" ? JSON.parse(saved) : null;
+    console.log(saved);
+    return saved && saved !== "undefined" ? JSON.parse(saved) : null;
   }
   return null;
 };
