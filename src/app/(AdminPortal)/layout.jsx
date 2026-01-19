@@ -7,8 +7,9 @@ import Header from "./layout/vertical/header/Header";
 import Sidebar from "./layout/vertical/sidebar/Sidebar";
 import { CustomizerContext } from "@/app/context/customizerContext";
 import config from "@/app/context/config";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { fetchCurrentUser } from "@/redux/slices/userSlice";
+import { useRouter } from "next/router";
 
 const MainWrapper = styled("div")(() => ({
   display: "flex",
@@ -28,6 +29,8 @@ const PageWrapper = styled("div")(() => ({
 
 export default function RootLayout({ children }) {
   const { isLayout, activeMode, isCollapse } = useContext(CustomizerContext);
+  const router = useRouter();
+  const { user } = useSelector((state) => state.user);
   const theme = useTheme();
   const MiniSidebarWidth = config.miniSidebarWidth;
   const dispatch = useDispatch();
@@ -35,6 +38,12 @@ export default function RootLayout({ children }) {
   useEffect(() => {
     dispatch(fetchCurrentUser());
   }, [dispatch]);
+
+  useEffect(() => {
+    if (user?.role !== "Admin") {
+      router.replace(`${process.env.NEXT_PUBLIC_REDIRECT_URL}/Pages/LoginPage`);
+    }
+  }, [user, router]);
 
   return (
     <MainWrapper className="mainwrapper">
