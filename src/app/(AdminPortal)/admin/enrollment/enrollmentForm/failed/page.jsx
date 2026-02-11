@@ -239,7 +239,7 @@ const ManualEnrollmentFailed = () => {
     <PageContainer>
       <HeaderSection>
         <PageTitle>Manual Enrollment</PageTitle>
-        <Breadcrumb>Enrollments / Manual Enrollment / Success</Breadcrumb>
+        <Breadcrumb>Enrollments / Manual Enrollment / Failed</Breadcrumb>
       </HeaderSection>
 
       <FailedCard>
