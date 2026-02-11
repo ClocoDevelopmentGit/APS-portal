@@ -9,7 +9,7 @@ import { CustomizerContext } from "@/app/context/customizerContext";
 import config from "@/app/context/config";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCurrentUser } from "@/redux/slices/userSlice";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 const MainWrapper = styled("div")(() => ({
   display: "flex",
@@ -36,11 +36,14 @@ export default function RootLayout({ children }) {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(fetchCurrentUser());
+    const fetchUser = async() =>{
+      await dispatch(fetchCurrentUser()).unwrap();
+    }
+    fetchUser();
   }, [dispatch]);
 
   useEffect(() => {
-    if (user?.role !== "Admin") {
+    if (user && user?.role !== "Admin") {
       router.replace(`${process.env.NEXT_PUBLIC_REDIRECT_URL}/Pages/LoginPage`);
     }
   }, [user, router]);
