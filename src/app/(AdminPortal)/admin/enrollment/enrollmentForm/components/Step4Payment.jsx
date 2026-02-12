@@ -240,13 +240,13 @@ const Step4Payment = ({ formData, onSubmit, onBack }) => {
     console.log("Payment Data:", paymentData);
     console.log("Payment Method:", paymentMethod);
     onSubmit();
-    window.location.href = "/admin/enrollment/success";
+    window.location.href = "/admin/enrollment/enrollmentForm/success";
   };
 
   return (
     <Box>
       {/* Payment Method Selection */}
-      <PaymentMethodContainer>
+      {/* <PaymentMethodContainer>
         <StyledToggleButtonGroup
           value={paymentMethod}
           exclusive
@@ -265,7 +265,7 @@ const Step4Payment = ({ formData, onSubmit, onBack }) => {
             Bank Transfer
           </StyledToggleButton>
         </StyledToggleButtonGroup>
-      </PaymentMethodContainer>
+      </PaymentMethodContainer> */}
 
       {/* Card Payment Form */}
       {paymentMethod === "card" && (
@@ -393,7 +393,7 @@ const Step4Payment = ({ formData, onSubmit, onBack }) => {
       )} */}
 
       {/* Payment Status, Amount Paid, and Transaction Reference */}
-      <FormContainer>
+      {/* <FormContainer>
         <Box>
           <FieldLabel>
             Payment Status: <span>*</span>
@@ -442,7 +442,7 @@ const Step4Payment = ({ formData, onSubmit, onBack }) => {
           onChange={handleChange}
           fullWidth
         />
-      </Box>
+      </Box> */}
 
       <ButtonContainer>
         <BackButton onClick={onBack} startIcon={<ArrowBackIcon />}>
