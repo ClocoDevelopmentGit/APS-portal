@@ -4,6 +4,7 @@ import { MdFormatListBulleted, MdStickyNote2 } from "react-icons/md";
 import { BiCalendarEvent } from "react-icons/bi";
 import { IoMdPricetag, IoIosGlobe } from "react-icons/io";
 import { TbPointFilled } from "react-icons/tb";
+import { GiCheckMark } from "react-icons/gi";
 import { GrNotes } from "react-icons/gr";
 
 const Menuitems = [
@@ -37,6 +38,12 @@ const Menuitems = [
     title: "Enrollments",
     icon: MdStickyNote2,
     href: "/admin/enrollment",
+  },
+  {
+    id: uniqueId(),
+    title: "Attendance",
+    icon: GiCheckMark,
+    href: "/admin/attendance",
   },
   {
     id: uniqueId(),

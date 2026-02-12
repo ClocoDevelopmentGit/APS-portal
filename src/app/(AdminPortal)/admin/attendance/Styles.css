@@ -1,0 +1,17 @@
+.attendance-page .MuiPickersSectionList-root {
+  font-size: 13px;
+  padding: 10px 0px;
+  color: #433205;
+  font-weight: 600;
+}
+
+.attendance-page .MuiPickersOutlinedInput-root {
+  border-radius: 12px;
+  border: 1px solid #c2c2c2;
+  background: #fff;
+  box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.25);
+}
+
+.attendance-page .MuiPickersOutlinedInput-notchedOutline {
+  border: none !important;
+}
