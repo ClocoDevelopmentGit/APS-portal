@@ -24,6 +24,59 @@ export const fetchAllStaffs = createAsyncThunk(
   },
 );
 
+export const sendEnrollmentEmail = createAsyncThunk(
+  "enrollment/sendEmail",
+  async (enrollmentData, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(
+        `${API_URL}/api/user/send-confirmation`,
+        {
+          enrollmentData,
+        }
+      );
+
+      if (!response.data.success) {
+        return rejectWithValue(response.data.message);
+      }
+
+      return response.data.message;
+    } catch (error) {
+      console.error(error);
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to send email"
+      );
+    }
+  }
+);
+
+export const registerUser = createAsyncThunk(
+  "auth/login",
+  async (usersData, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(
+        `${API_URL}/api/user/register`,
+        usersData,
+        { withCredentials: true }
+      );
+
+      if (response.data.success) {
+        const { primaryUser, users } = response.data;
+
+        return {
+          primaryUser,
+          users,
+        };
+      }
+    } catch (error) {
+      const message =
+        error.response?.data?.message ||
+        error.message ||
+        "Registration failed. Please try again.";
+      return rejectWithValue(message);
+    }
+  }
+);
+
 export const fetchCurrentUser = createAsyncThunk(
   "user/fetchById",
   async (_, { rejectWithValue }) => {

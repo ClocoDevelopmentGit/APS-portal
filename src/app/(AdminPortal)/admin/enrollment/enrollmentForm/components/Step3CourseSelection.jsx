@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -147,16 +147,194 @@ const NextButton = styled(Button)({
 
 // ==================== COMPONENT ====================
 
-const CourseSelection = ({ formData, handleChange, onNext, onBack }) => {
+const CourseSelection = ({
+  formData,
+  handleChange,
+  onNext,
+  onBack,
+  enrollmentType
+}) => {
+  const [errors, setErrors] = useState({});
+  const [courses, setCourses] = useState([]);
+  const [selectedCourseObj, setSelectedCourseObj] = useState(null);
+
+  // Load from localStorage
+  useEffect(() => {
+    const stored = localStorage.getItem("allCourses");
+    console.log("Loaded courses from localStorage:", stored);
+    if (stored) {
+      setCourses(JSON.parse(stored));
+    }
+  }, []);
+
+  // When course changes
+  const handleCourseChange = (e) => {
+    const selectedTitle = e.target.value;
+
+    const courseObj = courses.find(
+      (course) => course.title === selectedTitle
+    );
+
+    setSelectedCourseObj(courseObj || null);
+
+    handleChange(e);
+
+    // Reset dependent fields
+    handleChange({ target: { name: "location", value: "" } });
+    handleChange({ target: { name: "session", value: "" } });
+  };
+
+  // When location changes
+  const handleLocationChange = (e) => {
+    handleChange(e);
+    handleChange({ target: { name: "session", value: "" } });
+  };
+
+  // Unique Locations
+  const locations = useMemo(() => {
+    if (!selectedCourseObj) return [];
+
+    const activeClasses = selectedCourseObj.classes.filter(
+      (cls) => cls.isActive
+    );
+
+    const unique = [
+      ...new Map(
+        activeClasses.map((cls) => [
+          cls.location.id,
+          cls.location,
+        ])
+      ).values(),
+    ];
+
+    return unique;
+  }, [selectedCourseObj]);
+
+  // Sessions filtered by location
+  const sessions = useMemo(() => {
+    if (!selectedCourseObj || !formData.location) return [];
+
+    return selectedCourseObj.classes.filter(
+      (cls) =>
+        cls.location.name === formData.location &&
+        cls.isActive
+    );
+  }, [selectedCourseObj, formData.location]);
+
+  const formatSessionLabel = (cls) => {
+    const startDate = new Date(cls.startDate).toLocaleDateString("en-AU");
+    const endDate = new Date(cls.endDate).toLocaleDateString("en-AU");
+
+    const startTime = new Date(cls.startTime).toLocaleTimeString("en-AU", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    const endTime = new Date(cls.endTime).toLocaleTimeString("en-AU", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    return `${startDate} - ${endDate} | ${cls.day} | ${startTime}-${endTime} | ${cls.location.name}`;
+  };
+
+   const validateEnrollmentForm = (formData) => {
+    const newErrors = {};
+    const fieldLabels = {
+      ...(enrollmentType === "Course" && { classId: "Class" }),
+    };
+
+    Object.keys(fieldLabels).forEach((key) => {
+      const value = formData[key];
+      if (
+        value === null ||
+        value === undefined ||
+        value === "" ||
+        value === 0
+      ) {
+        newErrors[key] = `${fieldLabels[key]} is required`;
+      }
+    });
+
+    return newErrors;
+  };
+
+  const handleNextClick = () => {
+  setErrors({});
+
+  const formError = validateEnrollmentForm(formData);
+  if (Object.keys(formError).length > 0) {
+    setErrors(formError);
+    return;
+  }
+
+  // 🔥 Find selected class object
+  const selectedClass = selectedCourseObj?.classes?.find(
+    (cls) => cls.id === formData.session // or classId if you renamed it
+  );
+
+  if (!selectedClass) {
+    console.log("Selected class not found");
+    return;
+  }
+
+  localStorage.setItem("classId", selectedClass.id);
+  localStorage.setItem("formData", JSON.stringify(formData));
+
+  const enrollmentData = {
+    studentName: (
+      (formData.firstName || "") +
+      " " +
+      (formData.lastName || "")
+    ).trim(),
+
+    courseName: formData.course || "",
+
+    location: selectedClass.location?.name || "",
+
+    sessionDetails: `${selectedClass.day} - ${new Date(
+      selectedClass.startDate
+    ).toLocaleDateString("en-AU")} to ${new Date(
+      selectedClass.endDate
+    ).toLocaleDateString("en-AU")}`,
+
+    sessionTime: `${new Date(
+      selectedClass.startTime
+    ).toLocaleTimeString("en-AU", {
+      hour: "2-digit",
+      minute: "2-digit",
+    })} - ${new Date(
+      selectedClass.endTime
+    ).toLocaleTimeString("en-AU", {
+      hour: "2-digit",
+      minute: "2-digit",
+    })}`,
+
+    tutorName: `${selectedClass.tutor?.firstName || ""} ${
+      selectedClass.tutor?.lastName || ""
+    }`.trim(),
+
+    availableSeats: selectedClass.availableSeats || 0,
+  };
+
+  localStorage.setItem(
+    "enrollmentData",
+    JSON.stringify(enrollmentData)
+  );
+
+  onNext();
+};
+
+
   return (
     <Box>
       <ContentWrapper>
         <SectionTitle>Course Selection:</SectionTitle>
 
         <FormContent>
-          {/* Course and Location */}
           <FormContainer>
-            <Box width={"100%"}>
+            {/* COURSE */}
+            <Box width="100%">
               <FieldLabel>
                 Course: <span>*</span>
               </FieldLabel>
@@ -164,33 +342,28 @@ const CourseSelection = ({ formData, handleChange, onNext, onBack }) => {
                 <Select
                   name="course"
                   value={formData.course || ""}
-                  onChange={handleChange}
+                  onChange={handleCourseChange}
                   displayEmpty
-                  renderValue={(selected) => {
-                    if (!selected) {
-                      return <span style={{ color: "#999999" }}>Select</span>;
-                    }
-                    return selected;
-                  }}
                 >
-                  <StyledMenuItem value="Kinder Kids Acting">
-                    Kinder Kids Acting
+                  <StyledMenuItem value="">
+                    Select
                   </StyledMenuItem>
-                  <StyledMenuItem value="Junior Acting">
-                    Junior Acting
-                  </StyledMenuItem>
-                  <StyledMenuItem value="Teen Drama">Teen Drama</StyledMenuItem>
-                  <StyledMenuItem value="Musical Theatre">
-                    Musical Theatre
-                  </StyledMenuItem>
-                  <StyledMenuItem value="Performance Workshop">
-                    Performance Workshop
-                  </StyledMenuItem>
+                  {courses
+                    .filter((c) => c.isActive)
+                    .map((course) => (
+                      <StyledMenuItem
+                        key={course.id}
+                        value={course.title}
+                      >
+                        {course.title}
+                      </StyledMenuItem>
+                    ))}
                 </Select>
               </StyledFormControl>
             </Box>
 
-            <Box width={"100%"}>
+            {/* LOCATION */}
+            <Box width="100%">
               <FieldLabel>
                 Location: <span>*</span>
               </FieldLabel>
@@ -198,32 +371,29 @@ const CourseSelection = ({ formData, handleChange, onNext, onBack }) => {
                 <Select
                   name="location"
                   value={formData.location || ""}
-                  onChange={handleChange}
+                  onChange={handleLocationChange}
+                  disabled={!selectedCourseObj}
                   displayEmpty
-                  renderValue={(selected) => {
-                    if (!selected) {
-                      return <span style={{ color: "#999999" }}>Select</span>;
-                    }
-                    return selected;
-                  }}
                 >
-                  <StyledMenuItem value="Moorabbin">Moorabbin</StyledMenuItem>
-                  <StyledMenuItem value="Glen Waverley">
-                    Glen Waverley
+                  <StyledMenuItem value="">
+                    Select
                   </StyledMenuItem>
-                  <StyledMenuItem value="Brighton">Brighton</StyledMenuItem>
-                  <StyledMenuItem value="St Kilda">St Kilda</StyledMenuItem>
-                  <StyledMenuItem value="Elsternwick">
-                    Elsternwick
-                  </StyledMenuItem>
+                  {locations.map((loc) => (
+                    <StyledMenuItem
+                      key={loc.id}
+                      value={loc.name}
+                    >
+                      {loc.name}
+                    </StyledMenuItem>
+                  ))}
                 </Select>
               </StyledFormControl>
             </Box>
           </FormContainer>
 
-          {/* Session and Enrollment Type */}
           <FormContainer>
-            <Box width={"100%"}>
+            {/* SESSION */}
+            <Box width="100%">
               <FieldLabel>
                 Session: <span>*</span>
               </FieldLabel>
@@ -232,31 +402,29 @@ const CourseSelection = ({ formData, handleChange, onNext, onBack }) => {
                   name="session"
                   value={formData.session || ""}
                   onChange={handleChange}
+                  disabled={!formData.location}
                   displayEmpty
-                  renderValue={(selected) => {
-                    if (!selected) {
-                      return <span style={{ color: "#999999" }}>Select</span>;
-                    }
-                    return selected;
-                  }}
                 >
-                  <StyledMenuItem value="18 Oct - 6 Dec, 2025 | 4:45pm-6:45pm | Harrison Lane">
-                    18 Oct - 6 Dec, 2025 | 4:45pm-6:45pm | Harrison Lane
+                  <StyledMenuItem value="">
+                    Select
                   </StyledMenuItem>
-                  <StyledMenuItem value="15 Jan - 5 Mar, 2026 | 10:00am-12:00pm | Brighton">
-                    15 Jan - 5 Mar, 2026 | 10:00am-12:00pm | Brighton
-                  </StyledMenuItem>
-                  <StyledMenuItem value="20 Mar - 15 May, 2026 | 3:30pm-5:30pm | St Kilda">
-                    20 Mar - 15 May, 2026 | 3:30pm-5:30pm | St Kilda
-                  </StyledMenuItem>
-                  <StyledMenuItem value="10 Jun - 30 Jul, 2026 | 5:00pm-7:00pm | Moorabbin">
-                    10 Jun - 30 Jul, 2026 | 5:00pm-7:00pm | Moorabbin
-                  </StyledMenuItem>
+                  {sessions.map((cls) => (
+                    <StyledMenuItem
+                      key={cls.id}
+                      value={cls.id}
+                      // disabled={!cls.canEnroll}
+                      disabled={cls.availableSeats === 0}
+                    >
+                      {formatSessionLabel(cls)}{" "}
+                      ({cls.availableSeats} seats)
+                    </StyledMenuItem>
+                  ))}
                 </Select>
               </StyledFormControl>
             </Box>
 
-            <Box width={"100%"}>
+            {/* ENROLLMENT TYPE */}
+            <Box width="100%">
               <FieldLabel>
                 Enrollment Type: <span>*</span>
               </FieldLabel>
@@ -266,24 +434,21 @@ const CourseSelection = ({ formData, handleChange, onNext, onBack }) => {
                   value={formData.enrollmentType || ""}
                   onChange={handleChange}
                   displayEmpty
-                  renderValue={(selected) => {
-                    if (!selected) {
-                      return <span style={{ color: "#999999" }}>Select</span>;
-                    }
-                    return selected;
-                  }}
                 >
-                  <StyledMenuItem value="Term Payment ($495)">
-                    Term Payment ($495)
+                  <StyledMenuItem value="">
+                    Select
                   </StyledMenuItem>
-                  <StyledMenuItem value="Full Year ($1800)">
-                    Full Year ($1800)
+                  <StyledMenuItem value="Term Payment">
+                    Term Payment
                   </StyledMenuItem>
-                  <StyledMenuItem value="Monthly ($180)">
-                    Monthly ($180)
+                  <StyledMenuItem value="Full Year">
+                    Full Year
                   </StyledMenuItem>
-                  <StyledMenuItem value="Trial Class ($45)">
-                    Trial Class ($45)
+                  <StyledMenuItem value="Monthly">
+                    Monthly
+                  </StyledMenuItem>
+                  <StyledMenuItem value="Trial Class">
+                    Trial Class
                   </StyledMenuItem>
                 </Select>
               </StyledFormControl>
@@ -291,10 +456,16 @@ const CourseSelection = ({ formData, handleChange, onNext, onBack }) => {
           </FormContainer>
 
           <ButtonContainer>
-            <BackButton onClick={onBack} startIcon={<ArrowBackIcon />}>
+            <BackButton
+              onClick={onBack}
+              startIcon={<ArrowBackIcon />}
+            >
               Back
             </BackButton>
-            <NextButton onClick={onNext} endIcon={<ArrowForwardIcon />}>
+            <NextButton
+              onClick={handleNextClick}
+              endIcon={<ArrowForwardIcon />}
+            >
               Next
             </NextButton>
           </ButtonContainer>
