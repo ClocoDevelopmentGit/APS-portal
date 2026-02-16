@@ -5,7 +5,8 @@ import { BiCalendarEvent } from "react-icons/bi";
 import { IoMdPricetag, IoIosGlobe } from "react-icons/io";
 import { TbPointFilled } from "react-icons/tb";
 import { GiCheckMark } from "react-icons/gi";
-import { GrNotes } from "react-icons/gr";
+import { FaUserFriends } from "react-icons/fa";
+import { IoReceipt } from "react-icons/io5";
 
 const Menuitems = [
   {
@@ -35,6 +36,12 @@ const Menuitems = [
   },
   {
     id: uniqueId(),
+    title: "Leads",
+    icon: FaUserFriends,
+    href: "/admin/leads",
+  },
+  {
+    id: uniqueId(),
     title: "Enrollments",
     icon: MdStickyNote2,
     href: "/admin/enrollment",
@@ -44,6 +51,12 @@ const Menuitems = [
     title: "Attendance",
     icon: GiCheckMark,
     href: "/admin/attendance",
+  },
+  {
+    id: uniqueId(),
+    title: "Invoices",
+    icon: IoReceipt,
+    href: "/admin/invoices",
   },
   {
     id: uniqueId(),

@@ -612,7 +612,7 @@ const AttendancePage = () => {
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         {/* Title Section */}
         <TitleSection>
-          <MainTitle>Staff Attendance Management</MainTitle>
+          <MainTitle>Attendance Management</MainTitle>
           <SubTitle>Select a course to mark student attendance</SubTitle>
         </TitleSection>
 
