@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Box, Typography, Button } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import CloseIcon from "@mui/icons-material/Close";
@@ -216,16 +216,17 @@ const SecondaryButton = styled(Button)({
 // ==================== COMPONENT ====================
 
 const ManualEnrollmentFailed = () => {
-  const enrollmentData = {
-    studentName: "Emma Watson",
-    courseName: "Kinder Kids Acting",
-    location: "Moorabbin",
-    sessionDetails: "Saturday, 18 Oct - 6 Dec, 2025",
-    sessionTime: "4:45pm - 6:45pm",
-    paymentMethod: "Visa •••• 4321",
-    transactionId: "TXN1234567890",
-    totalAmount: "$495.00",
-  };
+    const [enrollmentData, setEnrollmentData] = useState(null);
+
+  useEffect(() => {
+    const fetchData = () => {
+      const storedData = localStorage.getItem("enrollmentData");
+      if (storedData) {
+        setEnrollmentData(JSON.parse(storedData));
+      }
+    };
+    fetchData();
+  }, []);
 
   const handlePrintReceipt = () => {
     window.print();
@@ -269,42 +270,42 @@ const ManualEnrollmentFailed = () => {
 
           <SummaryRow>
             <SummaryLabel>Student Name:</SummaryLabel>
-            <SummaryValue>{enrollmentData.studentName}</SummaryValue>
+            <SummaryValue>{enrollmentData?.studentName}</SummaryValue>
           </SummaryRow>
 
           <SummaryRow>
             <SummaryLabel>Course Name:</SummaryLabel>
-            <SummaryValue>{enrollmentData.courseName}</SummaryValue>
+            <SummaryValue>{enrollmentData?.courseName}</SummaryValue>
           </SummaryRow>
 
           <SummaryRow>
             <SummaryLabel>Location:</SummaryLabel>
-            <SummaryValue>{enrollmentData.location}</SummaryValue>
+            <SummaryValue>{enrollmentData?.location}</SummaryValue>
           </SummaryRow>
 
           <SummaryRow>
             <SummaryLabel>Session Details:</SummaryLabel>
-            <SummaryValue>{enrollmentData.sessionDetails}</SummaryValue>
+            <SummaryValue>{enrollmentData?.sessionDetails}</SummaryValue>
           </SummaryRow>
 
           <SummaryRow>
             <SummaryLabel>Session Time:</SummaryLabel>
-            <SummaryValue>{enrollmentData.sessionTime}</SummaryValue>
+            <SummaryValue>{enrollmentData?.sessionTime}</SummaryValue>
           </SummaryRow>
 
           <SummaryRow>
             <SummaryLabel>Payment Method:</SummaryLabel>
-            <SummaryValue>{enrollmentData.paymentMethod}</SummaryValue>
+            <SummaryValue>{enrollmentData?.paymentMethod}</SummaryValue>
           </SummaryRow>
 
           <SummaryRow>
             <SummaryLabel>Transaction ID:</SummaryLabel>
-            <SummaryValue>{enrollmentData.transactionId}</SummaryValue>
+            <SummaryValue>{enrollmentData?.transactionId}</SummaryValue>
           </SummaryRow>
 
           <TotalRow>
             <TotalLabel>Total Amount Paid:</TotalLabel>
-            <TotalValue>{enrollmentData.totalAmount}</TotalValue>
+            <TotalValue>{enrollmentData?.totalAmount}</TotalValue>
           </TotalRow>
         </SummaryCard>
 
