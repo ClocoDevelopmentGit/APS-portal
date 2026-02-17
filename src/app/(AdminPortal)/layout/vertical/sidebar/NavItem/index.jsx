@@ -25,21 +25,22 @@ const ListItemStyled = styled(ListItemButton, {
 })(({ theme, level, hideMenu, isActive, borderRadius }) => ({
   whiteSpace: "nowrap",
   marginBottom: "2px",
-  padding: "8px 10px",
-  borderRadius: `${borderRadius}px`,
+  padding: "5px 10px",
+  borderRadius: `12px`,
   backgroundColor: level > 1 ? "transperant" : "inherit",
-  color: level > 1 && isActive ? `${"#AE9964"}!important` : "#FFF",
+  color: level > 1 && isActive ? `${"#FFFFFF"}!important` : "#FFFFFF",
   paddingLeft: hideMenu ? "10px" : level > 2 ? `${level * 15}px` : "10px",
   "&:hover": {
-    backgroundColor: "#FFF",
-    color: "#AE9964",
+    backgroundColor: "#635738",
+    color: "#FFFFFF",
   },
   "&.Mui-selected": {
-    color: "#AE9964",
-    backgroundColor: "#FFF",
+    color: "#FFFFFF",
+    backgroundColor: "#635738",
+    boxShadow: "0 4px 4px 0 rgba(0, 0, 0, 0.25)",
     "&:hover": {
-      backgroundColor: "#FFF",
-      color: "#AE9964",
+      backgroundColor: "#635738",
+      color: "#FFFFFF",
     },
   },
 }));

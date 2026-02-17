@@ -30,16 +30,16 @@ const ListItemStyled = styled(ListItemButton, {
     prop !== "borderRadius",
 })(({ theme, isOpen, level, hideMenu, pathIncludes, borderRadius }) => ({
   marginBottom: "2px",
-  padding: "8px 10px",
+  padding: "5px 10px",
   paddingLeft: hideMenu ? "10px" : level > 2 ? `${level * 15}px` : "10px",
   backgroundColor: isOpen && level < 2 ? "" : "",
   whiteSpace: "nowrap",
   "&:hover": {
-    backgroundColor: "white",
-    color: "#AE9964",
+    backgroundColor: "#635738",
+    color: "#FFFFFF",
   },
-  color: "white",
-  borderRadius: `${borderRadius}px`,
+  color: "#FFFFFF",
+  borderRadius: `12px`,
 }));
 
 // FC Component For Dropdown Menu

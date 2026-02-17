@@ -3,7 +3,6 @@ import Drawer from "@mui/material/Drawer";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
 import SidebarItems from "./SidebarItems";
-import Scrollbar from "@/app/components/custom-scroll/Scrollbar";
 import Image from "next/image";
 import { useContext, useEffect } from "react";
 import { CustomizerContext } from "@/app/context/customizerContext";
@@ -15,6 +14,7 @@ import { fetchAllLocations } from "@/redux/slices/locationSlice";
 import { fetchAllStaffs } from "@/redux/slices/userSlice";
 import { fetchAllEvents } from "@/redux/slices/eventSlice";
 import { fetchAllTerms } from "@/redux/slices/termSlice";
+import { Typography } from "@mui/material";
 
 const Sidebar = () => {
   const lgUp = useMediaQuery((theme) => theme.breakpoints.down("lg"));
@@ -61,8 +61,10 @@ const Sidebar = () => {
           sx={{
             zIndex: 100,
             width: toggleWidth,
-            background: "#635738",
             flexShrink: 0,
+            background:
+              "linear-gradient(175deg, #635738 5.26%, #C9B172 114.63%)",
+            borderRadius: "0px",
             ...(isCollapse == "mini-sidebar" && {
               position: "absolute",
             }),
@@ -85,6 +87,9 @@ const Sidebar = () => {
                   }),
                   width: toggleWidth,
                   boxSizing: "border-box",
+                  background: "transparent",
+                  border: "none",
+                  overflow: "hidden",
                 },
               },
             }}
@@ -94,9 +99,16 @@ const Sidebar = () => {
             {/* ------------------------------------------- */}
             <Box
               sx={{
-                borderRadius: 0,
-                background: "#635738",
-                height: "100%",
+                background: "rgba(217, 217, 217, 0.07)",
+                height: "calc(100% - 16px)",
+                margin: "8px",
+                borderRadius: "12px",
+                border: "1px solid rgba(255, 255, 255, 0.3)",
+                boxShadow:
+                  " rgba(254, 254, 254, 0.25) 0px 30px 60px 0px inset, rgba(255, 255, 255, 0.13) 0px 18px 36px -10px inset",
+                display: "flex",
+                flexDirection: "column",
+                overflow: "hidden",
               }}
             >
               {/* ------------------------------------------- */}
@@ -104,28 +116,69 @@ const Sidebar = () => {
               {/* ------------------------------------------- */}
               <Box
                 sx={{
-                  px: 3,
-                  position: "relative",
-                  margin: "20px 0 40px 0",
-                  height: "55px",
-                  width: "250px",
+                  px: 1,
+                  pt: 3,
+                  pb: 2,
+                  mx: "15px",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  borderBottom: "1px solid  #FFFFFF",
+                  borderRadius: "0px",
                 }}
               >
-                <Image
-                  src="/Images/APSlogo.png"
-                  alt="logo"
-                  fill
-                  style={{ objectFit: "contain", paddingLeft: "-10px" }}
-                  priority
-                />
+                <Box
+                  sx={{
+                    position: "relative",
+                    height: "60px",
+                    width: "160px",
+                  }}
+                >
+                  <Image
+                    src="/Images/APSlogo.png"
+                    alt="logo"
+                    fill
+                    style={{ objectFit: "contain" }}
+                    priority
+                  />
+                </Box>
               </Box>
-              <Scrollbar sx={{ height: "calc(100% - 190px)" }}>
-                {/* ------------------------------------------- */}
-                {/* Sidebar Items */}
-                {/* ------------------------------------------- */}
+
+              {/* ------------------------------------------- */}
+              {/* Sidebar Items */}
+              {/* ------------------------------------------- */}
+              <Box
+                sx={{
+                  flex: 1,
+                  overflowY: "auto",
+                  overflowX: "hidden",
+                  pb: 2,
+                  "&::-webkit-scrollbar": {
+                    width: "0px",
+                    display: "none",
+                  },
+                  "&::-webkit-scrollbar-track": {
+                    display: "none",
+                  },
+                  "&::-webkit-scrollbar-thumb": {
+                    display: "none",
+                  },
+                  scrollbarWidth: "none",
+                  msOverflowStyle: "none",
+                }}
+              >
+                <Typography
+                  sx={{
+                    padding: "20px 20px 0 35px",
+                    color: "rgba(255, 255, 255, 0.81)",
+                    fontSize: "12px",
+                    fontWeight: "200",
+                  }}
+                >
+                  Main Menu
+                </Typography>
                 <SidebarItems />
-              </Scrollbar>
-              {/* <Profile /> */}
+              </Box>
             </Box>
           </Drawer>
         </Box>
@@ -138,38 +191,102 @@ const Sidebar = () => {
           slotProps={{
             paper: {
               sx: {
-                background: "#635738",
+                background:
+                  "linear-gradient(175deg, #635738 5.26%, #C9B172 114.63%)",
                 width: SidebarWidth,
                 border: "0 !important",
-                boxShadow: (theme) => theme.shadows[8],
+                boxShadow: "none",
+                overflow: "hidden",
               },
             },
           }}
         >
           {/* ------------------------------------------- */}
-          {/* Logo */}
+          {/* Mobile Sidebar Box */}
           {/* ------------------------------------------- */}
           <Box
             sx={{
-              px: 3,
-              position: "relative",
-              margin: "20px 0 40px 0",
-              height: "55px",
-              width: "250px",
+              background: "rgba(217, 217, 217, 0.07)",
+              height: "calc(100% - 16px)",
+              margin: "8px",
+              borderRadius: "12px",
+              border: "1px solid rgba(255, 255, 255, 0.3)",
+              boxShadow:
+                " rgba(254, 254, 254, 0.25) 0px 30px 60px 0px inset, rgba(255, 255, 255, 0.13) 0px 18px 36px -10px inset",
+              display: "flex",
+              flexDirection: "column",
+              overflow: "hidden",
             }}
           >
-            <Image
-              src="/Images/APSlogo.png"
-              alt="logo"
-              fill
-              style={{ objectFit: "contain", paddingLeft: "-10px" }}
-              priority
-            />
+            {/* ------------------------------------------- */}
+            {/* Logo */}
+            {/* ------------------------------------------- */}
+            <Box
+              sx={{
+                px: 1,
+                pt: 3,
+                pb: 2,
+                mx: "15px",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                borderBottom: "1px solid  #FFFFFF",
+                borderRadius: "0px",
+              }}
+            >
+              <Box
+                sx={{
+                  position: "relative",
+                  height: "60px",
+                  width: "200px",
+                }}
+              >
+                <Image
+                  src="/Images/APSlogo.png"
+                  alt="logo"
+                  fill
+                  style={{ objectFit: "contain" }}
+                  priority
+                />
+              </Box>
+            </Box>
+
+            {/* ------------------------------------------- */}
+            {/* Sidebar For Mobile */}
+            {/* ------------------------------------------- */}
+            <Box
+              sx={{
+                flex: 1,
+                overflowY: "auto",
+                overflowX: "hidden",
+                pb: 2,
+                "&::-webkit-scrollbar": {
+                  width: "0px",
+                  display: "none",
+                },
+                "&::-webkit-scrollbar-track": {
+                  display: "none",
+                },
+                "&::-webkit-scrollbar-thumb": {
+                  display: "none",
+                },
+                scrollbarWidth: "none",
+                msOverflowStyle: "none",
+              }}
+            >
+              <Typography
+                sx={{
+                  padding: "20px 20px 0 35px",
+                  color: "rgba(255, 255, 255, 0.81)",
+                  fontSize: "12px",
+                  fontWeight: "200",
+                }}
+              >
+                Main Menu
+              </Typography>
+              <SidebarItems />
+            </Box>
           </Box>
-          {/* ------------------------------------------- */}
-          {/* Sidebar For Mobile */}
-          {/* ------------------------------------------- */}
-          <SidebarItems />
         </Drawer>
       )}
     </>
