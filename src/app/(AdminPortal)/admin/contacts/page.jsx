@@ -15,15 +15,13 @@ import {
   TableHead,
   TableRow,
   IconButton,
-  Chip,
   Avatar,
 } from "@mui/material";
-import { styled, createTheme, ThemeProvider } from "@mui/material/styles";
-import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+import { styled } from "@mui/material/styles";
+import { IoMdEye } from "react-icons/io";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import SearchIcon from "@mui/icons-material/Search";
-import StudentDetailsPopup from "./StudentDetailsPopup";
 
 // ==================== STYLED COMPONENTS ====================
 
@@ -155,8 +153,6 @@ const StyledFormControl = styled(FormControl)({
       borderColor: "#AE9964",
     },
     "&.Mui-focused fieldset": {
-      //   borderColor: "#AE9964",
-      //   borderWidth: "2px",
       border: "none",
     },
   },
@@ -190,27 +186,6 @@ const StyledMenuItem = styled(MenuItem)({
     "&:hover": {
       backgroundColor: "rgba(242, 242, 242, 0.77)",
     },
-  },
-});
-
-const AddLeadButton = styled(Button)({
-  backgroundColor: "#98711B",
-  border: "1px solid rgba(152, 113, 27, 0.39)",
-  boxShadow: "0 0 4px 0 rgba(0, 0, 0, 0.25)",
-  color: "#FFFFFF",
-  fontSize: "13px",
-  fontWeight: 600,
-  textTransform: "none",
-  padding: "8px 24px",
-  height: "40px",
-  borderRadius: "9px",
-  whiteSpace: "nowrap",
-  "&:hover": {
-    backgroundColor: "#9A7340",
-    boxShadow: "0 2px 8px rgba(179, 131, 73, 0.3)",
-  },
-  "@media (max-width: 968px)": {
-    width: "100%",
   },
 });
 
@@ -274,24 +249,9 @@ const ParticipantName = styled(Typography)({
   color: "#433205",
 });
 
-const StatusChip = styled(Chip, {
-  shouldForwardProp: (prop) => prop !== "statusType",
-})(({ statusType }) => ({
-  fontSize: "12px",
-  fontWeight: 600,
-  height: "28px",
-  borderRadius: "6px",
-  backgroundColor: statusType === "in-trial" ? "#E8F5E9" : "#FFF3E0",
-  color: statusType === "in-trial" ? "#2E7D32" : "#F57C00",
-  border: "none",
-  "& .MuiChip-label": {
-    padding: "0 10px",
-  },
-}));
-
 const ActionIconButton = styled(IconButton)({
-  width: "32px",
-  height: "32px",
+  width: "35px",
+  height: "35px",
   color: "#666666",
   "&:hover": {
     backgroundColor: "#F5F5F5",
@@ -387,130 +347,125 @@ const NavButton = styled(IconButton)({
 
 // ==================== SAMPLE DATA ====================
 
-const leadsData = [
+const contactsData = [
   {
     id: 1,
     name: "Anna Hathaway",
     avatar: "/avatar1.jpg",
-    age: 20,
-    mobile: "+61 410 345 676",
+    studentId: "APS001",
     email: "annahathaway@gmail.com",
+    age: 20,
+    mobile: "+61 410 345 678",
+    emergencyContact: "+61 410 345 678",
     course: "Industry Driven Adults",
     session: "4:45 pm - 7:45 pm, 18 Oct - 6 Oct 2025",
-    status: "in-trial",
   },
   {
     id: 2,
     name: "Tim Cook",
     avatar: "/avatar2.jpg",
-    age: 18,
-    mobile: "+61 410 345 676",
+    studentId: "APS001",
     email: "annahathaway@gmail.com",
+    age: 18,
+    mobile: "+61 410 345 678",
+    emergencyContact: "+61 410 345 678",
     course: "Industry Driven Adults",
     session: "4:45 pm - 7:45 pm, 18 Oct - 6 Oct 2025",
-    status: "in-trial",
   },
   {
     id: 3,
     name: "Wolfrost Hentag",
     avatar: "/avatar3.jpg",
-    age: 25,
-    mobile: "+61 410 345 676",
+    studentId: "APS001",
     email: "annahathaway@gmail.com",
+    age: 25,
+    mobile: "+61 410 345 678",
+    emergencyContact: "+61 410 345 678",
     course: "Industry Driven Adults",
     session: "4:45 pm - 7:45 pm, 18 Oct - 6 Oct 2025",
-    status: "enquired",
   },
   {
     id: 4,
     name: "Jane Foster",
     avatar: "/avatar4.jpg",
-    age: 14,
-    mobile: "+61 410 345 676",
+    studentId: "APS001",
     email: "annahathaway@gmail.com",
+    age: 14,
+    mobile: "+61 410 345 678",
+    emergencyContact: "+61 410 345 678",
     course: "Industry Driven Adults",
     session: "4:45 pm - 7:45 pm, 18 Oct - 6 Oct 2025",
-    status: "enquired",
   },
   {
     id: 5,
     name: "Peter Griffin",
     avatar: "/avatar5.jpg",
-    age: 12,
-    mobile: "+61 410 345 676",
+    studentId: "APS001",
     email: "annahathaway@gmail.com",
+    age: 12,
+    mobile: "+61 410 345 678",
+    emergencyContact: "+61 410 345 678",
     course: "Industry Driven Adults",
     session: "4:45 pm - 7:45 pm, 18 Oct - 6 Oct 2025",
-    status: "enquired",
   },
   {
     id: 6,
     name: "Wayne Bruce",
     avatar: "/avatar6.jpg",
-    age: 21,
-    mobile: "+61 410 345 676",
+    studentId: "APS001",
     email: "annahathaway@gmail.com",
+    age: 21,
+    mobile: "+61 410 345 678",
+    emergencyContact: "+61 410 345 678",
     course: "Industry Driven Adults",
     session: "4:45 pm - 7:45 pm, 18 Oct - 6 Oct 2025",
-    status: "in-trial",
   },
   {
     id: 7,
     name: "Steffy Glitter",
     avatar: "/avatar7.jpg",
-    age: 20,
-    mobile: "+61 410 345 676",
+    studentId: "APS001",
     email: "annahathaway@gmail.com",
+    age: 20,
+    mobile: "+61 410 345 678",
+    emergencyContact: "+61 410 345 678",
     course: "Industry Driven Adults",
     session: "4:45 pm - 7:45 pm, 18 Oct - 6 Oct 2025",
-    status: "in-trial",
   },
   {
     id: 8,
     name: "Westhamtan",
     avatar: "/avatar8.jpg",
-    age: "9 Years",
-    mobile: "+61 410 345 676",
+    studentId: "APS001",
     email: "annahathaway@gmail.com",
+    age: 9,
+    mobile: "+61 410 345 678",
+    emergencyContact: "+61 410 345 678",
     course: "Industry Driven Adults",
     session: "4:45 pm - 7:45 pm, 18 Oct - 6 Oct 2025",
-    status: "in-trial",
   },
 ];
 
 // ==================== COMPONENT ====================
 
-const LeadsPage = () => {
+const ContactsPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterBy, setFilterBy] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [openDetailsPopup, setOpenDetailsPopup] = useState(false);
-  const [selectedStudent, setSelectedStudent] = useState(null);
-  const [isEditMode, setIsEditMode] = useState(false);
   const itemsPerPage = 8;
 
   const handleSearch = () => {
     console.log("Searching for:", searchQuery);
   };
 
-  const handleAddLead = () => {
-    setSelectedStudent(null);
-    setIsEditMode(false);
-    setOpenDetailsPopup(true);
+  const handleViewContact = (contactId) => {
+    console.log("Viewing contact:", contactId);
   };
 
-  const handleViewLead = (leadId) => {
-    const student = leadsData.find((lead) => lead.id === leadId);
-    setSelectedStudent(student);
-    setIsEditMode(true);
-    setOpenDetailsPopup(true);
-  };
-
-  // Calculate pagination
-  const totalPages = Math.ceil(leadsData.length / itemsPerPage);
+  const totalPages = Math.ceil(contactsData.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentData = leadsData.slice(startIndex, endIndex);
+  const currentData = contactsData.slice(startIndex, endIndex);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -520,8 +475,8 @@ const LeadsPage = () => {
     <>
       {/* Title Section */}
       <TitleSection>
-        <MainTitle>Leads</MainTitle>
-        <SubTitle>List of Leads acquired</SubTitle>
+        <MainTitle>Contacts</MainTitle>
+        <SubTitle>List of Contacts</SubTitle>
       </TitleSection>
 
       <PageContainer>
@@ -532,7 +487,7 @@ const LeadsPage = () => {
               placeholder="Search student by name or phone number"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyPress={(e) => {
+              onKeyDown={(e) => {
                 if (e.key === "Enter") handleSearch();
               }}
             />
@@ -554,15 +509,11 @@ const LeadsPage = () => {
                   return selected;
                 }}
               >
-                <StyledMenuItem value="in-trial">In trial</StyledMenuItem>
-                <StyledMenuItem value="enquired">Enquired</StyledMenuItem>
-                <StyledMenuItem value="all">All Leads</StyledMenuItem>
+                <StyledMenuItem value="all">All Contacts</StyledMenuItem>
+                <StyledMenuItem value="active">Active</StyledMenuItem>
+                <StyledMenuItem value="inactive">Inactive</StyledMenuItem>
               </Select>
             </StyledFormControl>
-
-            <AddLeadButton onClick={handleAddLead}>
-              + Add New lead
-            </AddLeadButton>
           </FilterContainer>
         </HeaderSection>
 
@@ -575,14 +526,17 @@ const LeadsPage = () => {
                   <StyledTableHeadCell sx={{ minWidth: "180px" }}>
                     {`Participant's Name`}
                   </StyledTableHeadCell>
+                  <StyledTableHeadCell sx={{ minWidth: "100px" }}>
+                    Student ID
+                  </StyledTableHeadCell>
+                  <StyledTableHeadCell sx={{ minWidth: "200px" }}>
+                    Mail ID
+                  </StyledTableHeadCell>
                   <StyledTableHeadCell sx={{ minWidth: "60px" }}>
                     Age
                   </StyledTableHeadCell>
                   <StyledTableHeadCell sx={{ minWidth: "140px" }}>
                     Mobile Number
-                  </StyledTableHeadCell>
-                  <StyledTableHeadCell sx={{ minWidth: "200px" }}>
-                    Mail ID
                   </StyledTableHeadCell>
                   <StyledTableHeadCell sx={{ minWidth: "180px" }}>
                     Course
@@ -590,45 +544,37 @@ const LeadsPage = () => {
                   <StyledTableHeadCell sx={{ minWidth: "230px" }}>
                     Session
                   </StyledTableHeadCell>
-                  <StyledTableHeadCell sx={{ minWidth: "100px" }}>
-                    Status
-                  </StyledTableHeadCell>
                   <StyledTableHeadCell sx={{ minWidth: "80px" }}>
                     Action
                   </StyledTableHeadCell>
                 </TableRow>
               </StyledTableHead>
               <TableBody>
-                {currentData.map((lead) => (
-                  <StyledTableRow key={lead.id}>
+                {currentData.map((contact) => (
+                  <StyledTableRow key={contact.id}>
                     <StyledTableCell>
                       <ParticipantCell>
                         <Avatar
-                          src={lead.avatar}
-                          alt={lead.name}
+                          src={contact.avatar}
+                          alt={contact.name}
                           sx={{ width: 28, height: 28, borderRadius: "6px" }}
                         >
-                          {lead.name.charAt(0)}
+                          {contact.name.charAt(0)}
                         </Avatar>
-                        <ParticipantName>{lead.name}</ParticipantName>
+                        <ParticipantName>{contact.name}</ParticipantName>
                       </ParticipantCell>
                     </StyledTableCell>
-                    <StyledTableCell>{lead.age}</StyledTableCell>
-                    <StyledTableCell>{lead.mobile}</StyledTableCell>
-                    <StyledTableCell>{lead.email}</StyledTableCell>
-                    <StyledTableCell>{lead.course}</StyledTableCell>
-                    <StyledTableCell>{lead.session}</StyledTableCell>
+                    <StyledTableCell>{contact.studentId}</StyledTableCell>
+                    <StyledTableCell>{contact.email}</StyledTableCell>
+                    <StyledTableCell>{contact.age}</StyledTableCell>
+                    <StyledTableCell>{contact.mobile}</StyledTableCell>
+                    <StyledTableCell>{contact.course}</StyledTableCell>
+                    <StyledTableCell>{contact.session}</StyledTableCell>
                     <StyledTableCell>
-                      <StatusChip
-                        label={
-                          lead.status === "in-trial" ? "In trial" : "Enquired"
-                        }
-                        statusType={lead.status}
-                      />
-                    </StyledTableCell>
-                    <StyledTableCell>
-                      <ActionIconButton onClick={() => handleViewLead(lead.id)}>
-                        <VisibilityOutlinedIcon sx={{ fontSize: "18px" }} />
+                      <ActionIconButton
+                        onClick={() => handleViewContact(contact.id)}
+                      >
+                        <IoMdEye size={20} />
                       </ActionIconButton>
                     </StyledTableCell>
                   </StyledTableRow>
@@ -670,15 +616,8 @@ const LeadsPage = () => {
           </PaginationContainer>
         </ContentCard>
       </PageContainer>
-
-      <StudentDetailsPopup
-        open={openDetailsPopup}
-        onClose={() => setOpenDetailsPopup(false)}
-        studentData={selectedStudent}
-        isEditMode={isEditMode}
-      />
     </>
   );
 };
 
-export default LeadsPage;
+export default ContactsPage;

@@ -7,6 +7,7 @@ import { TbPointFilled } from "react-icons/tb";
 import { GiCheckMark } from "react-icons/gi";
 import { FaUserFriends } from "react-icons/fa";
 import { IoReceipt } from "react-icons/io5";
+import { IoIosPeople } from "react-icons/io";
 
 const Menuitems = [
   {
@@ -34,6 +35,13 @@ const Menuitems = [
     icon: IoMdPricetag,
     href: "/admin/category",
   },
+
+  {
+    id: uniqueId(),
+    title: "Enrollments",
+    icon: MdStickyNote2,
+    href: "/admin/enrollment",
+  },
   {
     id: uniqueId(),
     title: "Leads",
@@ -42,9 +50,9 @@ const Menuitems = [
   },
   {
     id: uniqueId(),
-    title: "Enrollments",
-    icon: MdStickyNote2,
-    href: "/admin/enrollment",
+    title: "Contacts",
+    icon: IoIosPeople,
+    href: "/admin/contacts",
   },
   {
     id: uniqueId(),
