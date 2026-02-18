@@ -10,9 +10,6 @@ import {
   Button,
   Box,
   IconButton,
-  MenuItem,
-  Select,
-  FormControl,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import CloseIcon from "@mui/icons-material/Close";
@@ -75,11 +72,21 @@ const FormField = styled(Box)({
   gap: "8px",
 });
 
+const FullWidthFormField = styled(Box)({
+  display: "flex",
+  flexDirection: "column",
+  gap: "8px",
+  gridColumn: "1 / -1",
+});
+
 const FieldLabel = styled(Typography)({
   fontSize: "14px",
   fontWeight: 500,
   color: "#191919",
   lineHeight: "20px",
+  "& span": {
+    color: "#EE5B54",
+  },
 });
 
 const StyledTextField = styled(TextField)({
@@ -114,7 +121,6 @@ const StyledTextField = styled(TextField)({
       color: "#191919",
       WebkitTextFillColor: "#191919",
     },
-    // Hide number input arrows
     "&::-webkit-outer-spin-button, &::-webkit-inner-spin-button": {
       WebkitAppearance: "none",
       margin: 0,
@@ -125,50 +131,38 @@ const StyledTextField = styled(TextField)({
   },
 });
 
-const StyledSelect = styled(Select)({
-  borderRadius: "8px",
-  backgroundColor: "#F5F5F5",
-  fontSize: "14px",
-  fontWeight: 400,
-  boxShadow: "0 1px 4px 0 rgba(142, 142, 142, 0.25) inset",
-  "& .MuiOutlinedInput-notchedOutline": {
-    border: "none",
+const StyledTextArea = styled(TextField)({
+  "& .MuiOutlinedInput-root": {
+    borderRadius: "8px",
+    backgroundColor: "#F5F5F5",
+    fontSize: "14px",
+    fontWeight: 400,
+    boxShadow: "0 1px 4px 0 rgba(142, 142, 142, 0.25) inset",
+    padding: "0",
+    "& fieldset": {
+      border: "none",
+    },
+    "&:hover fieldset": {
+      border: "none",
+    },
+    "&.Mui-focused fieldset": {
+      border: "1px solid #B8936D",
+    },
+    "&.Mui-disabled": {
+      backgroundColor: "#F5F5F5",
+    },
   },
-  "&:hover .MuiOutlinedInput-notchedOutline": {
-    border: "none",
-  },
-  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-    border: "none",
-  },
-  "& .MuiSelect-select": {
+  "& .MuiInputBase-input": {
     padding: "12px 16px",
     fontSize: "14px",
     color: "#333333",
+    "&::placeholder": {
+      color: "#999999",
+      opacity: 1,
+    },
     "&.Mui-disabled": {
       color: "#191919",
       WebkitTextFillColor: "#191919",
-    },
-  },
-  "&.Mui-disabled": {
-    backgroundColor: "#F5F5F5",
-  },
-});
-
-const StyledMenuItem = styled(MenuItem)({
-  fontSize: "13px",
-  color: "#191919",
-  fontWeight: 400,
-  padding: "10px 16px",
-  "&:hover": {
-    backgroundColor: "rgba(242, 242, 242, 0.77)",
-    color: "#333333",
-  },
-  "&.Mui-selected": {
-    backgroundColor: "rgba(242, 242, 242, 0.77)",
-    color: "#333333",
-    fontWeight: 600,
-    "&:hover": {
-      backgroundColor: "rgba(242, 242, 242, 0.77)",
     },
   },
 });
@@ -217,35 +211,35 @@ const SaveButton = styled(Button)({
 // ==================== COMPONENT ====================
 
 const StudentDetailsPopup = ({ open, onClose, studentData, isEditMode }) => {
-  // Initialize form data based on studentData prop
   const getInitialFormData = () => {
     if (studentData) {
       return {
-        studentName: studentData.name || "",
-        contactNumber: studentData.mobile || "",
-        studentAge: studentData.age || "",
-        mailId: studentData.email || "",
-        course: studentData.course || "",
-        suburb: studentData.suburb || "",
         parentName: studentData.parentName || "",
-        status: studentData.status || "in-trail",
+        participantName: studentData.participantName || "",
+        participantAge: studentData.participantAge || "",
+        suburb: studentData.suburb || "",
+        emailAddress: studentData.emailAddress || "",
+        mobileNumber: studentData.mobileNumber || "",
+        preferredClassType: studentData.preferredClassType || "",
+        preferredContactMethod: studentData.preferredContactMethod || "",
+        message: studentData.message || "",
       };
     }
     return {
-      studentName: "",
-      contactNumber: "",
-      studentAge: "",
-      mailId: "",
-      course: "",
-      suburb: "",
       parentName: "",
-      status: "in-trail",
+      participantName: "",
+      participantAge: "",
+      suburb: "",
+      emailAddress: "",
+      mobileNumber: "",
+      preferredClassType: "",
+      preferredContactMethod: "",
+      message: "",
     };
   };
 
   const [formData, setFormData] = useState(getInitialFormData());
 
-  // Reset form data when dialog opens with new data
   React.useEffect(() => {
     if (open) {
       setFormData(getInitialFormData());
@@ -256,8 +250,7 @@ const StudentDetailsPopup = ({ open, onClose, studentData, isEditMode }) => {
   const handleChange = (field) => (event) => {
     const value = event.target.value;
 
-    // For contact number field, only allow numbers
-    if (field === "contactNumber") {
+    if (field === "mobileNumber") {
       const numericValue = value.replace(/[^0-9+\-\s()]/g, "");
       setFormData({
         ...formData,
@@ -291,77 +284,11 @@ const StudentDetailsPopup = ({ open, onClose, studentData, isEditMode }) => {
 
       <StyledDialogContent>
         <FormGrid>
-          {/* Student Name */}
+          {/* Parent's Name */}
           <FormField>
-            <FieldLabel>Student Name</FieldLabel>
-            <StyledTextField
-              placeholder="Enter student name"
-              value={formData.studentName}
-              onChange={handleChange("studentName")}
-              disabled={isEditMode}
-            />
-          </FormField>
-
-          {/* Contact Number */}
-          <FormField>
-            <FieldLabel>Contact Number</FieldLabel>
-            <StyledTextField
-              type="tel"
-              placeholder="Enter contact number"
-              value={formData.contactNumber}
-              onChange={handleChange("contactNumber")}
-              disabled={isEditMode}
-            />
-          </FormField>
-
-          {/* Student Age */}
-          <FormField>
-            <FieldLabel>Student Age</FieldLabel>
-            <StyledTextField
-              placeholder="Enter age"
-              value={formData.studentAge}
-              onChange={handleChange("studentAge")}
-              disabled={isEditMode}
-            />
-          </FormField>
-
-          {/* Mail ID */}
-          <FormField>
-            <FieldLabel>Mail ID</FieldLabel>
-            <StyledTextField
-              type="email"
-              placeholder="Enter email"
-              value={formData.mailId}
-              onChange={handleChange("mailId")}
-              disabled={isEditMode}
-            />
-          </FormField>
-
-          {/* Course */}
-          <FormField>
-            <FieldLabel>Course</FieldLabel>
-            <StyledTextField
-              placeholder="Enter course"
-              value={formData.course}
-              onChange={handleChange("course")}
-              disabled={isEditMode}
-            />
-          </FormField>
-
-          {/* Suburb */}
-          <FormField>
-            <FieldLabel>Suburb</FieldLabel>
-            <StyledTextField
-              placeholder="Enter suburb"
-              value={formData.suburb}
-              onChange={handleChange("suburb")}
-              disabled={isEditMode}
-            />
-          </FormField>
-
-          {/* Parent Name */}
-          <FormField>
-            <FieldLabel>Parent Name</FieldLabel>
+            <FieldLabel>
+              {`Parent's Name:`} <span>*</span>
+            </FieldLabel>
             <StyledTextField
               placeholder="Enter parent name"
               value={formData.parentName}
@@ -370,30 +297,120 @@ const StudentDetailsPopup = ({ open, onClose, studentData, isEditMode }) => {
             />
           </FormField>
 
-          {/* Status */}
+          {/* Participant's Name */}
           <FormField>
-            <FieldLabel>Status</FieldLabel>
-            <FormControl fullWidth>
-              <StyledSelect
-                value={formData.status}
-                onChange={handleChange("status")}
-                disabled={isEditMode}
-              >
-                <StyledMenuItem value="in-trail">In trail</StyledMenuItem>
-                <StyledMenuItem value="enquired">Enquired</StyledMenuItem>
-                <StyledMenuItem value="enrolled">Enrolled</StyledMenuItem>
-              </StyledSelect>
-            </FormControl>
+            <FieldLabel>
+              {`Participant's Name:`} <span>*</span>
+            </FieldLabel>
+            <StyledTextField
+              placeholder="Enter participant name"
+              value={formData.participantName}
+              onChange={handleChange("participantName")}
+              disabled={isEditMode}
+            />
           </FormField>
+
+          {/* Participant's Age */}
+          <FormField>
+            <FieldLabel>
+              {`Participant's Age:`} <span>*</span>
+            </FieldLabel>
+            <StyledTextField
+              placeholder="Enter age"
+              value={formData.participantAge}
+              onChange={handleChange("participantAge")}
+              disabled={isEditMode}
+            />
+          </FormField>
+
+          {/* Suburb */}
+          <FormField>
+            <FieldLabel>
+              Suburb: <span>*</span>
+            </FieldLabel>
+            <StyledTextField
+              placeholder="Enter suburb"
+              value={formData.suburb}
+              onChange={handleChange("suburb")}
+              disabled={isEditMode}
+            />
+          </FormField>
+
+          {/* Email Address */}
+          <FormField>
+            <FieldLabel>
+              Email Address: <span>*</span>
+            </FieldLabel>
+            <StyledTextField
+              type="email"
+              placeholder="Enter email address"
+              value={formData.emailAddress}
+              onChange={handleChange("emailAddress")}
+              disabled={isEditMode}
+            />
+          </FormField>
+
+          {/* Mobile Number */}
+          <FormField>
+            <FieldLabel>
+              Mobile Number: <span>*</span>
+            </FieldLabel>
+            <StyledTextField
+              type="tel"
+              placeholder="Enter mobile number"
+              value={formData.mobileNumber}
+              onChange={handleChange("mobileNumber")}
+              disabled={isEditMode}
+            />
+          </FormField>
+
+          {/* Preferred Class Type */}
+          <FormField>
+            <FieldLabel>
+              Preferred Class Type: <span>*</span>
+            </FieldLabel>
+            <StyledTextField
+              placeholder="Enter preferred class type"
+              value={formData.preferredClassType}
+              onChange={handleChange("preferredClassType")}
+              disabled={isEditMode}
+            />
+          </FormField>
+
+          {/* Preferred Contact Method */}
+          <FormField>
+            <FieldLabel>
+              Preferred Contact Method: <span>*</span>
+            </FieldLabel>
+            <StyledTextField
+              placeholder="Enter preferred contact method"
+              value={formData.preferredContactMethod}
+              onChange={handleChange("preferredContactMethod")}
+              disabled={isEditMode}
+            />
+          </FormField>
+
+          {/* Message - Full Width */}
+          <FullWidthFormField>
+            <FieldLabel>
+              Message: <span>*</span>
+            </FieldLabel>
+            <StyledTextArea
+              placeholder="Enter message"
+              value={formData.message}
+              onChange={handleChange("message")}
+              multiline
+              rows={4}
+              disabled={isEditMode}
+            />
+          </FullWidthFormField>
         </FormGrid>
 
         <StyledDialogActions>
           <CancelButton onClick={handleCancel}>
             {isEditMode ? "Close" : "Cancel"}
           </CancelButton>
-          {!isEditMode && (
-            <SaveButton onClick={handleSave}>Save changes</SaveButton>
-          )}
+          {!isEditMode && <SaveButton onClick={handleSave}>Save</SaveButton>}
         </StyledDialogActions>
       </StyledDialogContent>
     </StyledDialog>

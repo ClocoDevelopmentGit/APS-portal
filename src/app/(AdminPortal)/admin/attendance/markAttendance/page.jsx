@@ -29,6 +29,7 @@ import "./MarkAttendance.css";
 import AttendanceConfirmationModal from "./components/AttendanceConfirmationModal";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import { useRouter } from "next/navigation";
 
 // ==================== PICKER THEME ====================
 
@@ -567,6 +568,7 @@ const dates = ["2 Feb", "9 Feb", "16 Feb", "23 Feb", "1 Mar", "8 Mar"];
 // ==================== COMPONENT ====================
 
 const AttendanceMarkPage = () => {
+  const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
   const [activeFilter, setActiveFilter] = useState("this-week");
   const [students, setStudents] = useState(attendanceData);
@@ -602,7 +604,7 @@ const AttendanceMarkPage = () => {
   };
 
   const handleGoBack = () => {
-    console.log("Going back...");
+    router.back();
   };
 
   const handleConfirmSave = (comments) => {
