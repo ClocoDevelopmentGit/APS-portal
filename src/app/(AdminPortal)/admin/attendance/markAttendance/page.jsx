@@ -290,9 +290,9 @@ const StudentNameCell = styled(Box)({
 });
 
 const StudentName = styled(Typography)({
-  fontSize: "13px",
-  fontWeight: 500,
-  color: "#191919",
+  fontSize: "12px",
+  fontWeight: 600,
+  color: "#433205",
 });
 
 const AttendanceIcon = styled(Box, {
@@ -721,7 +721,7 @@ const AttendanceMarkPage = () => {
                           <Avatar
                             src={student.avatar}
                             alt={student.name}
-                            sx={{ width: 32, height: 32 }}
+                            sx={{ width: 28, height: 28, borderRadius: "6px" }}
                           >
                             {student.name.charAt(0)}
                           </Avatar>

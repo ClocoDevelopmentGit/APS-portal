@@ -22,9 +22,10 @@ import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import dayjs from "dayjs";
 import "./Styles.css";
-import CheckIcon from "@mui/icons-material/Check";
+import { FaUserCheck } from "react-icons/fa";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import { useRouter } from "next/navigation";
 
 // ==================== PICKER THEME ====================
 
@@ -294,8 +295,8 @@ const StatusChip = styled(Chip, {
 }));
 
 const ActionIconButton = styled(IconButton)({
-  width: "32px",
-  height: "32px",
+  width: "35px",
+  height: "35px",
   color: "#666666",
   "&:hover": {
     backgroundColor: "#F5F5F5",
@@ -578,6 +579,7 @@ const attendanceData = [
 // ==================== COMPONENT ====================
 
 const AttendancePage = () => {
+  const router = useRouter();
   const [location, setLocation] = useState("");
   const [instructor, setInstructor] = useState("");
   const [status, setStatus] = useState("");
@@ -589,12 +591,12 @@ const AttendancePage = () => {
     console.log("Refreshing data...");
   };
 
-  const handleViewAttendance = (classId) => {
-    console.log("View attendance for class:", classId);
-  };
+  // const handleViewAttendance = (classId) => {
+  //   console.log("View attendance for class:", classId);
+  // };
 
   const handleMarkAttendance = (classId) => {
-    console.log("Mark attendance for class:", classId);
+    router.push("/admin/attendance/markAttendance");
   };
 
   // Calculate pagination
@@ -772,21 +774,21 @@ const AttendancePage = () => {
                       </StyledTableCell>
                       <StyledTableCell>
                         <Box sx={{ display: "flex", gap: "2px" }}>
-                          <ActionIconButton
+                          {/* <ActionIconButton
                             onClick={() => handleViewAttendance(row.id)}
                           >
                             <VisibilityOutlinedIcon sx={{ fontSize: "18px" }} />
-                          </ActionIconButton>
+                          </ActionIconButton> */}
                           <ActionIconButton
                             onClick={() => handleMarkAttendance(row.id)}
                           >
-                            <CheckIcon sx={{ fontSize: "18px" }} />
+                            <FaUserCheck size={20} />
                           </ActionIconButton>
-                          <ActionIconButton
+                          {/* <ActionIconButton
                             onClick={() => handleMarkAttendance(row.id)}
                           >
                             <RefreshIcon sx={{ fontSize: "18px" }} />
-                          </ActionIconButton>
+                          </ActionIconButton> */}
                         </Box>
                       </StyledTableCell>
                     </StyledTableRow>

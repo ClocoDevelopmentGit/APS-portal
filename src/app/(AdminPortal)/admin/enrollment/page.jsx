@@ -202,9 +202,9 @@ const ParticipantCell = styled(Box)({
 });
 
 const ParticipantName = styled(Typography)({
-  fontSize: "13px",
-  fontWeight: 500,
-  color: "#191919",
+  fontSize: "12px",
+  fontWeight: 600,
+  color: "#433205",
 });
 
 const PaymentChip = styled(Chip, {
@@ -216,6 +216,21 @@ const PaymentChip = styled(Chip, {
   borderRadius: "8px",
   backgroundColor: status === "paid" ? "#CBF2B1" : "#FFF3CE",
   color: status === "paid" ? "#3A8C03" : "#B88D01",
+  border: "none",
+  "& .MuiChip-label": {
+    padding: "0 10px",
+  },
+}));
+
+const TypeChip = styled(Chip, {
+  shouldForwardProp: (prop) => prop !== "status",
+})(({ status }) => ({
+  fontSize: "12px",
+  fontWeight: 600,
+  height: "35px",
+  borderRadius: "8px",
+  backgroundColor: "transparent",
+  color: status === "trial" ? "#B88D01" : "#3A8C03",
   border: "none",
   "& .MuiChip-label": {
     padding: "0 10px",
@@ -322,6 +337,7 @@ const enrollmentData = [
     course: "Industry Driven Adults",
     session: "4:45 pm - 7:45 pm, 18 Oct - 6 Oct 2025",
     paymentStatus: "paid",
+    type: "enrolled",
   },
   {
     id: 2,
@@ -332,6 +348,7 @@ const enrollmentData = [
     course: "Industry Driven Adults",
     session: "4:45 pm - 7:45 pm, 18 Oct - 6 Oct 2025",
     paymentStatus: "paid",
+    type: "enrolled",
   },
   {
     id: 3,
@@ -342,6 +359,7 @@ const enrollmentData = [
     course: "Industry Driven Adults",
     session: "4:45 pm - 7:45 pm, 18 Oct - 6 Oct 2025",
     paymentStatus: "unpaid",
+    type: "trial",
   },
   {
     id: 4,
@@ -352,6 +370,7 @@ const enrollmentData = [
     course: "Industry Driven Adults",
     session: "4:45 pm - 7:45 pm, 18 Oct - 6 Oct 2025",
     paymentStatus: "unpaid",
+    type: "trial",
   },
   {
     id: 5,
@@ -362,6 +381,7 @@ const enrollmentData = [
     course: "Industry Driven Adults",
     session: "4:45 pm - 7:45 pm, 18 Oct - 6 Oct 2025",
     paymentStatus: "unpaid",
+    type: "trial",
   },
   {
     id: 6,
@@ -372,6 +392,7 @@ const enrollmentData = [
     course: "Industry Driven Adults",
     session: "4:45 pm - 7:45 pm, 18 Oct - 6 Oct 2025",
     paymentStatus: "paid",
+    type: "enrolled",
   },
   {
     id: 7,
@@ -382,6 +403,7 @@ const enrollmentData = [
     course: "Industry Driven Adults",
     session: "4:45 pm - 7:45 pm, 18 Oct - 6 Oct 2025",
     paymentStatus: "paid",
+    type: "enrolled",
   },
   {
     id: 8,
@@ -392,6 +414,7 @@ const enrollmentData = [
     course: "Industry Driven Adults",
     session: "4:45 pm - 7:45 pm, 18 Oct - 6 Oct 2025",
     paymentStatus: "paid",
+    type: "enrolled",
   },
 ];
 
@@ -460,7 +483,7 @@ const ManualEnrollmentPage = () => {
                   <StyledTableHeadCell sx={{ minWidth: "180px" }}>
                     Name
                   </StyledTableHeadCell>
-                  <StyledTableHeadCell sx={{ minWidth: "100px" }}>
+                  <StyledTableHeadCell sx={{ minWidth: "90px" }}>
                     Age
                   </StyledTableHeadCell>
                   <StyledTableHeadCell sx={{ minWidth: "140px" }}>
@@ -469,13 +492,16 @@ const ManualEnrollmentPage = () => {
                   <StyledTableHeadCell sx={{ minWidth: "200px" }}>
                     Mail ID
                   </StyledTableHeadCell>
-                  <StyledTableHeadCell sx={{ minWidth: "180px" }}>
+                  <StyledTableHeadCell sx={{ minWidth: "170px" }}>
                     Course
                   </StyledTableHeadCell>
-                  <StyledTableHeadCell sx={{ minWidth: "230px" }}>
+                  <StyledTableHeadCell sx={{ minWidth: "200px" }}>
                     Session
                   </StyledTableHeadCell>
                   <StyledTableHeadCell sx={{ minWidth: "100px" }}>
+                    Type
+                  </StyledTableHeadCell>
+                  <StyledTableHeadCell sx={{ minWidth: "80px" }}>
                     Status
                   </StyledTableHeadCell>
                 </TableRow>
@@ -487,9 +513,9 @@ const ManualEnrollmentPage = () => {
                       <ParticipantCell>
                         <Avatar
                           sx={{
-                            width: 32,
-                            height: 32,
-                            backgroundColor: "#B38349",
+                            width: 28,
+                            height: 28,
+                            borderRadius: "6px",
                           }}
                         >
                           {enrollment.name.charAt(0)}
@@ -502,6 +528,14 @@ const ManualEnrollmentPage = () => {
                     <StyledTableCell>{enrollment.email}</StyledTableCell>
                     <StyledTableCell>{enrollment.course}</StyledTableCell>
                     <StyledTableCell>{enrollment.session}</StyledTableCell>
+                    <StyledTableCell>
+                      <TypeChip
+                        label={
+                          enrollment.type === "trial" ? "Trial" : "Enrolled"
+                        }
+                        status={enrollment.type}
+                      />
+                    </StyledTableCell>
                     <StyledTableCell>
                       <PaymentChip
                         label={

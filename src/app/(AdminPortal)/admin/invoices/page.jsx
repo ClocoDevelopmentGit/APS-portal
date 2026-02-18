@@ -246,9 +246,9 @@ const ParticipantCell = styled(Box)({
 });
 
 const ParticipantName = styled(Typography)({
-  fontSize: "13px",
-  fontWeight: 500,
-  color: "#191919",
+  fontSize: "12px",
+  fontWeight: 600,
+  color: "#433205",
 });
 
 const ActionIconButton = styled(IconButton)({
@@ -483,7 +483,7 @@ const InvoicesPage = () => {
               placeholder="Search student by name or phone number"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyPress={(e) => {
+              onKeyDown={(e) => {
                 if (e.key === "Enter") handleSearch();
               }}
             />
@@ -551,7 +551,7 @@ const InvoicesPage = () => {
                         <Avatar
                           src={invoice.avatar}
                           alt={invoice.name}
-                          sx={{ width: 32, height: 32 }}
+                          sx={{ width: 28, height: 28, borderRadius: "6px" }}
                         >
                           {invoice.name.charAt(0)}
                         </Avatar>
