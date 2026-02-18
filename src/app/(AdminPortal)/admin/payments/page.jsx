@@ -14,15 +14,13 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  IconButton,
   Avatar,
+  Chip,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { IoMdEye } from "react-icons/io";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import SearchIcon from "@mui/icons-material/Search";
-import { useRouter } from "next/navigation";
 
 // ==================== STYLED COMPONENTS ====================
 
@@ -250,15 +248,20 @@ const ParticipantName = styled(Typography)({
   color: "#433205",
 });
 
-const ActionIconButton = styled(IconButton)({
-  width: "35px",
-  height: "35px",
-  color: "#666666",
-  "&:hover": {
-    backgroundColor: "#F5F5F5",
-    color: "#333333",
+const StatusChip = styled(Chip, {
+  shouldForwardProp: (prop) => prop !== "statusType",
+})(({ statusType }) => ({
+  fontSize: "12px",
+  fontWeight: 600,
+  height: "28px",
+  borderRadius: "6px",
+  backgroundColor: statusType === "paid" ? "#E8F5E9" : "#FFF3E0",
+  color: statusType === "paid" ? "#2E7D32" : "#F57C00",
+  border: "none",
+  "& .MuiChip-label": {
+    padding: "0 10px",
   },
-});
+}));
 
 const PaginationContainer = styled(Box)({
   display: "flex",
@@ -323,18 +326,22 @@ const PageButton = styled(Box, {
   },
 }));
 
-const NavButton = styled(IconButton)({
+const NavButton = styled(Box)({
   width: "32px",
   height: "32px",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
   backgroundColor: "#FFFFFF",
   color: "#666666",
   border: "1px solid #E0E0E0",
   borderRadius: "6px",
+  cursor: "pointer",
   "&:hover": {
     backgroundColor: "#F9F9F9",
     borderColor: "#B8936D",
   },
-  "&:disabled": {
+  "&.disabled": {
     backgroundColor: "#F5F5F5",
     color: "#CCCCCC",
     cursor: "not-allowed",
@@ -348,109 +355,84 @@ const NavButton = styled(IconButton)({
 
 // ==================== SAMPLE DATA ====================
 
-const contactsData = [
+const paymentsData = [
   {
     id: 1,
     name: "Anna Hathaway",
     avatar: "/avatar1.jpg",
-    studentId: "APS001",
-    email: "annahathaway@gmail.com",
-    age: 20,
-    mobile: "+61 410 345 678",
-    emergencyContact: "+61 410 345 678",
     course: "Industry Driven Adults",
     session: "4:45 pm - 7:45 pm, 18 Oct - 6 Oct 2025",
+    transactionId: "TI_jbjbjbNJBKB81234Oo080756657ii",
+    status: "paid",
   },
   {
     id: 2,
     name: "Tim Cook",
     avatar: "/avatar2.jpg",
-    studentId: "APS001",
-    email: "annahathaway@gmail.com",
-    age: 18,
-    mobile: "+61 410 345 678",
-    emergencyContact: "+61 410 345 678",
     course: "Industry Driven Adults",
     session: "4:45 pm - 7:45 pm, 18 Oct - 6 Oct 2025",
+    transactionId: "TI_jbjbjbNJBKB81234Oo080756657ii",
+    status: "paid",
   },
   {
     id: 3,
     name: "Wolfrost Hentag",
     avatar: "/avatar3.jpg",
-    studentId: "APS001",
-    email: "annahathaway@gmail.com",
-    age: 25,
-    mobile: "+61 410 345 678",
-    emergencyContact: "+61 410 345 678",
     course: "Industry Driven Adults",
     session: "4:45 pm - 7:45 pm, 18 Oct - 6 Oct 2025",
+    transactionId: "TI_jbjbjbNJBKB81234Oo080756657ii",
+    status: "failed",
   },
   {
     id: 4,
     name: "Jane Foster",
     avatar: "/avatar4.jpg",
-    studentId: "APS001",
-    email: "annahathaway@gmail.com",
-    age: 14,
-    mobile: "+61 410 345 678",
-    emergencyContact: "+61 410 345 678",
     course: "Industry Driven Adults",
     session: "4:45 pm - 7:45 pm, 18 Oct - 6 Oct 2025",
+    transactionId: "TI_jbjbjbNJBKB81234Oo080756657ii",
+    status: "failed",
   },
   {
     id: 5,
     name: "Peter Griffin",
     avatar: "/avatar5.jpg",
-    studentId: "APS001",
-    email: "annahathaway@gmail.com",
-    age: 12,
-    mobile: "+61 410 345 678",
-    emergencyContact: "+61 410 345 678",
     course: "Industry Driven Adults",
     session: "4:45 pm - 7:45 pm, 18 Oct - 6 Oct 2025",
+    transactionId: "TI_jbjbjbNJBKB81234Oo080756657ii",
+    status: "failed",
   },
   {
     id: 6,
     name: "Wayne Bruce",
     avatar: "/avatar6.jpg",
-    studentId: "APS001",
-    email: "annahathaway@gmail.com",
-    age: 21,
-    mobile: "+61 410 345 678",
-    emergencyContact: "+61 410 345 678",
     course: "Industry Driven Adults",
     session: "4:45 pm - 7:45 pm, 18 Oct - 6 Oct 2025",
+    transactionId: "TI_jbjbjbNJBKB81234Oo080756657ii",
+    status: "paid",
   },
   {
     id: 7,
     name: "Steffy Glitter",
     avatar: "/avatar7.jpg",
-    studentId: "APS001",
-    email: "annahathaway@gmail.com",
-    age: 20,
-    mobile: "+61 410 345 678",
-    emergencyContact: "+61 410 345 678",
     course: "Industry Driven Adults",
     session: "4:45 pm - 7:45 pm, 18 Oct - 6 Oct 2025",
+    transactionId: "TI_jbjbjbNJBKB81234Oo080756657ii",
+    status: "paid",
   },
   {
     id: 8,
     name: "Westhamtan",
     avatar: "/avatar8.jpg",
-    studentId: "APS001",
-    email: "annahathaway@gmail.com",
-    age: 9,
-    mobile: "+61 410 345 678",
-    emergencyContact: "+61 410 345 678",
     course: "Industry Driven Adults",
     session: "4:45 pm - 7:45 pm, 18 Oct - 6 Oct 2025",
+    transactionId: "TI_jbjbjbNJBKB81234Oo080756657ii",
+    status: "paid",
   },
 ];
 
 // ==================== COMPONENT ====================
 
-const ContactsPage = () => {
-  const router = useRouter();
+const PaymentsPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterBy, setFilterBy] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -460,14 +442,10 @@ const ContactsPage = () => {
     console.log("Searching for:", searchQuery);
   };
 
-  const handleViewContact = (contactId) => {
-    router.push(`/admin/contacts/${contactId}`);
-  };
-
-  const totalPages = Math.ceil(contactsData.length / itemsPerPage);
+  const totalPages = Math.ceil(paymentsData.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentData = contactsData.slice(startIndex, endIndex);
+  const currentData = paymentsData.slice(startIndex, endIndex);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -477,8 +455,8 @@ const ContactsPage = () => {
     <>
       {/* Title Section */}
       <TitleSection>
-        <MainTitle>Contacts</MainTitle>
-        <SubTitle>List of Contacts</SubTitle>
+        <MainTitle>Payments</MainTitle>
+        <SubTitle>List of student payments</SubTitle>
       </TitleSection>
 
       <PageContainer>
@@ -511,9 +489,9 @@ const ContactsPage = () => {
                   return selected;
                 }}
               >
-                <StyledMenuItem value="all">All Contacts</StyledMenuItem>
-                <StyledMenuItem value="active">Active</StyledMenuItem>
-                <StyledMenuItem value="inactive">Inactive</StyledMenuItem>
+                <StyledMenuItem value="all">All Payments</StyledMenuItem>
+                <StyledMenuItem value="paid">Paid</StyledMenuItem>
+                <StyledMenuItem value="failed">Failed</StyledMenuItem>
               </Select>
             </StyledFormControl>
           </FilterContainer>
@@ -528,56 +506,43 @@ const ContactsPage = () => {
                   <StyledTableHeadCell sx={{ minWidth: "180px" }}>
                     {`Participant's Name`}
                   </StyledTableHeadCell>
-                  <StyledTableHeadCell sx={{ minWidth: "100px" }}>
-                    Student ID
-                  </StyledTableHeadCell>
                   <StyledTableHeadCell sx={{ minWidth: "200px" }}>
-                    Mail ID
-                  </StyledTableHeadCell>
-                  <StyledTableHeadCell sx={{ minWidth: "60px" }}>
-                    Age
-                  </StyledTableHeadCell>
-                  <StyledTableHeadCell sx={{ minWidth: "140px" }}>
-                    Mobile Number
-                  </StyledTableHeadCell>
-                  <StyledTableHeadCell sx={{ minWidth: "180px" }}>
                     Course
                   </StyledTableHeadCell>
-                  <StyledTableHeadCell sx={{ minWidth: "230px" }}>
+                  <StyledTableHeadCell sx={{ minWidth: "250px" }}>
                     Session
                   </StyledTableHeadCell>
-                  <StyledTableHeadCell sx={{ minWidth: "80px" }}>
-                    Action
+                  <StyledTableHeadCell sx={{ minWidth: "220px" }}>
+                    Transaction ID
+                  </StyledTableHeadCell>
+                  <StyledTableHeadCell sx={{ minWidth: "120px" }}>
+                    Status
                   </StyledTableHeadCell>
                 </TableRow>
               </StyledTableHead>
               <TableBody>
-                {currentData.map((contact) => (
-                  <StyledTableRow key={contact.id}>
+                {currentData.map((payment) => (
+                  <StyledTableRow key={payment.id}>
                     <StyledTableCell>
                       <ParticipantCell>
                         <Avatar
-                          src={contact.avatar}
-                          alt={contact.name}
+                          src={payment.avatar}
+                          alt={payment.name}
                           sx={{ width: 28, height: 28, borderRadius: "6px" }}
                         >
-                          {contact.name.charAt(0)}
+                          {payment.name.charAt(0)}
                         </Avatar>
-                        <ParticipantName>{contact.name}</ParticipantName>
+                        <ParticipantName>{payment.name}</ParticipantName>
                       </ParticipantCell>
                     </StyledTableCell>
-                    <StyledTableCell>{contact.studentId}</StyledTableCell>
-                    <StyledTableCell>{contact.email}</StyledTableCell>
-                    <StyledTableCell>{contact.age}</StyledTableCell>
-                    <StyledTableCell>{contact.mobile}</StyledTableCell>
-                    <StyledTableCell>{contact.course}</StyledTableCell>
-                    <StyledTableCell>{contact.session}</StyledTableCell>
+                    <StyledTableCell>{payment.course}</StyledTableCell>
+                    <StyledTableCell>{payment.session}</StyledTableCell>
+                    <StyledTableCell>{payment.transactionId}</StyledTableCell>
                     <StyledTableCell>
-                      <ActionIconButton
-                        onClick={() => handleViewContact(contact.id)}
-                      >
-                        <IoMdEye size={20} />
-                      </ActionIconButton>
+                      <StatusChip
+                        label={payment.status === "paid" ? "Paid" : "Failed"}
+                        statusType={payment.status}
+                      />
                     </StyledTableCell>
                   </StyledTableRow>
                 ))}
@@ -593,7 +558,7 @@ const ContactsPage = () => {
             <PaginationButtons>
               <NavButton
                 onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1}
+                className={currentPage === 1 ? "disabled" : ""}
               >
                 <ChevronLeftIcon sx={{ fontSize: "18px" }} />
               </NavButton>
@@ -610,7 +575,7 @@ const ContactsPage = () => {
 
               <NavButton
                 onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
+                className={currentPage === totalPages ? "disabled" : ""}
               >
                 <ChevronRightIcon sx={{ fontSize: "18px" }} />
               </NavButton>
@@ -622,4 +587,4 @@ const ContactsPage = () => {
   );
 };
 
-export default ContactsPage;
+export default PaymentsPage;

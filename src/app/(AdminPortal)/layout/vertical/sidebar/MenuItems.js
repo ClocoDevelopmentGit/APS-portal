@@ -8,6 +8,8 @@ import { GiCheckMark } from "react-icons/gi";
 import { FaUserFriends } from "react-icons/fa";
 import { IoReceipt } from "react-icons/io5";
 import { IoIosPeople } from "react-icons/io";
+import { IoWallet } from "react-icons/io5";
+import { FaUserTie } from "react-icons/fa6";
 
 const Menuitems = [
   {
@@ -59,6 +61,18 @@ const Menuitems = [
     title: "Attendance",
     icon: GiCheckMark,
     href: "/admin/attendance",
+  },
+  {
+    id: uniqueId(),
+    title: "Instructor",
+    icon: FaUserTie,
+    href: "/admin/instructor",
+  },
+  {
+    id: uniqueId(),
+    title: "Payments",
+    icon: IoWallet,
+    href: "/admin/payments",
   },
   {
     id: uniqueId(),
