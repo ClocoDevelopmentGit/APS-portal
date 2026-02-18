@@ -386,7 +386,7 @@ const InstructorPopup = ({ open, onClose, instructorData, isEditMode }) => {
 
         {/* Short Bio */}
         <FormField>
-          <FieldLabel>Short Bio:</FieldLabel>
+          <FieldLabel>Bio:</FieldLabel>
           <StyledTextArea
             placeholder="Enter short bio"
             value={formData.shortBio}
