@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -20,6 +20,8 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import SearchIcon from "@mui/icons-material/Search";
 import { useRouter } from "next/navigation";
+import { useDispatch } from "react-redux";
+import { fetchAllStudents } from "@/redux/slices/studentSlice";
 
 // ==================== STYLED COMPONENTS ====================
 
@@ -325,6 +327,7 @@ const NavButton = styled(IconButton)({
   },
 });
 
+<<<<<<< Updated upstream
 // ==================== SAMPLE DATA ====================
 
 const enrollmentData = [
@@ -417,6 +420,8 @@ const enrollmentData = [
     type: "enrolled",
   },
 ];
+=======
+>>>>>>> Stashed changes
 
 // ==================== COMPONENT ====================
 
@@ -424,7 +429,84 @@ const ManualEnrollmentPage = () => {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+<<<<<<< Updated upstream
   const itemsPerPage = 8;
+=======
+  const [enrollmentData, setEnrollmentData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
+  const itemsPerPage = 10;
+>>>>>>> Stashed changes
+
+  const calculateAge = (dob) => {
+  if (!dob) return "-";
+  const birthDate = new Date(dob);
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+
+  if (
+    monthDiff < 0 ||
+    (monthDiff === 0 && today.getDate() < birthDate.getDate())
+  ) {
+    age--;
+  }
+
+  return age;
+};
+
+
+  useEffect(() => {
+    const fetchEnrollmentData = async () => {
+      setLoading(true);
+      try {
+        // const response = await dispatch(fetchAllStudents());
+        
+        const response = await dispatch(fetchAllStudents()).unwrap();
+            const formattedData = response.map((student) => {
+          const courses = student.userCourses?.map((uc) => {
+            const classData = uc.class;
+
+            const courseTitle = classData?.course?.title || "-";
+
+            const session =
+              classData?.startDate && classData?.endDate
+                ? `${new Date(classData.startDate).toLocaleDateString()} - ${new Date(classData.endDate).toLocaleDateString()}`
+                : "-";
+
+            
+            const isPaid = student.invoices?.some(
+              (invoice) => { 
+                return invoice.userCourseId === uc.id;
+              }
+            );
+
+            return {
+              course: courseTitle,
+              session,
+              paymentStatus: isPaid ? "Paid" : "Unpaid",
+            };
+          });
+
+          return {
+            id: student.id,
+            name: `${student.firstName} ${student.lastName}`,
+            age: calculateAge(student.dob),
+            mobile: student.phone,
+            courses, // <-- array of course info
+          };
+        });
+        console.log("Fetched enrollment data:", formattedData);
+        setEnrollmentData(formattedData);
+        // setEnrollmentData(response.payload);
+      } catch (error) {
+        console.error("Error fetching enrollment data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchEnrollmentData();
+  }, [dispatch]);
 
   const handleSearch = () => {
     console.log("Searching for:", searchQuery);
@@ -474,6 +556,7 @@ const ManualEnrollmentPage = () => {
           </NewEnrollmentButton>
         </HeaderSection>
 
+<<<<<<< Updated upstream
         {/* Table Section */}
         <ContentCard>
           <StyledTableContainer>
@@ -574,6 +657,130 @@ const ManualEnrollmentPage = () => {
                   {index + 1}
                 </PageButton>
               ))}
+=======
+        <StyledTableContainer>
+          <Table sx={{ minWidth: 1000 }}>
+            <StyledTableHead>
+              <TableRow>
+                <StyledTableHeadCell sx={{ width: "15%", minWidth: "150px" }}>
+                  Name
+                </StyledTableHeadCell>
+                <StyledTableHeadCell sx={{ width: "10%", minWidth: "80px" }}>
+                  Age
+                </StyledTableHeadCell>
+                <StyledTableHeadCell sx={{ width: "15%", minWidth: "140px" }}>
+                  Mobile Number
+                </StyledTableHeadCell>
+                <StyledTableHeadCell sx={{ width: "20%", minWidth: "180px" }}>
+                  Course
+                </StyledTableHeadCell>
+                <StyledTableHeadCell sx={{ width: "25%", minWidth: "220px" }}>
+                  Session
+                </StyledTableHeadCell>
+                <StyledTableHeadCell sx={{ width: "15%", minWidth: "130px" }}>
+                  Payment Status
+                </StyledTableHeadCell>
+              </TableRow>
+            </StyledTableHead>
+            {/* <TableBody>
+              {currentData.map((row) => (
+                <StyledTableRow key={row.id}>
+                  <StyledTableCell sx={{ width: "15%", minWidth: "150px" }}>
+                    {row.name}
+                  </StyledTableCell>
+                  <StyledTableCell sx={{ width: "10%", minWidth: "80px" }}>
+                    {row.age}
+                  </StyledTableCell>
+                  <StyledTableCell sx={{ width: "15%", minWidth: "140px" }}>
+                    {row.mobile}
+                  </StyledTableCell>
+                  <StyledTableCell sx={{ width: "20%", minWidth: "180px" }}>
+                    {row.course}
+                  </StyledTableCell>
+                  <StyledTableCell
+                    sx={{
+                      width: "25%",
+                      minWidth: "220px",
+                      maxWidth: "250px",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {row.session}
+                  </StyledTableCell>
+                  <StyledTableCell sx={{ width: "15%", minWidth: "130px" }}>
+                    <PaymentChip
+                      label={row.paymentStatus === "paid" ? "Paid" : "Unpaid"}
+                      status={row.paymentStatus}
+                    />
+                  </StyledTableCell>
+                </StyledTableRow>
+              ))}
+            </TableBody> */}
+            <TableBody>
+            {currentData.map((row) => (
+              <StyledTableRow key={row.id}>
+                {/* Student Info */}
+                <StyledTableCell>
+                  {row.name}
+                </StyledTableCell>
+
+                <StyledTableCell>
+                  {row.age}
+                </StyledTableCell>
+
+                <StyledTableCell>
+                  {row.mobile}
+                </StyledTableCell>
+
+                {/* Courses Column */}
+                <StyledTableCell>
+                  {row.courses && row.courses.length > 0 ? (
+                    row.courses.map((courseItem, index) => (
+                      <div key={index} style={{ marginBottom: "6px" }}>
+                        {courseItem.course}
+                      </div>
+                    ))
+                  ) : (
+                    "-"
+                  )}
+                </StyledTableCell>
+
+                {/* Sessions Column */}
+                <StyledTableCell>
+                  {row.courses && row.courses.length > 0 ? (
+                    row.courses.map((courseItem, index) => (
+                      <div key={index} style={{ marginBottom: "6px" }}>
+                        {courseItem.session}
+                      </div>
+                    ))
+                  ) : (
+                    "-"
+                  )}
+                </StyledTableCell>
+
+                {/* Payment Column */}
+                <StyledTableCell>
+                  {row.courses && row.courses.length > 0 ? (
+                    row.courses.map((courseItem, index) => (
+                      <div key={index} style={{ marginBottom: "6px" }}>
+                        <PaymentChip
+                          label={courseItem.paymentStatus}
+                          status={courseItem.paymentStatus}
+                        />
+                      </div>
+                    ))
+                  ) : (
+                    <PaymentChip label="Unpaid" status="Unpaid" />
+                  )}
+                </StyledTableCell>
+              </StyledTableRow>
+            ))}
+          </TableBody>
+          </Table>
+        </StyledTableContainer>
+>>>>>>> Stashed changes
 
               <NavButton
                 onClick={() => handlePageChange(currentPage + 1)}

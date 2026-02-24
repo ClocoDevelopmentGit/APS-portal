@@ -104,12 +104,14 @@ export const logoutUser = createAsyncThunk(
         {},
         { withCredentials: true },
       );
+      state.user = null;
       localStorage.removeItem("token");
       localStorage.removeItem("user");
       return null;
     } catch (error) {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
+      state.user = null;
       const message =
         error.response?.data?.message ||
         error.message ||

@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 
 export function middleware(req) {
-  const token = req.cookies.get("admin_token")?.value;
+  const token = req.cookies.get("token_admin")?.value;
   const redirectUrl =
     process.env.NEXT_PUBLIC_REDIRECT_URL || "http://localhost:3000";
 
   if (!token) {
+    console.log("No token found, redirecting to login page.");
     return NextResponse.redirect(new URL("/Pages/LoginPage", redirectUrl));
   }
 
