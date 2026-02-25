@@ -336,7 +336,7 @@ const CreateCourse = ({
       }
     });
 
-    if (!courseImage.file) {
+    if (!courseImage.file && !formData.courseImage) {
       newErrors.courseImage = "Course Image/Video is required";
     }
 
@@ -484,7 +484,7 @@ const CreateCourse = ({
                   );
                 }
                 const selectedCategory = categories.find(
-                  (cat) => cat.id === selected
+                  (cat) => cat.id === selected,
                 );
                 return selectedCategory ? selectedCategory.name : "";
               }}
