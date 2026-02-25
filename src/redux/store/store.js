@@ -5,6 +5,7 @@ import userReducer from "../slices/userSlice";
 import locationReducer from "../slices/locationSlice";
 import eventReducer from "../slices/eventSlice";
 import termReducer from "../slices/termSlice";
+import studentReducer from "../slices/studentSlice";
 
 export const store = configureStore({
   reducer: {
@@ -14,5 +15,6 @@ export const store = configureStore({
     location: locationReducer,
     event: eventReducer,
     term: termReducer,
+    student: studentReducer,
   },
 });
