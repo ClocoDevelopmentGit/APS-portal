@@ -9,6 +9,8 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import "./Enrollment.css";
+import { checkUserExist } from "@/redux/slices/userSlice";
+import { useDispatch } from "react-redux";
 
 // ==================== THEME ====================
 const pickerTheme = createTheme({
@@ -185,9 +187,18 @@ const NextButton = styled(Button)({
   },
 });
 
+const ErrorText = styled(Typography)({
+  fontSize: "12px",
+  color: "#E85A4F",
+  marginTop: "5px",
+  marginBottom: "15px",
+});
+
 // ==================== COMPONENT ====================
 
 const Step1StudentInfo = ({ formData, handleChange, onNext, onBack }) => {
+  const dispatch = useDispatch();
+  const [overlayLoading, setOverlayLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
   const handleDateChange = (field, value) => {
@@ -235,6 +246,7 @@ const Step1StudentInfo = ({ formData, handleChange, onNext, onBack }) => {
   };
 
   const handleNextClick = async () => {
+    setOverlayLoading(true);
     setErrors({});
     const formError = validateEnrollmentForm(formData);
     if (Object.keys(formError).length > 0) {
@@ -242,8 +254,21 @@ const Step1StudentInfo = ({ formData, handleChange, onNext, onBack }) => {
       return;
     }
 
-    localStorage.setItem("formData", JSON.stringify(formData));
-    onNext();
+    const email = formData.email || formData.guardianEmail;
+
+    const checkEmail = await dispatch(checkUserExist(email));
+    console.log(checkEmail, "check email result");
+    if (checkEmail.payload === false) {
+      localStorage.setItem("formData", JSON.stringify(formData));
+      onNext();
+      return;
+    }
+    else
+    {      
+      setErrors({ email: "Email already exists. Please use a different email." });
+      setErrors({ guardianEmail: "Email already exists. Please use a different email." });
+    }
+    setOverlayLoading(false);
   };
 
   return (

@@ -10,6 +10,9 @@ import { styled } from "@mui/material/styles";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { useRouter } from "next/navigation";
+import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import { useDispatch } from "react-redux";
+import { generateBookingId } from "@/app/utils/Providers/bookingIdGenerator";
 
 // ==================== STYLES ====================
 
@@ -58,11 +61,23 @@ const StyledButton = styled(Button)({
   },
 });
 
+const CardDetailsBox = styled(Box)({
+  border: "1px solid #D0D0D0",
+  borderRadius: "10px",
+  padding: "20px",
+  marginBottom: "20px",
+  backgroundColor: "#FAFAFA",
+  boxShadow: "0 4px 16px 0 rgba(0, 0, 0, 0.10)",
+});
+
 // ==================== COMPONENT ====================
 
 const Step4Payment = ({ formData, onSubmit, onBack, enrollmentType }) => {
+  const stripe = useStripe();
+  const elements = useElements();
   const [errors, setErrors] = useState({});
   const [paymentMethod, setPaymentMethod] = useState("term");
+  // const [enrollmentType, setEnrollmentType] = useState("");
   const [creditAmount, setCreditAmount] = useState(0);
   const router = useRouter();
   const [classDetails, setClassDetails] = useState(null);
@@ -79,11 +94,25 @@ const Step4Payment = ({ formData, onSubmit, onBack, enrollmentType }) => {
 
     useEffect(() => {
     // Fetch class details based on formData.classId
+
+      const calculateWeeks = (startDate, endDate) => {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    start.setHours(0, 0, 0, 0);
+    end.setHours(0, 0, 0, 0);
+
+    if (end < start) return 0;
+
+    return Math.floor((end - start) / (1000 * 60 * 60 * 24 * 7)) + 1;
+  };
+
     const fetchClassDetails = async () => {
       let classDetail;
       if (typeof window !== "undefined") {
         classDetail = localStorage.getItem("selectedClass");
       }
+      console.log("Class ID from localStorage:", classDetail);
       if (classDetail && classDetail !== "undefined") {
         const data = JSON.parse(classDetail);
         console.log("Fetched class details:", data);
@@ -93,30 +122,32 @@ const Step4Payment = ({ formData, onSubmit, onBack, enrollmentType }) => {
         const startDate = new Date(data?.startDate);
         const endDate = new Date(data?.endDate);
         const totalWeeks = calculateWeeks(startDate, endDate);
+        console.log("Total weeks in term:", totalWeeks);
         setTotalWeeksForTerm(data?.term?.totalWeeks || 1);
         const remainingWeeks = calculateWeeks(today, endDate);
+        console.log("Remaining weeks in term:", remainingWeeks);
         const pricePerClass = data?.fees / totalWeeks;
+        console.log("Price per class:", pricePerClass);
         const totalPrice = pricePerClass * remainingWeeks;
+        console.log("Calculated total price:", totalPrice);
         const annualPrice = totalPrice + 3 * data?.fees;
+        console.log("Calculated annual price:", annualPrice);
         const discount = 10;
         setDiscountApplied(discount);
         setPrice(totalPrice);
         setYearlyPrice(annualPrice);
-        const creditAmountPrice =
-          paymentMethod === "term"
-            ? totalPrice
-            : (annualPrice * (100 - discount)) / 100;
+        enrollmentType = formData.enrollmentType;
+        console.log("Enrollment type:", enrollmentType);
         const creditAmount =
-          !formData.classId && !formData.eventId
-            ? 0
-            : enrollmentType === "Course"
-              ? creditAmountPrice
+          enrollmentType === "Course" || enrollmentType === "Term"
+              ? totalPrice
               : enrollmentType === "Workshop"
                 ? data?.fees
                 : enrollmentType === "Trial"
                   ? data?.fees / 10
                   : 0;
         setCreditAmount(creditAmount);
+        console.log("Calculated credit amount:", creditAmount);
       }
     };
     fetchClassDetails();
@@ -177,38 +208,107 @@ const Step4Payment = ({ formData, onSubmit, onBack, enrollmentType }) => {
 
   // ==================== SUBMIT ====================
 
-  const handleSubmit = async () => {
-    setErrors({});
-    // const formError = validateEnrollmentForm(formData);
-    // if (Object.keys(formError).length > 0) {
-    //   setErrors(formError);
-    //   return;
-    // }
-    validate();
-    // Validate and process payment
-    if (onSubmit) {
-      const saved = await onSubmit(true);
+    const processEnrollment = async (paymentIntent) => {
+      
       const enrollmentData = JSON.parse(localStorage.getItem("enrollmentData"));
       console.log("Enrollment data before update:", enrollmentData);
-      console.log("Payment result:", saved);
-      if (saved) {
+      const paymentData = {
+          paymentMethod: "card",
+          transactionId: paymentIntent?.id || "",
+          totalAmount: `$${creditAmount.toFixed(2)}`,
+          bookingId: generateBookingId(),
+          email: formData.email || formData.guardianEmail,
+          enrollmentType: formData.enrollmentType,
+          newUser: formData.newUser,
+          paymentStatus: String(paymentIntent?.status),
+          requestAt: paymentIntent?.requestAt,
+          responseAt: paymentIntent?.responseAt,
+      };
         const updatedEnrollmentData = {
           ...enrollmentData,
-          paymentMethod: "Visa •••• 4321",
-          transactionId: "TXN1234567890",
-          totalAmount: `$${creditAmount.toFixed(2)}`,
-          bookingId: "BKNG-EC-APS-2023-1234",
-          email: formData.email || formData.guardianEmail,
-          enrollmentType: enrollmentType,
-          newUser: formData.newUser,
+          ...paymentData
         };
         localStorage.setItem(
           "enrollmentData",
           JSON.stringify(updatedEnrollmentData),
         );
-        router.replace("/admin/enrollment/enrollmentForm/success");
-      } else {
-        const updatedEnrollmentData = {
+        console.log("Updated enrollment data with payment info:", updatedEnrollmentData);
+        const user = localStorage.getItem("user");
+        const parsedUser = user ? JSON.parse(user) : null;
+        const selectedClass = localStorage.getItem("selectedClass");
+        const parsedSelectedClass = selectedClass ? JSON.parse(selectedClass) : null;
+        const selectedEvent = localStorage.getItem("eventId");
+        const parsedSelectedEvent = selectedEvent ? JSON.parse(selectedEvent) : null;
+        console.log("User ID:", parsedUser?.id);
+        // if (user && parsedUser.id && parsedUser.id != null) {
+        //   updatedEnrollmentData.userId = parsedUser.id;
+        //   updatedEnrollmentData.courseId = parsedSelectedClass.courseId;
+        //   updatedEnrollmentData.classId = parsedSelectedClass.id;
+        //   updatedEnrollmentData.eventId = parsedSelectedEvent?.id || null;
+        //   localStorage.setItem(
+        //   "enrollmentData",
+        //   JSON.stringify(updatedEnrollmentData),
+        // );
+        //   const result = await dispatch(addPayment(updatedEnrollmentData));
+        //   console.log("Payment result passing user:", result);
+        // }
+        // else {
+          const saved = await onSubmit(true);
+        console.log("Payment result new user:", saved);
+        // }
+  };
+
+  const handleSubmit = async () => {
+  if (!stripe || !elements) return;
+
+  try {
+    // 1️⃣ Create PaymentIntent
+
+    const paymentIntentRequestTime = new Date().toISOString();
+
+    const response = await fetch("/api/create-payment-intent", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        amount: creditAmount,
+      }),
+    });
+
+    const { clientSecret } = await response.json();
+
+    // 2️⃣ Confirm payment
+    const { error, paymentIntent } = await stripe.confirmCardPayment(
+      clientSecret,
+      {
+        payment_method: {
+          card: elements.getElement(CardElement),
+          billing_details: {
+            name: formData.firstName + " " + formData.lastName,
+            email: formData.email || formData.guardianEmail,
+          },
+        },
+      },
+    );
+
+    const stripeResponseTime = new Date().toISOString();
+    const paymentData = {
+      ...paymentIntent,
+      requestAt: paymentIntentRequestTime,
+      responseAt: stripeResponseTime,
+    }
+    if (error) {
+      console.error(error);
+      router.replace("/Pages/enrollment/failed");
+      return;
+    }
+
+    console.log("PaymentIntent:", paymentData);
+    if (paymentIntent.status === "succeeded") {
+      await processEnrollment(paymentData);
+      router.replace("/admin/enrollment/enrollmentForm/success");
+    }
+    else {
+      const updatedEnrollmentData = {
           ...enrollmentData,
           paymentStatus: "Failed",
           amountToPay: `$${creditAmount.toFixed(2)}`,
@@ -218,78 +318,31 @@ const Step4Payment = ({ formData, onSubmit, onBack, enrollmentType }) => {
           JSON.stringify(updatedEnrollmentData),
         );
         router.replace("/admin/enrollment/enrollmentForm/failed");
-      }
     }
-  };
+  } catch (err) {
+    console.error(err);
+    const updatedEnrollmentData = {
+          ...enrollmentData,
+          paymentStatus: "Failed",
+          amountToPay: `$${creditAmount.toFixed(2)}`,
+        };
+        localStorage.setItem(
+          "enrollmentData",
+          JSON.stringify(updatedEnrollmentData),
+        );
+        router.replace("/admin/enrollment/failed");
+  }
+};
+
 
   // ==================== UI ====================
 
   return (
     <Box>
       <FormContainer>
-        <Box>
-          <FieldLabel>
-            Card Number: <span>*</span>
-          </FieldLabel>
-          <StyledTextField
-            name="cardNumber"
-            placeholder="1234 1234 1234 1234"
-            value={paymentData.cardNumber}
-            onChange={handleInputChange}
-            error={!!errors.cardNumber}
-            helperText={errors.cardNumber}
-            fullWidth
-          />
-        </Box>
-
-        <Box>
-          <FieldLabel>
-            Card Holder Name: <span>*</span>
-          </FieldLabel>
-          <StyledTextField
-            name="cardHolderName"
-            placeholder="Name"
-            value={paymentData.cardHolderName}
-            onChange={handleInputChange}
-            error={!!errors.cardHolderName}
-            helperText={errors.cardHolderName}
-            fullWidth
-          />
-        </Box>
-      </FormContainer>
-
-      <FormContainer>
-        <Box>
-          <FieldLabel>
-            Expiry Date: <span>*</span>
-          </FieldLabel>
-          <StyledTextField
-            name="expiryDate"
-            placeholder="MM/YY"
-            value={paymentData.expiryDate}
-            onChange={handleExpiryChange}
-            inputProps={{ maxLength: 5 }}
-            error={!!errors.expiryDate}
-            helperText={errors.expiryDate}
-            fullWidth
-          />
-        </Box>
-
-        <Box>
-          <FieldLabel>
-            CVC: <span>*</span>
-          </FieldLabel>
-          <StyledTextField
-            name="cvc"
-            placeholder="123"
-            value={paymentData.cvc}
-            onChange={handleInputChange}
-            inputProps={{ maxLength: 4 }}
-            error={!!errors.cvc}
-            helperText={errors.cvc}
-            fullWidth
-          />
-        </Box>
+         <CardDetailsBox>
+            <CardElement options={{ hidePostalCode: true, disableLink: true }} />
+            </CardDetailsBox>
       </FormContainer>
 
       <ButtonContainer>

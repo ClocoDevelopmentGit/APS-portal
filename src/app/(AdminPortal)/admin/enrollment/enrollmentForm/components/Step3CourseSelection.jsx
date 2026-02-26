@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Box,
   Typography,
@@ -161,6 +161,8 @@ const CourseSelection = ({
   // Load from localStorage
   useEffect(() => {
     const stored = localStorage.getItem("allCourses");
+    localStorage.setItem("enrollmentType", "Course");
+    enrollmentType = "Course";
     console.log("Loaded courses from localStorage:", stored);
     if (stored) {
       setCourses(JSON.parse(stored));
@@ -280,7 +282,7 @@ const CourseSelection = ({
 
   localStorage.setItem("classId", selectedClass.id);
   localStorage.setItem("formData", JSON.stringify(formData));
-
+  localStorage.setItem("selectedClass", JSON.stringify(selectedClass));
   const enrollmentData = {
     studentName: (
       (formData.firstName || "") +
@@ -438,16 +440,16 @@ const CourseSelection = ({
                   <StyledMenuItem value="">
                     Select
                   </StyledMenuItem>
-                  <StyledMenuItem value="Term Payment">
+                  <StyledMenuItem value="Term">
                     Term Payment
                   </StyledMenuItem>
-                  <StyledMenuItem value="Full Year">
+                  {/* <StyledMenuItem value="Full Year">
                     Full Year
                   </StyledMenuItem>
                   <StyledMenuItem value="Monthly">
                     Monthly
-                  </StyledMenuItem>
-                  <StyledMenuItem value="Trial Class">
+                  </StyledMenuItem> */}
+                  <StyledMenuItem value="Trial">
                     Trial Class
                   </StyledMenuItem>
                 </Select>
