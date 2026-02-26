@@ -60,11 +60,11 @@ export const registerUser = createAsyncThunk(
       );
 
       if (response.data.success) {
-        const { primaryUser, users } = response.data;
+        const { primaryUser, user } = response.data;
 
         return {
           primaryUser,
-          users,
+          user,
         };
       }
     } catch (error) {
@@ -90,6 +90,23 @@ export const fetchCurrentUser = createAsyncThunk(
         error?.response?.data?.message ||
         error?.message ||
         "Failed to fetch users";
+      return rejectWithValue(message);
+    }
+  },
+);
+
+export const checkUserExist  = createAsyncThunk(
+  "user/checkExist",
+  async (email, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`${API_URL}/api/user/checkemail/${email}`);
+      console.log(response.data , "response from check email");
+      return response.data.success;
+    } catch (error) {
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to check user existence";
       return rejectWithValue(message);
     }
   },

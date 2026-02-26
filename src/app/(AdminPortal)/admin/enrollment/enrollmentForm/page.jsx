@@ -10,6 +10,9 @@ import Step3CourseSelection from "./components/Step3CourseSelection";
 import Step4Payment from "./components/Step4Payment";
 import { useDispatch } from "react-redux";
 import { registerUser } from "@/redux/slices/userSlice";
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
+import { addPayment } from "@/redux/slices/paymentSlice";
 
 // ==================== STYLED COMPONENTS ====================
 
@@ -82,6 +85,11 @@ const StyledDivider = styled(Divider)({
 });
 
 // ==================== COMPONENT ====================
+
+const stripePromise = loadStripe(
+  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+);
+
 
 const ManualEnrollmentPage = () => {
   const dispatch = useDispatch();
@@ -366,7 +374,31 @@ const ManualEnrollmentPage = () => {
         );
         usersData = [studentData];
       }
-      await dispatch(registerUser(usersData)).unwrap();
+      const res = await dispatch(registerUser(usersData)).unwrap();
+      console.log("Registration response:", res);
+      const newUser = res?.user;
+      console.log("Newly registered user:", newUser);
+      if(newUser.NDISPlan === false){
+      const paymentData = JSON.parse(
+        localStorage.getItem("enrollmentData")
+      );
+
+      const updatedEnrollmentData = {
+        ...paymentData,
+        userId: newUser.id,
+        courseId: newUser.userCourse.id,
+        classId: newUser.userCourse.classId,
+        eventId: newUser.userCourse.eventId,
+      };
+
+      localStorage.setItem(
+        "enrollmentData",
+        JSON.stringify(updatedEnrollmentData)
+      );
+      console.log("add payment called with data:", updatedEnrollmentData);
+      
+      await dispatch(addPayment(updatedEnrollmentData)).unwrap();
+    }
       setOverlayLoading(false);
       return true;
     } catch (error) {
@@ -412,14 +444,15 @@ const ManualEnrollmentPage = () => {
         );
       case 4:
         return (
-          <Step4Payment
-            formData={formData}
-            onBack={handleBack}
-            onSubmit={handleSubmit}
-            courseName={courseName}
-            courseAge={courseAge}
-            enrollmentType={enrollmentType}
-          />
+          <Elements stripe={stripePromise}>
+            <Step4Payment
+              formData={formData}
+              onSubmit={handleSubmit}
+              courseName={courseName}
+              courseAge={courseAge}
+              enrollmentType={enrollmentType}
+            />
+            </Elements>
         );
       default:
         return null;

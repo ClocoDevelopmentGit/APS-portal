@@ -375,13 +375,14 @@ const ManualEnrollmentPage = () => {
                 ? `${new Date(classData.startDate).toLocaleDateString()} - ${new Date(classData.endDate).toLocaleDateString()}`
                 : "-";
 
-            
-            const isPaid = student.invoices?.some(
-              (invoice) => { 
-                return invoice.userCourseId === uc.id;
-              }
-            );
-
+            const isPaid =
+                student.guardian?.invoices?.some(
+                  (invoice) => invoice.userCourseId === uc.id
+                ) ||
+                student.invoices?.some(
+                  (invoice) => invoice.userCourseId === uc.id
+                ) ||
+                false;
             return {
               course: courseTitle,
               session,
@@ -545,6 +546,12 @@ const ManualEnrollmentPage = () => {
         </StyledTableContainer>
         <PaginationContainer>
           <PaginationButtons>
+             <NavButton
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+              >
+                <ChevronLeftIcon sx={{ fontSize: "18px" }} />
+              </NavButton>
               <NavButton
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}

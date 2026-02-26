@@ -234,6 +234,13 @@ const NextButton = styled(Button)({
   },
 });
 
+const ErrorText = styled(Typography)({
+  fontSize: "12px",
+  color: "#E85A4F",
+  marginTop: "5px",
+  marginBottom: "15px",
+});
+
 const NDISContainer = styled(Box)({
   marginTop: "20px",
 });

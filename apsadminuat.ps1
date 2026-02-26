@@ -30,8 +30,10 @@ Get-Content $envFile | ForEach-Object {
 
 $baseApiUrl = $envVars['NEXT_PUBLIC_BASE_API_URL']
 $redirectUrl = $envVars['NEXT_PUBLIC_REDIRECT_URL']
+$stripeSecretKey = $envVars['NEXT_PUBLIC_STRIPE_SECRET_KEY']
+$stripePublicKey = $envVars['NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY']
 
-if (-not $baseApiUrl -or -not $redirectUrl) {
+if (-not $baseApiUrl -or -not $redirectUrl -or -not $stripeSecretKey -or -not $stripePublicKey) {
     Write-Host "Error: Missing env vars in $envFile" -ForegroundColor Red
     exit 1
 }
@@ -41,7 +43,7 @@ Write-Host "Building Docker image..." -ForegroundColor Green
 gcloud builds submit `
     --config=cloudbuild.yaml `
     --gcs-source-staging-dir=$gcsPath `
-    --substitutions "_NEXT_PUBLIC_BASE_API_URL=$baseApiUrl,_NEXT_PUBLIC_REDIRECT_URL=$redirectUrl" `
+    --substitutions "_NEXT_PUBLIC_BASE_API_URL=$baseApiUrl,_NEXT_PUBLIC_REDIRECT_URL=$redirectUrl,_NEXT_PUBLIC_STRIPE_SECRET_KEY=$stripeSecretKey,_NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=$stripePublicKey" `
     --project $Project
 
 if ($LASTEXITCODE -ne 0) {
