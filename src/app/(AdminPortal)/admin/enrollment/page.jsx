@@ -327,101 +327,6 @@ const NavButton = styled(IconButton)({
   },
 });
 
-<<<<<<< Updated upstream
-// ==================== SAMPLE DATA ====================
-
-const enrollmentData = [
-  {
-    id: 1,
-    name: "Andres Watson",
-    age: "20 Years",
-    mobile: "+61 410 345 678",
-    email: "andreswatson@gmail.com",
-    course: "Industry Driven Adults",
-    session: "4:45 pm - 7:45 pm, 18 Oct - 6 Oct 2025",
-    paymentStatus: "paid",
-    type: "enrolled",
-  },
-  {
-    id: 2,
-    name: "Billy Adams",
-    age: "18 Years",
-    mobile: "+61 412 012 658",
-    email: "billyadams@gmail.com",
-    course: "Industry Driven Adults",
-    session: "4:45 pm - 7:45 pm, 18 Oct - 6 Oct 2025",
-    paymentStatus: "paid",
-    type: "enrolled",
-  },
-  {
-    id: 3,
-    name: "Daniel Brown",
-    age: "12 Years",
-    mobile: "+61 400 245 521",
-    email: "danielbrown@gmail.com",
-    course: "Industry Driven Adults",
-    session: "4:45 pm - 7:45 pm, 18 Oct - 6 Oct 2025",
-    paymentStatus: "unpaid",
-    type: "trial",
-  },
-  {
-    id: 4,
-    name: "Elle Briam",
-    age: "14 Years",
-    mobile: "+61 342 755 003",
-    email: "ellebriam@gmail.com",
-    course: "Industry Driven Adults",
-    session: "4:45 pm - 7:45 pm, 18 Oct - 6 Oct 2025",
-    paymentStatus: "unpaid",
-    type: "trial",
-  },
-  {
-    id: 5,
-    name: "Liam River",
-    age: "12 Years",
-    mobile: "+61 456 222 343",
-    email: "liamriver@gmail.com",
-    course: "Industry Driven Adults",
-    session: "4:45 pm - 7:45 pm, 18 Oct - 6 Oct 2025",
-    paymentStatus: "unpaid",
-    type: "trial",
-  },
-  {
-    id: 6,
-    name: "Priya Sharma",
-    age: "8 Years",
-    mobile: "+61 448 565 657",
-    email: "priyasharma@gmail.com",
-    course: "Industry Driven Adults",
-    session: "4:45 pm - 7:45 pm, 18 Oct - 6 Oct 2025",
-    paymentStatus: "paid",
-    type: "enrolled",
-  },
-  {
-    id: 7,
-    name: "Richard Bell",
-    age: "14 Years",
-    mobile: "+61 678 785 247",
-    email: "richardbell@gmail.com",
-    course: "Industry Driven Adults",
-    session: "4:45 pm - 7:45 pm, 18 Oct - 6 Oct 2025",
-    paymentStatus: "paid",
-    type: "enrolled",
-  },
-  {
-    id: 8,
-    name: "Sara Mitchel",
-    age: "9 Years",
-    mobile: "+61 545 025 778",
-    email: "saramitchel@gmail.com",
-    course: "Industry Driven Adults",
-    session: "4:45 pm - 7:45 pm, 18 Oct - 6 Oct 2025",
-    paymentStatus: "paid",
-    type: "enrolled",
-  },
-];
-=======
->>>>>>> Stashed changes
 
 // ==================== COMPONENT ====================
 
@@ -429,14 +334,10 @@ const ManualEnrollmentPage = () => {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-<<<<<<< Updated upstream
-  const itemsPerPage = 8;
-=======
   const [enrollmentData, setEnrollmentData] = useState([]);
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
   const itemsPerPage = 10;
->>>>>>> Stashed changes
 
   const calculateAge = (dob) => {
   if (!dob) return "-";
@@ -555,109 +456,7 @@ const ManualEnrollmentPage = () => {
             + New Enrollments
           </NewEnrollmentButton>
         </HeaderSection>
-
-<<<<<<< Updated upstream
-        {/* Table Section */}
         <ContentCard>
-          <StyledTableContainer>
-            <Table sx={{ minWidth: 1100 }}>
-              <StyledTableHead>
-                <TableRow>
-                  <StyledTableHeadCell sx={{ minWidth: "180px" }}>
-                    Name
-                  </StyledTableHeadCell>
-                  <StyledTableHeadCell sx={{ minWidth: "90px" }}>
-                    Age
-                  </StyledTableHeadCell>
-                  <StyledTableHeadCell sx={{ minWidth: "140px" }}>
-                    Mobile Number
-                  </StyledTableHeadCell>
-                  <StyledTableHeadCell sx={{ minWidth: "200px" }}>
-                    Mail ID
-                  </StyledTableHeadCell>
-                  <StyledTableHeadCell sx={{ minWidth: "170px" }}>
-                    Course
-                  </StyledTableHeadCell>
-                  <StyledTableHeadCell sx={{ minWidth: "200px" }}>
-                    Session
-                  </StyledTableHeadCell>
-                  <StyledTableHeadCell sx={{ minWidth: "100px" }}>
-                    Type
-                  </StyledTableHeadCell>
-                  <StyledTableHeadCell sx={{ minWidth: "80px" }}>
-                    Status
-                  </StyledTableHeadCell>
-                </TableRow>
-              </StyledTableHead>
-              <TableBody>
-                {currentData.map((enrollment) => (
-                  <StyledTableRow key={enrollment.id}>
-                    <StyledTableCell>
-                      <ParticipantCell>
-                        <Avatar
-                          sx={{
-                            width: 28,
-                            height: 28,
-                            borderRadius: "6px",
-                          }}
-                        >
-                          {enrollment.name.charAt(0)}
-                        </Avatar>
-                        <ParticipantName>{enrollment.name}</ParticipantName>
-                      </ParticipantCell>
-                    </StyledTableCell>
-                    <StyledTableCell>{enrollment.age}</StyledTableCell>
-                    <StyledTableCell>{enrollment.mobile}</StyledTableCell>
-                    <StyledTableCell>{enrollment.email}</StyledTableCell>
-                    <StyledTableCell>{enrollment.course}</StyledTableCell>
-                    <StyledTableCell>{enrollment.session}</StyledTableCell>
-                    <StyledTableCell>
-                      <TypeChip
-                        label={
-                          enrollment.type === "trial" ? "Trial" : "Enrolled"
-                        }
-                        status={enrollment.type}
-                      />
-                    </StyledTableCell>
-                    <StyledTableCell>
-                      <PaymentChip
-                        label={
-                          enrollment.paymentStatus === "paid"
-                            ? "Paid"
-                            : "Unpaid"
-                        }
-                        status={enrollment.paymentStatus}
-                      />
-                    </StyledTableCell>
-                  </StyledTableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </StyledTableContainer>
-
-          {/* Pagination */}
-          <PaginationContainer>
-            <PaginationText>
-              Showing Pages {currentPage} of {totalPages}
-            </PaginationText>
-            <PaginationButtons>
-              <NavButton
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1}
-              >
-                <ChevronLeftIcon sx={{ fontSize: "18px" }} />
-              </NavButton>
-
-              {Array.from({ length: totalPages }, (_, index) => (
-                <PageButton
-                  key={index + 1}
-                  active={currentPage === index + 1}
-                  onClick={() => handlePageChange(index + 1)}
-                >
-                  {index + 1}
-                </PageButton>
-              ))}
-=======
         <StyledTableContainer>
           <Table sx={{ minWidth: 1000 }}>
             <StyledTableHead>
@@ -682,42 +481,6 @@ const ManualEnrollmentPage = () => {
                 </StyledTableHeadCell>
               </TableRow>
             </StyledTableHead>
-            {/* <TableBody>
-              {currentData.map((row) => (
-                <StyledTableRow key={row.id}>
-                  <StyledTableCell sx={{ width: "15%", minWidth: "150px" }}>
-                    {row.name}
-                  </StyledTableCell>
-                  <StyledTableCell sx={{ width: "10%", minWidth: "80px" }}>
-                    {row.age}
-                  </StyledTableCell>
-                  <StyledTableCell sx={{ width: "15%", minWidth: "140px" }}>
-                    {row.mobile}
-                  </StyledTableCell>
-                  <StyledTableCell sx={{ width: "20%", minWidth: "180px" }}>
-                    {row.course}
-                  </StyledTableCell>
-                  <StyledTableCell
-                    sx={{
-                      width: "25%",
-                      minWidth: "220px",
-                      maxWidth: "250px",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    {row.session}
-                  </StyledTableCell>
-                  <StyledTableCell sx={{ width: "15%", minWidth: "130px" }}>
-                    <PaymentChip
-                      label={row.paymentStatus === "paid" ? "Paid" : "Unpaid"}
-                      status={row.paymentStatus}
-                    />
-                  </StyledTableCell>
-                </StyledTableRow>
-              ))}
-            </TableBody> */}
             <TableBody>
             {currentData.map((row) => (
               <StyledTableRow key={row.id}>
@@ -780,8 +543,8 @@ const ManualEnrollmentPage = () => {
           </TableBody>
           </Table>
         </StyledTableContainer>
->>>>>>> Stashed changes
-
+        <PaginationContainer>
+          <PaginationButtons>
               <NavButton
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
