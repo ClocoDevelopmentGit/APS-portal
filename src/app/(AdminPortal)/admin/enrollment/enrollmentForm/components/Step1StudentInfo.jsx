@@ -285,6 +285,10 @@ const Step1StudentInfo = ({ formData, handleChange, onNext, onBack }) => {
       guardianEmail: "Email already exists. Please use a different email." });
     }
    }
+   else
+    {
+      onNext();
+    }
     setOverlayLoading(false);
   };
 
