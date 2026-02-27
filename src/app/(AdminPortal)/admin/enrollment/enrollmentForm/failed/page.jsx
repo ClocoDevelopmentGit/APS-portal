@@ -216,7 +216,7 @@ const SecondaryButton = styled(Button)({
 // ==================== COMPONENT ====================
 
 const ManualEnrollmentFailed = () => {
-    const [enrollmentData, setEnrollmentData] = useState(null);
+  const [enrollmentData, setEnrollmentData] = useState(null);
 
   useEffect(() => {
     const fetchData = () => {
@@ -239,8 +239,8 @@ const ManualEnrollmentFailed = () => {
   return (
     <PageContainer>
       <HeaderSection>
-        <PageTitle>Manual Enrollment</PageTitle>
-        <Breadcrumb>Enrollments / Manual Enrollment / Failed</Breadcrumb>
+        <PageTitle>Manual Enrolment</PageTitle>
+        <Breadcrumb>Enrolments / Manual Enrolment / Failed</Breadcrumb>
       </HeaderSection>
 
       <FailedCard>
@@ -256,8 +256,8 @@ const ManualEnrollmentFailed = () => {
 
         {/* Failed Description */}
         <FailedDescription>
-          Your enrollment has not been completed and no charges have been made
-          to your card.
+          Your enrolment has not been completed and no charges have been made to
+          your card.
           <br />
           Your spot is still available for the next 24 hours.
         </FailedDescription>
@@ -265,7 +265,7 @@ const ManualEnrollmentFailed = () => {
         {/* Enrollment Summary */}
         <SummaryCard>
           <SummaryHeader>
-            <SummaryTitle>Enrollment Summary</SummaryTitle>
+            <SummaryTitle>Enrolment Summary</SummaryTitle>
           </SummaryHeader>
 
           <SummaryRow>
@@ -315,7 +315,7 @@ const ManualEnrollmentFailed = () => {
             Print Receipt
           </PrimaryButton>
           <SecondaryButton onClick={handleBackToEnrollments}>
-            Back to Enrollments
+            Back to Enrolments
           </SecondaryButton>
         </ButtonContainer>
       </FailedCard>

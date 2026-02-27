@@ -571,7 +571,7 @@ const CreateClass = ({
     setDeleteMessage(
       `The class on ${classData?.day} by ${
         classData.tutor.firstName + " " + classData.tutor.lastName
-      } will be deleted.`
+      } will be deleted.`,
     );
     setOpenDeleteModal(true);
   };
@@ -645,7 +645,7 @@ const CreateClass = ({
                       );
                     }
                     const selectedInstructor = instructors.find(
-                      (cat) => cat.id === selected
+                      (cat) => cat.id === selected,
                     );
                     return selectedInstructor
                       ? `${selectedInstructor?.firstName?.trim() || ""} ${
@@ -690,7 +690,7 @@ const CreateClass = ({
                     onChange={(e) => {
                       handleChange("termId", e.target.value);
                       const termSelected = terms.find(
-                        (cat) => cat.id === e.target.value
+                        (cat) => cat.id === e.target.value,
                       );
                       setSelectedTerm(termSelected);
                     }}
@@ -702,7 +702,7 @@ const CreateClass = ({
                         );
                       }
                       const selectedTerm = terms.find(
-                        (cat) => cat.id === selected
+                        (cat) => cat.id === selected,
                       );
                       return selectedTerm ? `${selectedTerm?.name}` : "";
                     }}
@@ -730,7 +730,7 @@ const CreateClass = ({
                       const selectedId = e.target.value;
                       handleChange("locationId", selectedId);
                       const selectedLoc = locations.find(
-                        (loc) => loc.id === selectedId
+                        (loc) => loc.id === selectedId,
                       );
                       setSelectedLocation(selectedLoc);
                       setIsRoomPresent(selectedLoc?.rooms?.length > 0);
@@ -749,7 +749,7 @@ const CreateClass = ({
                         );
                       }
                       const selectedLocation = locations.find(
-                        (cat) => cat.id === selected
+                        (cat) => cat.id === selected,
                       );
                       return selectedLocation
                         ? `${selectedLocation?.name?.trim() || ""}`.trim()
@@ -898,8 +898,8 @@ const CreateClass = ({
                   value={formData.fromDate}
                   onChange={(newValue) => handleChange("fromDate", newValue)}
                   format="DD-MM-YYYY"
-                  minDate={dayjs(selectedTerm?.startDate)}
-                  maxDate={dayjs(selectedTerm?.endDate)}
+                  // minDate={dayjs(selectedTerm?.startDate)}
+                  // maxDate={dayjs(selectedTerm?.endDate)}
                   slotProps={{
                     textField: {
                       placeholder: "dd-mm-yyyy",
@@ -923,8 +923,8 @@ const CreateClass = ({
                   value={formData.toDate}
                   onChange={(newValue) => handleChange("toDate", newValue)}
                   format="DD-MM-YYYY"
-                  minDate={dayjs()}
-                  maxDate={dayjs(selectedTerm?.endDate)}
+                  // minDate={dayjs()}
+                  // maxDate={dayjs(selectedTerm?.endDate)}
                   slotProps={{
                     textField: {
                       placeholder: "dd-mm-yyyy",

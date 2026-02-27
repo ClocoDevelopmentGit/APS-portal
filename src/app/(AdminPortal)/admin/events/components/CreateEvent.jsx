@@ -481,20 +481,20 @@ const CreateEvent = ({
     payload.append("day", formData.day);
     payload.append(
       "startDate",
-      formData.fromDate ? formData.fromDate.format("YYYY-MM-DD") : ""
+      formData.fromDate ? formData.fromDate.format("YYYY-MM-DD") : "",
     );
     payload.append("buttonLink", generateSlug(formData.title || ""));
     payload.append(
       "endDate",
-      formData.toDate ? formData.toDate.format("YYYY-MM-DD") : ""
+      formData.toDate ? formData.toDate.format("YYYY-MM-DD") : "",
     );
     payload.append(
       "startTime",
-      formData.startTime ? formData.startTime.format("HH:mm") : ""
+      formData.startTime ? formData.startTime.format("HH:mm") : "",
     );
     payload.append(
       "endTime",
-      formData.endTime ? formData.endTime.format("HH:mm") : ""
+      formData.endTime ? formData.endTime.format("HH:mm") : "",
     );
     payload.append("room", formData.room);
     payload.append("notes", formData.notes || "");
@@ -504,11 +504,11 @@ const CreateEvent = ({
     payload.append("fees", parseFloat(formData.fees) || 0);
     payload.append(
       "displayOnHomePage",
-      formData.homePageStatus === "Active" ? "true" : "false"
+      formData.homePageStatus === "Active" ? "true" : "false",
     );
     payload.append(
       "canEnroll",
-      formData.canEnroll === "Active" ? "true" : "false"
+      formData.canEnroll === "Active" ? "true" : "false",
     );
 
     try {
@@ -632,7 +632,7 @@ const CreateEvent = ({
                       );
                     }
                     const selectedInstructor = instructors.find(
-                      (cat) => cat.id === selected
+                      (cat) => cat.id === selected,
                     );
                     return selectedInstructor
                       ? `${selectedInstructor?.firstName?.trim() || ""} ${
@@ -702,7 +702,7 @@ const CreateEvent = ({
                         );
                       }
                       const selectedCategory = categories.find(
-                        (cat) => cat.id === selected
+                        (cat) => cat.id === selected,
                       );
                       return selectedCategory ? selectedCategory.name : "";
                     }}
@@ -733,7 +733,7 @@ const CreateEvent = ({
                       const selectedId = e.target.value;
                       handleChange("locationId", selectedId);
                       const selectedLoc = locations.find(
-                        (loc) => loc.id === selectedId
+                        (loc) => loc.id === selectedId,
                       );
                       setSelectedLocation(selectedLoc);
                       setIsRoomPresent(selectedLoc?.rooms?.length > 0);
@@ -752,7 +752,7 @@ const CreateEvent = ({
                         );
                       }
                       const selectedLocation = locations.find(
-                        (cat) => cat.id === selected
+                        (cat) => cat.id === selected,
                       );
                       return selectedLocation
                         ? `${selectedLocation?.name?.trim() || ""}`.trim()
@@ -981,7 +981,7 @@ const CreateEvent = ({
                   value={formData.toDate}
                   onChange={(newValue) => handleChange("toDate", newValue)}
                   format="DD-MM-YYYY"
-                  minDate={dayjs()}
+                  // minDate={dayjs()}
                   slotProps={{
                     textField: {
                       placeholder: "dd-mm-yyyy",

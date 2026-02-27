@@ -79,7 +79,7 @@ const FieldLabel = styled(Typography)({
 });
 
 const StyledTextField = styled(TextField)({
-  marginBottom: "20px",
+  marginBottom: "5px",
   "& .MuiOutlinedInput-root": {
     borderRadius: "6px",
     backgroundColor: "#FFFFFF",
@@ -124,11 +124,22 @@ const StyledTextField = styled(TextField)({
       WebkitBoxShadow: "0 0 0 1000px #FFFFFF inset !important",
       WebkitTextFillColor: "#333333 !important",
     },
+    "&[type=number]": {
+      MozAppearance: "textfield",
+      "&::-webkit-outer-spin-button": {
+        WebkitAppearance: "none",
+        margin: 0,
+      },
+      "&::-webkit-inner-spin-button": {
+        WebkitAppearance: "none",
+        margin: 0,
+      },
+    },
   },
 });
 
 const StyledDatePicker = styled(DatePicker)({
-  marginBottom: "20px",
+  marginBottom: "5px",
   width: "100%",
   "& .MuiOutlinedInput-root": {
     borderRadius: "8px",
@@ -262,11 +273,13 @@ const Step1StudentInfo = ({ formData, handleChange, onNext, onBack }) => {
       localStorage.setItem("formData", JSON.stringify(formData));
       onNext();
       return;
-    }
-    else
-    {      
-      setErrors({ email: "Email already exists. Please use a different email." });
-      setErrors({ guardianEmail: "Email already exists. Please use a different email." });
+    } else {
+      setErrors({
+        email: "Email already exists. Please use a different email.",
+      });
+      setErrors({
+        guardianEmail: "Email already exists. Please use a different email.",
+      });
     }
     setOverlayLoading(false);
   };
@@ -276,199 +289,193 @@ const Step1StudentInfo = ({ formData, handleChange, onNext, onBack }) => {
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <Box className="step1-student-info">
           {/* Student Information */}
-         <FormContainer>
+          <FormContainer>
+            <Box width={"100%"}>
+              <FieldLabel>
+                First Name: <span>*</span>
+              </FieldLabel>
+              <StyledTextField
+                name="firstName"
+                placeholder="Enter first name"
+                value={formData.firstName}
+                onChange={(e) => handleChange(e)}
+                fullWidth
+              />
+              {errors.firstName && <ErrorText>{errors.firstName}</ErrorText>}
+            </Box>
+
+            <Box width={"100%"}>
+              <FieldLabel>
+                Last Name: <span>*</span>
+              </FieldLabel>
+              <StyledTextField
+                name="lastName"
+                placeholder="Enter last name"
+                value={formData.lastName}
+                onChange={(e) => handleChange(e)}
+                fullWidth
+              />
+              {errors.lastName && <ErrorText>{errors.lastName}</ErrorText>}
+            </Box>
+          </FormContainer>
+
+          <FormContainer>
+            <Box width={"100%"}>
+              <FieldLabel>
+                Date of Birth: <span>*</span>
+              </FieldLabel>
+              <StyledDatePicker
+                value={formData.dob ? dayjs(formData.dob) : null}
+                onChange={(newValue) => handleDateChange("dob", newValue)}
+                format="DD-MM-YYYY"
+                maxDate={dayjs()}
+                slotProps={{
+                  textField: {
+                    placeholder: "dd-mm-yyyy",
+                  },
+                  popper: {
+                    sx: {
+                      "& .MuiPaper-root": {
+                        backgroundColor: "#FFF",
+                      },
+                    },
+                  },
+                }}
+              />
+              {errors.dob && <ErrorText>{errors.dob}</ErrorText>}
+            </Box>
+
+            <Box width={"100%"}>
+              <FieldLabel>
+                Current Age: <span>*</span>
+              </FieldLabel>
+              <StyledTextField
+                name="currentAge"
+                placeholder="20"
+                value={formData.currentAge}
+                fullWidth
+                disabled
+              />
+              {errors.currentAge && <ErrorText>{errors.currentAge}</ErrorText>}
+            </Box>
+          </FormContainer>
+
+          {Number(formData.currentAge) >= 18 && !!formData.currentAge && (
+            <FormContainer>
+              <Box width={"100%"}>
+                <FieldLabel>
+                  Email Address: <span>*</span>
+                </FieldLabel>
+                <StyledTextField
+                  name="email"
+                  type="email"
+                  placeholder="email@example.com"
+                  value={formData.email}
+                  onChange={(e) => handleChange(e)}
+                  fullWidth
+                />
+                {errors.email && <ErrorText>{errors.email}</ErrorText>}
+              </Box>
+
+              <Box width={"100%"}>
+                <FieldLabel>
+                  Mobile Number: <span>*</span>
+                </FieldLabel>
+                <StyledTextField
+                  name="phone"
+                  type="number"
+                  placeholder="0400 000 000"
+                  value={formData.phone}
+                  onChange={(e) => handleChange(e)}
+                  fullWidth
+                />
+                {errors.phone && <ErrorText>{errors.phone}</ErrorText>}
+              </Box>
+            </FormContainer>
+          )}
+
+          {Number(formData.currentAge) < 18 && !!formData.currentAge && (
+            <>
+              {/* Parent / Guardian Information */}
+              <SubSectionTitle>Parent / Guardian Information:</SubSectionTitle>
+
+              <FormContainer>
                 <Box width={"100%"}>
                   <FieldLabel>
-                    First Name: <span>*</span>
+                    Parent / Guardian Name: <span>*</span>
                   </FieldLabel>
                   <StyledTextField
-                    name="firstName"
-                    placeholder="Enter first name"
-                    value={formData.firstName}
+                    name="guardianName"
+                    placeholder="Enter guardian name"
+                    value={formData.guardianName || ""}
                     onChange={(e) => handleChange(e)}
                     fullWidth
                   />
-                  {errors.firstName && (
-                    <ErrorText>{errors.firstName}</ErrorText>
+                  {errors.guardianName && (
+                    <ErrorText>{errors.guardianName}</ErrorText>
                   )}
                 </Box>
 
                 <Box width={"100%"}>
                   <FieldLabel>
-                    Last Name: <span>*</span>
+                    Parent / Guardian Contact Number: <span>*</span>
                   </FieldLabel>
                   <StyledTextField
-                    name="lastName"
-                    placeholder="Enter last name"
-                    value={formData.lastName}
+                    name="guardianContact"
+                    placeholder="example: +61 412 345 678"
+                    value={formData.guardianContact || ""}
                     onChange={(e) => handleChange(e)}
                     fullWidth
                   />
-                  {errors.lastName && <ErrorText>{errors.lastName}</ErrorText>}
+                  {errors.guardianContact && (
+                    <ErrorText>{errors.guardianContact}</ErrorText>
+                  )}
                 </Box>
               </FormContainer>
 
               <FormContainer>
                 <Box width={"100%"}>
                   <FieldLabel>
-                    Date of Birth: <span>*</span>
+                    Parent / Guardian Email Address: <span>*</span>
                   </FieldLabel>
-                  <StyledDatePicker
-                    value={formData.dob ? dayjs(formData.dob) : null}
-                    onChange={(newValue) => handleDateChange("dob", newValue)}
-                    format="DD-MM-YYYY"
-                    maxDate={dayjs()}
-                    slotProps={{
-                      textField: {
-                        placeholder: "dd-mm-yyyy",
-                      },
-                      popper: {
-                        sx: {
-                          "& .MuiPaper-root": {
-                            backgroundColor: "#FFF",
-                          },
-                        },
-                      },
-                    }}
+                  <StyledTextField
+                    name="guardianEmail"
+                    type="email"
+                    placeholder="email@example.com"
+                    value={formData.guardianEmail || ""}
+                    onChange={(e) => handleChange(e)}
+                    fullWidth
                   />
-                  {errors.dob && <ErrorText>{errors.dob}</ErrorText>}
+                  {errors.guardianEmail && (
+                    <ErrorText>{errors.guardianEmail}</ErrorText>
+                  )}
                 </Box>
 
                 <Box width={"100%"}>
                   <FieldLabel>
-                    Current Age: <span>*</span>
+                    Relationship to Student: <span>*</span>
                   </FieldLabel>
                   <StyledTextField
-                    name="currentAge"
-                    placeholder="20"
-                    value={formData.currentAge}
+                    name="relation"
+                    placeholder="Father"
+                    value={formData.relation || ""}
+                    onChange={(e) => handleChange(e)}
                     fullWidth
-                    disabled
                   />
-                  {errors.currentAge && (
-                    <ErrorText>{errors.currentAge}</ErrorText>
-                  )}
+                  {errors.relation && <ErrorText>{errors.relation}</ErrorText>}
                 </Box>
               </FormContainer>
+            </>
+          )}
 
-              {Number(formData.currentAge) >= 18 && !!formData.currentAge && (
-                <FormContainer>
-                  <Box width={"100%"}>
-                    <FieldLabel>
-                      Email Address: <span>*</span>
-                    </FieldLabel>
-                    <StyledTextField
-                      name="email"
-                      type="email"
-                      placeholder="email@example.com"
-                      value={formData.email}
-                      onChange={(e) => handleChange(e)}
-                      fullWidth
-                    />
-                    {errors.email && <ErrorText>{errors.email}</ErrorText>}
-                  </Box>
-
-                  <Box width={"100%"}>
-                    <FieldLabel>
-                      Mobile Number: <span>*</span>
-                    </FieldLabel>
-                    <StyledTextField
-                      name="phone"
-                      type="number"
-                      placeholder="0400 000 000"
-                      value={formData.phone}
-                      onChange={(e) => handleChange(e)}
-                      fullWidth
-                    />
-                    {errors.phone && <ErrorText>{errors.phone}</ErrorText>}
-                  </Box>
-                </FormContainer>
-              )}
-
-              {Number(formData.currentAge) < 18 && !!formData.currentAge && (
-                <>
-                  {/* Parent / Guardian Information */}
-                  <SubSectionTitle>
-                    Parent / Guardian Information:
-                  </SubSectionTitle>
-
-                  <FormContainer>
-                    <Box width={"100%"}>
-                      <FieldLabel>
-                        Parent / Guardian Name: <span>*</span>
-                      </FieldLabel>
-                      <StyledTextField
-                        name="guardianName"
-                        placeholder="Enter guardian name"
-                        value={formData.guardianName || ""}
-                        onChange={(e) => handleChange(e)}
-                        fullWidth
-                      />
-                      {errors.guardianName && (
-                        <ErrorText>{errors.guardianName}</ErrorText>
-                      )}
-                    </Box>
-
-                    <Box width={"100%"}>
-                      <FieldLabel>
-                        Parent / Guardian Contact Number: <span>*</span>
-                      </FieldLabel>
-                      <StyledTextField
-                        name="guardianContact"
-                        placeholder="example: +61 412 345 678"
-                        value={formData.guardianContact || ""}
-                        onChange={(e) => handleChange(e)}
-                        fullWidth
-                      />
-                      {errors.guardianContact && (
-                        <ErrorText>{errors.guardianContact}</ErrorText>
-                      )}
-                    </Box>
-                  </FormContainer>
-
-                  <FormContainer>
-                    <Box width={"100%"}>
-                      <FieldLabel>
-                        Parent / Guardian Email Address: <span>*</span>
-                      </FieldLabel>
-                      <StyledTextField
-                        name="guardianEmail"
-                        type="email"
-                        placeholder="email@example.com"
-                        value={formData.guardianEmail || ""}
-                        onChange={(e) => handleChange(e)}
-                        fullWidth
-                      />
-                      {errors.guardianEmail && (
-                        <ErrorText>{errors.guardianEmail}</ErrorText>
-                      )}
-                    </Box>
-
-                    <Box width={"100%"}>
-                      <FieldLabel>
-                        Relationship to Student: <span>*</span>
-                      </FieldLabel>
-                      <StyledTextField
-                        name="relation"
-                        placeholder="Father"
-                        value={formData.relation || ""}
-                        onChange={(e) => handleChange(e)}
-                        fullWidth
-                      />
-                      {errors.relation && (
-                        <ErrorText>{errors.relation}</ErrorText>
-                      )}
-                    </Box>
-                  </FormContainer>
-                </>
-              )}
-
- 
           <ButtonContainer>
             <BackButton onClick={onBack} startIcon={<ArrowBackIcon />}>
               Back
             </BackButton>
-            <NextButton onClick={handleNextClick} endIcon={<ArrowForwardIcon />}>
+            <NextButton
+              onClick={handleNextClick}
+              endIcon={<ArrowForwardIcon />}
+            >
               Next
             </NextButton>
           </ButtonContainer>
