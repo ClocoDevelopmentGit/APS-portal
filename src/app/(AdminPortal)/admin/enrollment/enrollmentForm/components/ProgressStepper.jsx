@@ -111,7 +111,7 @@ const ProgressStepper = ({ currentStep, steps }) => {
 
   return (
     <Box>
-      <ProgressTitle>ENROLLMENT PROGRESS</ProgressTitle>
+      <ProgressTitle>ENROLMENT PROGRESS</ProgressTitle>
       <StepperContainer>
         <StepLineContainer>
           <StepLine />

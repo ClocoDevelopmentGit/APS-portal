@@ -309,14 +309,14 @@ const ManualEnrollmentSuccess = () => {
             {enrollmentData?.newUser
               ? "with your credentials and a temporary password, "
               : ""}
-            enrollment details, receipt, and class information.
+            enrolment details, receipt, and class information.
           </InfoText>
         </InfoBox>
 
         {/* Enrollment Details */}
         <DetailsCard>
           <DetailsHeader>
-            <DetailsTitle>Enrollment Details</DetailsTitle>
+            <DetailsTitle>Enrolment Details</DetailsTitle>
             <BookingID>{enrollmentData?.bookingId}</BookingID>
           </DetailsHeader>
 

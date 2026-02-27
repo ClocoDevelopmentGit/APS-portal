@@ -359,7 +359,7 @@ const CourseCard = ({ course, categories, setAlert, setOverlayLoading }) => {
         setLocationList(locations.filter((location) => location.isActive));
       } else {
         setLocationList(
-          storedLocations.filter((location) => location.isActive)
+          storedLocations.filter((location) => location.isActive),
         );
       }
 
@@ -403,7 +403,7 @@ const CourseCard = ({ course, categories, setAlert, setOverlayLoading }) => {
 
   const handleDeleteCourse = () => {
     setDeleteTitle(
-      course?.classes?.length === 0 ? "Are you Sure?" : "Cannot Delete Course!"
+      course?.classes?.length === 0 ? "Are you Sure?" : "Cannot Delete Course!",
     );
     setDeleteStatus(course?.classes?.length === 0 ? true : false);
     setDeleteMessage(
@@ -411,7 +411,7 @@ const CourseCard = ({ course, categories, setAlert, setOverlayLoading }) => {
         ? `The course "${course?.title}" will be deleted.`
         : `This course has ${course?.classes?.length} class${
             course?.classes?.length > 1 ? "es" : ""
-          } assigned to it. Therefore, "${course?.title}" cannot be deleted.`
+          } assigned to it. Therefore, "${course?.title}" cannot be deleted.`,
     );
     setOpenDeleteModal(true);
   };
@@ -524,7 +524,7 @@ const CourseCard = ({ course, categories, setAlert, setOverlayLoading }) => {
 
   const getLocationIndex = (classItem) => {
     const index = locationList.findIndex(
-      (loc) => loc.name.toLowerCase() === classItem.location.name.toLowerCase()
+      (loc) => loc.name.toLowerCase() === classItem.location.name.toLowerCase(),
     );
     return index !== -1 ? index : 0;
   };
@@ -586,10 +586,30 @@ const CourseCard = ({ course, categories, setAlert, setOverlayLoading }) => {
         </CategoryValue>
 
         {/* Course Details Chips */}
-        <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
+        <Stack
+          direction="row"
+          justifyContent={"space-between"}
+          spacing={1}
+          sx={{ mb: 2 }}
+        >
           <DetailChip label={`Age ${course.ageRange}`} size="small" />
           {/* <DetailChip label={course.classes?.[0]?.term?.name} size="small" /> */}
           {/* <DetailChip label={course.price} size="small" /> */}
+          <ActionButtonsContainer>
+            <EditButton
+              startIcon={<IconEdit size={12} />}
+              onClick={handleEditCourse}
+            >
+              Edit Course
+            </EditButton>
+            {/* <DeleteButton
+            startIcon={<IconTrash size={12} />}
+            onClick={handleDeleteCourse}
+            disabled={deleteLoading}
+          >
+            {deleteLoading ? "Deleting" : "Delete Course"}
+          </DeleteButton> */}
+          </ActionButtonsContainer>
         </Stack>
 
         <DividerLine />
@@ -624,7 +644,7 @@ const CourseCard = ({ course, categories, setAlert, setOverlayLoading }) => {
                           classItem.day
                         }, ${formatISTDateRange(
                           classItem.startDate,
-                          classItem.endDate
+                          classItem.endDate,
                         )}`}</ClassDetailText>
                       </ClassInfoRow>
 
@@ -635,7 +655,7 @@ const CourseCard = ({ course, categories, setAlert, setOverlayLoading }) => {
                           <ClassDetailText>
                             {formatISTTimeRange(
                               classItem.startTime,
-                              classItem.endTime
+                              classItem.endTime,
                             )}
                           </ClassDetailText>
                         </ClassInfoRow>

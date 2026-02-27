@@ -254,7 +254,7 @@ const Step2AdditionalInfo = ({ formData, handleChange, onNext, onBack }) => {
     // Basic field validation
     const basicFields = {
       gender: "Gender",
-      schoolYearLevel: "School Year Level",
+      // schoolYearLevel: "School Year Level",
       emergencyContactName: "Emergency Contact Name",
       emergencyContactNumber: "Emergency Contact Number",
       emergencyContactRelation: "Emergency Relationship",
@@ -396,9 +396,7 @@ const Step2AdditionalInfo = ({ formData, handleChange, onNext, onBack }) => {
             </Box>
 
             <Box width={"100%"}>
-              <FieldLabel>
-                School Year Level: <span>*</span>
-              </FieldLabel>
+              <FieldLabel>School Year Level:</FieldLabel>
               <StyledTextField
                 name="schoolYearLevel"
                 placeholder=""

@@ -152,7 +152,7 @@ const CourseSelection = ({
   handleChange,
   onNext,
   onBack,
-  enrollmentType
+  enrollmentType,
 }) => {
   const [errors, setErrors] = useState({});
   const [courses, setCourses] = useState([]);
@@ -173,9 +173,7 @@ const CourseSelection = ({
   const handleCourseChange = (e) => {
     const selectedTitle = e.target.value;
 
-    const courseObj = courses.find(
-      (course) => course.title === selectedTitle
-    );
+    const courseObj = courses.find((course) => course.title === selectedTitle);
 
     setSelectedCourseObj(courseObj || null);
 
@@ -197,15 +195,12 @@ const CourseSelection = ({
     if (!selectedCourseObj) return [];
 
     const activeClasses = selectedCourseObj.classes.filter(
-      (cls) => cls.isActive
+      (cls) => cls.isActive,
     );
 
     const unique = [
       ...new Map(
-        activeClasses.map((cls) => [
-          cls.location.id,
-          cls.location,
-        ])
+        activeClasses.map((cls) => [cls.location.id, cls.location]),
       ).values(),
     ];
 
@@ -217,9 +212,7 @@ const CourseSelection = ({
     if (!selectedCourseObj || !formData.location) return [];
 
     return selectedCourseObj.classes.filter(
-      (cls) =>
-        cls.location.name === formData.location &&
-        cls.isActive
+      (cls) => cls.location.name === formData.location && cls.isActive,
     );
   }, [selectedCourseObj, formData.location]);
 
@@ -240,7 +233,7 @@ const CourseSelection = ({
     return `${startDate} - ${endDate} | ${cls.day} | ${startTime}-${endTime} | ${cls.location.name}`;
   };
 
-   const validateEnrollmentForm = (formData) => {
+  const validateEnrollmentForm = (formData) => {
     const newErrors = {};
     const fieldLabels = {
       ...(enrollmentType === "Course" && { classId: "Class" }),
@@ -262,71 +255,66 @@ const CourseSelection = ({
   };
 
   const handleNextClick = () => {
-  setErrors({});
+    setErrors({});
 
-  const formError = validateEnrollmentForm(formData);
-  if (Object.keys(formError).length > 0) {
-    setErrors(formError);
-    return;
-  }
+    const formError = validateEnrollmentForm(formData);
+    if (Object.keys(formError).length > 0) {
+      setErrors(formError);
+      return;
+    }
 
-  // 🔥 Find selected class object
-  const selectedClass = selectedCourseObj?.classes?.find(
-    (cls) => cls.id === formData.session // or classId if you renamed it
-  );
+    // 🔥 Find selected class object
+    const selectedClass = selectedCourseObj?.classes?.find(
+      (cls) => cls.id === formData.session, // or classId if you renamed it
+    );
 
-  if (!selectedClass) {
-    console.log("Selected class not found");
-    return;
-  }
+    if (!selectedClass) {
+      console.log("Selected class not found");
+      return;
+    }
 
-  localStorage.setItem("classId", selectedClass.id);
-  localStorage.setItem("formData", JSON.stringify(formData));
-  localStorage.setItem("selectedClass", JSON.stringify(selectedClass));
-  const enrollmentData = {
-    studentName: (
-      (formData.firstName || "") +
-      " " +
-      (formData.lastName || "")
-    ).trim(),
+    localStorage.setItem("classId", selectedClass.id);
+    localStorage.setItem("formData", JSON.stringify(formData));
+    localStorage.setItem("selectedClass", JSON.stringify(selectedClass));
+    const enrollmentData = {
+      studentName: (
+        (formData.firstName || "") +
+        " " +
+        (formData.lastName || "")
+      ).trim(),
 
-    courseName: formData.course || "",
+      courseName: formData.course || "",
 
-    location: selectedClass.location?.name || "",
+      location: selectedClass.location?.name || "",
 
-    sessionDetails: `${selectedClass.day} - ${new Date(
-      selectedClass.startDate
-    ).toLocaleDateString("en-AU")} to ${new Date(
-      selectedClass.endDate
-    ).toLocaleDateString("en-AU")}`,
+      sessionDetails: `${selectedClass.day} - ${new Date(
+        selectedClass.startDate,
+      ).toLocaleDateString("en-AU")} to ${new Date(
+        selectedClass.endDate,
+      ).toLocaleDateString("en-AU")}`,
 
-    sessionTime: `${new Date(
-      selectedClass.startTime
-    ).toLocaleTimeString("en-AU", {
-      hour: "2-digit",
-      minute: "2-digit",
-    })} - ${new Date(
-      selectedClass.endTime
-    ).toLocaleTimeString("en-AU", {
-      hour: "2-digit",
-      minute: "2-digit",
-    })}`,
+      sessionTime: `${new Date(selectedClass.startTime).toLocaleTimeString(
+        "en-AU",
+        {
+          hour: "2-digit",
+          minute: "2-digit",
+        },
+      )} - ${new Date(selectedClass.endTime).toLocaleTimeString("en-AU", {
+        hour: "2-digit",
+        minute: "2-digit",
+      })}`,
 
-    tutorName: `${selectedClass.tutor?.firstName || ""} ${
-      selectedClass.tutor?.lastName || ""
-    }`.trim(),
+      tutorName: `${selectedClass.tutor?.firstName || ""} ${
+        selectedClass.tutor?.lastName || ""
+      }`.trim(),
 
-    availableSeats: selectedClass.availableSeats || 0,
+      availableSeats: selectedClass.availableSeats || 0,
+    };
+
+    localStorage.setItem("enrollmentData", JSON.stringify(enrollmentData));
+
+    onNext();
   };
-
-  localStorage.setItem(
-    "enrollmentData",
-    JSON.stringify(enrollmentData)
-  );
-
-  onNext();
-};
-
 
   return (
     <Box>
@@ -347,16 +335,11 @@ const CourseSelection = ({
                   onChange={handleCourseChange}
                   displayEmpty
                 >
-                  <StyledMenuItem value="">
-                    Select
-                  </StyledMenuItem>
+                  <StyledMenuItem value="">Select</StyledMenuItem>
                   {courses
                     .filter((c) => c.isActive)
                     .map((course) => (
-                      <StyledMenuItem
-                        key={course.id}
-                        value={course.title}
-                      >
+                      <StyledMenuItem key={course.id} value={course.title}>
                         {course.title}
                       </StyledMenuItem>
                     ))}
@@ -377,14 +360,9 @@ const CourseSelection = ({
                   disabled={!selectedCourseObj}
                   displayEmpty
                 >
-                  <StyledMenuItem value="">
-                    Select
-                  </StyledMenuItem>
+                  <StyledMenuItem value="">Select</StyledMenuItem>
                   {locations.map((loc) => (
-                    <StyledMenuItem
-                      key={loc.id}
-                      value={loc.name}
-                    >
+                    <StyledMenuItem key={loc.id} value={loc.name}>
                       {loc.name}
                     </StyledMenuItem>
                   ))}
@@ -407,9 +385,7 @@ const CourseSelection = ({
                   disabled={!formData.location}
                   displayEmpty
                 >
-                  <StyledMenuItem value="">
-                    Select
-                  </StyledMenuItem>
+                  <StyledMenuItem value="">Select</StyledMenuItem>
                   {sessions.map((cls) => (
                     <StyledMenuItem
                       key={cls.id}
@@ -417,8 +393,7 @@ const CourseSelection = ({
                       // disabled={!cls.canEnroll}
                       disabled={cls.availableSeats === 0}
                     >
-                      {formatSessionLabel(cls)}{" "}
-                      ({cls.availableSeats} seats)
+                      {formatSessionLabel(cls)} ({cls.availableSeats} seats)
                     </StyledMenuItem>
                   ))}
                 </Select>
@@ -428,40 +403,31 @@ const CourseSelection = ({
             {/* ENROLLMENT TYPE */}
             <Box width="100%">
               <FieldLabel>
-                Enrollment Type: <span>*</span>
+                Enrolment Type: <span>*</span>
               </FieldLabel>
               <StyledFormControl fullWidth>
                 <Select
-                  name="enrollmentType"
+                  name="enrolmentType"
                   value={formData.enrollmentType || ""}
                   onChange={handleChange}
                   displayEmpty
                 >
-                  <StyledMenuItem value="">
-                    Select
-                  </StyledMenuItem>
-                  <StyledMenuItem value="Term">
-                    Term Payment
-                  </StyledMenuItem>
+                  <StyledMenuItem value="">Select</StyledMenuItem>
+                  <StyledMenuItem value="Term">Term Payment</StyledMenuItem>
                   {/* <StyledMenuItem value="Full Year">
                     Full Year
                   </StyledMenuItem>
                   <StyledMenuItem value="Monthly">
                     Monthly
                   </StyledMenuItem> */}
-                  <StyledMenuItem value="Trial">
-                    Trial Class
-                  </StyledMenuItem>
+                  <StyledMenuItem value="Trial">Trial Class</StyledMenuItem>
                 </Select>
               </StyledFormControl>
             </Box>
           </FormContainer>
 
           <ButtonContainer>
-            <BackButton
-              onClick={onBack}
-              startIcon={<ArrowBackIcon />}
-            >
+            <BackButton onClick={onBack} startIcon={<ArrowBackIcon />}>
               Back
             </BackButton>
             <NextButton

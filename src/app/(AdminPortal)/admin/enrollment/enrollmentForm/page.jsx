@@ -465,16 +465,16 @@ const ManualEnrollmentPage = () => {
   return (
     <PageContainer>
       <HeaderSection>
-        <PageTitle>Manual Enrollment</PageTitle>
+        <PageTitle>Manual Enrolment</PageTitle>
         <Breadcrumb>
-          Enrollments / Manual Enrollment / Enrollment Form
+          Enrolments / Manual Enrolment / Enrolment Form
         </Breadcrumb>
       </HeaderSection>
 
       <InfoBanner>
         <InfoOutlinedIcon sx={{ color: "#FFFFFF", fontSize: "20px" }} />
         <InfoText>
-          Fill in the enrollment details below. Required fields are marked with
+          Fill in the enrolment details below. Required fields are marked with
           *
         </InfoText>
       </InfoBanner>
