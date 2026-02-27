@@ -40,7 +40,7 @@ const Menuitems = [
 
   {
     id: uniqueId(),
-    title: "Enrollments",
+    title: "Enrolments",
     icon: MdStickyNote2,
     href: "/admin/enrollment",
   },
