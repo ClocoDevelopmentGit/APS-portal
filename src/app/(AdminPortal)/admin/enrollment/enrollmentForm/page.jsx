@@ -8,11 +8,12 @@ import Step1StudentInfo from "./components/Step1StudentInfo";
 import Step2AdditionalInfo from "./components/Step2AdditionalInfo";
 import Step3CourseSelection from "./components/Step3CourseSelection";
 import Step4Payment from "./components/Step4Payment";
-import { useDispatch } from "react-redux";
 import { registerUser } from "@/redux/slices/userSlice";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import { addPayment } from "@/redux/slices/paymentSlice";
+import { fetchStudentById } from "@/redux/slices/studentSlice";
+import { useSelector, useDispatch } from "react-redux";
 
 // ==================== STYLED COMPONENTS ====================
 
@@ -93,6 +94,11 @@ const stripePromise = loadStripe(
 
 const ManualEnrollmentPage = () => {
   const dispatch = useDispatch();
+  const selectedStudent = useSelector(
+  (state) => state.student.selectedStudent);
+  const studentDetails = useSelector(
+    (state) => state.student.studentDetails
+  );
   const [currentStep, setCurrentStep] = useState(1);
   const [enrollmentType, setEnrollmentType] = useState("");
   const [classDetails, setClassDetails] = useState([]);
@@ -264,6 +270,100 @@ const ManualEnrollmentPage = () => {
     fetchData();
   }, []);
 
+  useEffect(() => {
+  if (!selectedStudent?.studentId) return;
+
+  dispatch(fetchStudentById(selectedStudent.studentId));
+}, [selectedStudent, dispatch]);
+
+const mapStudentToFormData = (student, selectedStudent) => {
+  console.log("student", student);
+  const birthDate = new Date(student.dob);
+  const today = new Date();
+
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+
+  if (
+    monthDiff < 0 ||
+    (monthDiff === 0 && today.getDate() < birthDate.getDate())
+  ) {
+    age--;
+  }
+
+  return {
+    firstName: student.firstName || "",
+    lastName: student.lastName || "",
+    email: student.email || "",
+    phone: student.phone || "",
+    dob: student.dob || "",
+    currentAge: age,
+
+    infoAboutAPS: student.infoAboutAPS || "",
+    schoolYearLevel: student.schoolYearLevel || "",
+    gender: student.gender || "",
+    relation: student.relation || "",
+
+    emergencyContactName: student.emergencyContactName || "",
+    emergencyContactNumber: student.emergencyContactNumber || "",
+    emergencyContactRelation: student.emergencyContactRelation || "",
+
+    supportNeeds: student.supportNeeds || "",
+    medicalCondition: student.medicalCondition || "",
+
+    guardianContact: student.guardian ? student.guardian.phone || "" : "",
+    guardianEmail: student.guardian ? student.guardian.email || "" : "" ,
+    guardianName: student.guardian ? `${student.guardian.firstName || ""} ${student.guardian.lastName || ""}`.trim() : "",
+
+    photoPermission: student.photoPermission ? "true" : "false",
+    NDISPlan: student.NDISPlan ? "true" : "false",
+
+    addresses: {
+      addressLine1: student.addresses.addressLine1 || "",
+      addressLine2: student.addresses.addressLine2 || "",
+      suburb: student.addresses.suburb || "",
+      state: student.addresses.state || "",
+      country: student.addresses.country || "",
+      postcode: student.addresses.postcode || "",
+    },
+
+    ...(student.NDISPlan === true && { NDIS: {
+      providerName: student.NDIS.providerName || "",
+      providerContactName: student.NDIS.providerContactName || "",
+      providerContactNumber: student.NDIS.providerContactNumber || "",
+      providerEmail: student.NDIS.providerEmail || "",
+      number: student.NDIS.number || "",
+      categoryName: student.NDIS.categoryName || "",
+      emergencyContactNumber: student.NDIS.emergencyContactNumber || "",
+    },
+   }  
+   ),
+
+    // 👇 THIS is why we passed selectedStudent
+    userCourseId: selectedStudent?.userCourseId || "",
+    course: selectedStudent?.courseName || "",
+    eventId: null,
+    newUser: false,
+  };
+};
+
+useEffect(() => {
+  if (!studentDetails || !selectedStudent) return;
+
+  const mappedData = mapStudentToFormData(
+    studentDetails,
+    selectedStudent
+  );
+
+  setFormData(mappedData);
+
+  console.log("mapped form data", mappedData);
+  // // Jump directly to payment if coming from Unpaid click
+  // setCurrentStep(4);
+
+}, [studentDetails, selectedStudent]);
+
+
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -318,13 +418,13 @@ const ManualEnrollmentPage = () => {
     medicalCondition: formData.medicalCondition,
     photoPermission: formData.photoPermission === "true",
     NDISPlan: formData.NDISPlan === "true",
-    providerName: formData.NDIS.providerName,
-    providerContactName: formData.NDIS.providerContactName,
-    providerContactNumber: formData.NDIS.providerContactNumber,
-    providerEmail: formData.NDIS.providerEmail,
-    number: formData.NDIS.number,
-    categoryName: formData.NDIS.categoryName,
-    nDISEmergencyContactNumber: formData.NDIS.emergencyContactNumber,
+    providerName: formData?.NDIS?.providerName ?? null,
+    providerContactName: formData?.NDIS?.providerContactName ?? null,
+    providerContactNumber: formData?.NDIS?.providerContactNumber ?? null,
+    providerEmail: formData?.NDIS?.providerEmail ?? null,
+    number: formData?.NDIS?.number ?? null,
+    categoryName: formData?.NDIS?.categoryName ?? null,
+    nDISEmergencyContactNumber: formData?.NDIS?.emergencyContactNumber ?? null,
     addressLine1: formData.addresses.addressLine1,
     addressLine2: formData.addresses.addressLine2 || null,
     suburb: formData.addresses.suburb,
@@ -374,6 +474,7 @@ const ManualEnrollmentPage = () => {
         );
         usersData = [studentData];
       }
+      console.log("user data sent to backend", usersData);
       const res = await dispatch(registerUser(usersData)).unwrap();
       console.log("Registration response:", res);
       const newUser = res?.user;

@@ -21,7 +21,7 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import SearchIcon from "@mui/icons-material/Search";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
-import { fetchAllStudents } from "@/redux/slices/studentSlice";
+import { fetchAllStudents, setSelectedStudent } from "@/redux/slices/studentSlice";
 
 // ==================== STYLED COMPONENTS ====================
 
@@ -374,17 +374,22 @@ const ManualEnrollmentPage = () => {
                 : "-";
 
             const isPaid =
-              student.guardian?.invoices?.some(
-                (invoice) => invoice.userCourseId === uc.id,
-              ) ||
-              student.invoices?.some(
-                (invoice) => invoice.userCourseId === uc.id,
-              ) ||
-              false;
+                student.guardian?.invoices?.some(
+                  (invoice) => invoice.userCourseId === uc.id
+                ) ||
+                student.invoices?.some(
+                  (invoice) => invoice.userCourseId === uc.id
+                ) ||
+                false;
+
+            const enrollmentType = uc.enrollmentType;
+
             return {
               course: courseTitle,
               session,
+              enrollmentType,
               paymentStatus: isPaid ? "Paid" : "Unpaid",
+              userCourseId: uc.id,
             };
           });
 
@@ -415,6 +420,23 @@ const ManualEnrollmentPage = () => {
   const handleNewEnrollment = () => {
     router.push("/admin/enrollment/enrollmentForm");
   };
+
+  const handleUnpaidClick = (student, course) => {
+  if (course.paymentStatus !== "Unpaid") return;
+
+  console.log("selected student", course.course);
+
+  dispatch(
+    setSelectedStudent({
+      studentId: student.id,
+      userCourseId: course.userCourseId,
+      courseName: course.course,
+    })
+  );
+
+  router.push("/admin/enrollment/enrollmentForm");
+};
+  
 
   // Calculate pagination
   const totalPages = Math.ceil(enrollmentData.length / itemsPerPage);
@@ -456,35 +478,40 @@ const ManualEnrollmentPage = () => {
           </NewEnrollmentButton>
         </HeaderSection>
         <ContentCard>
-          <StyledTableContainer>
-            <Table sx={{ minWidth: 1000 }}>
-              <StyledTableHead>
-                <TableRow>
-                  <StyledTableHeadCell sx={{ width: "15%", minWidth: "150px" }}>
-                    Name
-                  </StyledTableHeadCell>
-                  <StyledTableHeadCell sx={{ width: "10%", minWidth: "80px" }}>
-                    Age
-                  </StyledTableHeadCell>
-                  <StyledTableHeadCell sx={{ width: "15%", minWidth: "140px" }}>
-                    Mobile Number
-                  </StyledTableHeadCell>
-                  <StyledTableHeadCell sx={{ width: "20%", minWidth: "180px" }}>
-                    Course
-                  </StyledTableHeadCell>
-                  <StyledTableHeadCell sx={{ width: "25%", minWidth: "220px" }}>
-                    Session
-                  </StyledTableHeadCell>
-                  <StyledTableHeadCell sx={{ width: "15%", minWidth: "130px" }}>
-                    Payment Status
-                  </StyledTableHeadCell>
-                </TableRow>
-              </StyledTableHead>
-              <TableBody>
-                {currentData.map((row) => (
-                  <StyledTableRow key={row.id}>
-                    {/* Student Info */}
-                    <StyledTableCell>{row.name}</StyledTableCell>
+        <StyledTableContainer>
+          <Table sx={{ minWidth: 1000 }}>
+            <StyledTableHead>
+              <TableRow>
+                <StyledTableHeadCell sx={{ width: "15%", minWidth: "150px" }}>
+                  Name
+                </StyledTableHeadCell>
+                <StyledTableHeadCell sx={{ width: "10%", minWidth: "80px" }}>
+                  Age
+                </StyledTableHeadCell>
+                <StyledTableHeadCell sx={{ width: "15%", minWidth: "140px" }}>
+                  Mobile Number
+                </StyledTableHeadCell>
+                <StyledTableHeadCell sx={{ width: "20%", minWidth: "180px" }}>
+                  Course
+                </StyledTableHeadCell>
+                <StyledTableHeadCell sx={{ width: "25%", minWidth: "220px" }}>
+                  Session
+                </StyledTableHeadCell>
+                 <StyledTableHeadCell sx={{ width: "25%", minWidth: "220px" }}>
+                  Enrollment Type
+                </StyledTableHeadCell>
+                <StyledTableHeadCell sx={{ width: "15%", minWidth: "130px" }}>
+                  Payment Status
+                </StyledTableHeadCell>
+              </TableRow>
+            </StyledTableHead>
+            <TableBody>
+            {currentData.map((row) => (
+              <StyledTableRow key={row.id}>
+                {/* Student Info */}
+                <StyledTableCell>
+                  {row.name}
+                </StyledTableCell>
 
                     <StyledTableCell>{row.age}</StyledTableCell>
 
@@ -501,40 +528,73 @@ const ManualEnrollmentPage = () => {
                         : "-"}
                     </StyledTableCell>
 
-                    {/* Sessions Column */}
-                    <StyledTableCell>
-                      {row.courses && row.courses.length > 0
-                        ? row.courses.map((courseItem, index) => (
-                            <div key={index} style={{ marginBottom: "6px" }}>
-                              {courseItem.session}
-                            </div>
-                          ))
-                        : "-"}
-                    </StyledTableCell>
+                {/* Sessions Column */}
+                <StyledTableCell>
+                  {row.courses && row.courses.length > 0 ? (
+                    row.courses.map((courseItem, index) => (
+                      <div key={index} style={{ marginBottom: "6px" }}>
+                        {courseItem.session}
+                      </div>
+                    ))
+                  ) : (
+                    "-"
+                  )}
+                </StyledTableCell>
 
-                    {/* Payment Column */}
-                    <StyledTableCell>
-                      {row.courses && row.courses.length > 0 ? (
-                        row.courses.map((courseItem, index) => (
-                          <div key={index} style={{ marginBottom: "6px" }}>
-                            <PaymentChip
-                              label={courseItem.paymentStatus}
-                              status={courseItem.paymentStatus}
-                            />
-                          </div>
-                        ))
-                      ) : (
-                        <PaymentChip label="Unpaid" status="Unpaid" />
-                      )}
-                    </StyledTableCell>
-                  </StyledTableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </StyledTableContainer>
-          <PaginationContainer>
-            <PaginationButtons>
-              <NavButton
+                <StyledTableCell>
+                  {row.courses && row.courses.length > 0 ? (
+                    row.courses.map((courseItem, index) => (
+                      <div key={index} style={{ marginBottom: "6px" }}>
+                        {courseItem.enrollmentType}
+                      </div>
+                    ))
+                  ) : (
+                    "-"
+                  )}
+                </StyledTableCell>
+
+                {/* Payment Column */}
+                <StyledTableCell>
+                  {row.courses && row.courses.length > 0 ? (
+                    row.courses.map((courseItem, index) => (
+                      <div key={index} style={{ marginBottom: "6px" }}>
+                        <PaymentChip
+                          label={courseItem.paymentStatus}
+                          status={courseItem.paymentStatus}
+                          onClick={() =>
+                            courseItem.paymentStatus === "Unpaid" &&
+                            handleUnpaidClick(row, courseItem)
+                          }
+                          sx={{
+                            cursor:
+                              courseItem.paymentStatus === "Unpaid"
+                                ? "pointer"
+                                : "default",
+                          }}
+                        />
+                      </div>
+                    ))
+                  ) : (
+                    <PaymentChip
+                      label="Unpaid"
+                      status="Unpaid"
+                      onClick={() =>
+                        handleUnpaidClick(row, {
+                          paymentStatus: "Unpaid",
+                        })
+                      }
+                      sx={{ cursor: "pointer" }}
+                    />
+                  )}
+                </StyledTableCell>
+              </StyledTableRow>
+            ))}
+          </TableBody>
+          </Table>
+        </StyledTableContainer>
+        <PaginationContainer>
+          <PaginationButtons>
+             <NavButton
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
               >
