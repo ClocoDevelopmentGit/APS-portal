@@ -10,7 +10,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import "./Enrollment.css";
 import { checkUserExist } from "@/redux/slices/userSlice";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 // ==================== THEME ====================
 const pickerTheme = createTheme({
@@ -208,6 +208,8 @@ const ErrorText = styled(Typography)({
 // ==================== COMPONENT ====================
 
 const Step1StudentInfo = ({ formData, handleChange, onNext, onBack }) => {
+  const selectedStudent = useSelector(
+  (state) => state.student.selectedStudent);
   const dispatch = useDispatch();
   const [overlayLoading, setOverlayLoading] = useState(false);
   const [errors, setErrors] = useState({});
@@ -266,20 +268,26 @@ const Step1StudentInfo = ({ formData, handleChange, onNext, onBack }) => {
     }
 
     const email = formData.email || formData.guardianEmail;
+    const studentId = selectedStudent?.studentId;
 
-    const checkEmail = await dispatch(checkUserExist(email));
-    console.log(checkEmail, "check email result");
-    if (checkEmail.payload === false) {
-      localStorage.setItem("formData", JSON.stringify(formData));
+      if (!studentId) {
+      console.log("passed");
+      const checkEmail = await dispatch(checkUserExist(email));
+      console.log(checkEmail, "check email result");
+      if (checkEmail.payload === true) {
+        setErrors({ email: "Email already exists. Please use a different email." ,
+      guardianEmail: "Email already exists. Please use a different email." });
+      }
+    else
+    {      
+       localStorage.setItem("formData", JSON.stringify(formData));
+        onNext();
+        return;
+    }
+   }
+   else
+    {
       onNext();
-      return;
-    } else {
-      setErrors({
-        email: "Email already exists. Please use a different email.",
-      });
-      setErrors({
-        guardianEmail: "Email already exists. Please use a different email.",
-      });
     }
     setOverlayLoading(false);
   };

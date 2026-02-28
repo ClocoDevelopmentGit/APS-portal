@@ -11,6 +11,7 @@ import {
 import { styled } from "@mui/material/styles";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { useSelector } from "react-redux";
 
 // ==================== STYLED COMPONENTS ====================
 
@@ -157,32 +158,80 @@ const CourseSelection = ({
   const [errors, setErrors] = useState({});
   const [courses, setCourses] = useState([]);
   const [selectedCourseObj, setSelectedCourseObj] = useState(null);
+  const studentDetails = useSelector(
+      (state) => state.student.studentDetails
+    );
 
   // Load from localStorage
   useEffect(() => {
     const stored = localStorage.getItem("allCourses");
     localStorage.setItem("enrollmentType", "Course");
     enrollmentType = "Course";
-    console.log("Loaded courses from localStorage:", stored);
     if (stored) {
       setCourses(JSON.parse(stored));
     }
   }, []);
 
+ useEffect(() => {
+  if (!courses.length) return;
+  if (!formData.userCourseId) return;
+  if (!studentDetails?.userCourses?.length) return;
+  if (formData.courseId) return; 
+
+  const enrolledCourse = studentDetails.userCourses.find(
+    (uc) => uc.id === formData.userCourseId
+  );
+
+  if (!enrolledCourse?.class?.id) return;
+
+  const enrolledClassId = enrolledCourse.class.id;
+
+  const matchedCourse = courses.find((course) =>
+    course.classes?.some((cls) => cls.id === enrolledClassId)
+  );
+
+  if (!matchedCourse) return;
+
+  const matchedClass = matchedCourse.classes.find(
+    (cls) => cls.id === enrolledClassId
+  );
+
+  if (!matchedClass) return;
+
+  console.log("Matched Course Title before adding:", matchedCourse.title);
+
+  setSelectedCourseObj(matchedCourse);
+
+  const updatedFields = {
+    courseId: matchedCourse.id,
+    title: matchedCourse.title, 
+    location: matchedClass.location?.name || "",
+    session: matchedClass.id,
+    enrollmentType: enrolledCourse.enrollmentType || "",
+  };
+
+  Object.entries(updatedFields).forEach(([name, value]) => {
+    handleChange({ target: { name, value } });
+  });
+
+}, [courses, formData.userCourseId, studentDetails]);
+
   // When course changes
   const handleCourseChange = (e) => {
-    const selectedTitle = e.target.value;
+  const selectedId = e.target.value;
 
-    const courseObj = courses.find((course) => course.title === selectedTitle);
+  const courseObj = courses.find(
+    (course) => course.id === selectedId
+  );
 
-    setSelectedCourseObj(courseObj || null);
+  setSelectedCourseObj(courseObj || null);
 
-    handleChange(e);
+  handleChange(e);
 
-    // Reset dependent fields
-    handleChange({ target: { name: "location", value: "" } });
-    handleChange({ target: { name: "session", value: "" } });
-  };
+  // Reset dependent fields
+  handleChange({ target: { name: "location", value: "" } });
+  handleChange({ target: { name: "session", value: "" } });
+};
 
   // When location changes
   const handleLocationChange = (e) => {
@@ -236,7 +285,7 @@ const CourseSelection = ({
   const validateEnrollmentForm = (formData) => {
     const newErrors = {};
     const fieldLabels = {
-      ...(enrollmentType === "Course" && { classId: "Class" }),
+      ...(enrollmentType === "Course" && { session: "Session" }),
     };
 
     Object.keys(fieldLabels).forEach((key) => {
@@ -255,13 +304,18 @@ const CourseSelection = ({
   };
 
   const handleNextClick = () => {
-    setErrors({});
+  console.log("inside handle click");
+  setErrors({});
 
-    const formError = validateEnrollmentForm(formData);
-    if (Object.keys(formError).length > 0) {
-      setErrors(formError);
-      return;
-    }
+  const formError = validateEnrollmentForm(formData);
+  if (Object.keys(formError).length > 0) {
+    console.log("Validation errors:", formError);
+    setErrors(formError);
+    return;
+  }
+
+   console.log("Selected session:", formData.session);
+  console.log("All classes:", selectedCourseObj?.classes);
 
     // 🔥 Find selected class object
     const selectedClass = selectedCourseObj?.classes?.find(
@@ -273,17 +327,19 @@ const CourseSelection = ({
       return;
     }
 
-    localStorage.setItem("classId", selectedClass.id);
-    localStorage.setItem("formData", JSON.stringify(formData));
-    localStorage.setItem("selectedClass", JSON.stringify(selectedClass));
-    const enrollmentData = {
-      studentName: (
-        (formData.firstName || "") +
-        " " +
-        (formData.lastName || "")
-      ).trim(),
+  localStorage.setItem("classId", selectedClass.id);
+  localStorage.setItem("formData", JSON.stringify(formData));
+  localStorage.setItem("selectedClass", JSON.stringify(selectedClass));
+  console.log("selectedCourseObj.title", selectedCourseObj.title);
+  const enrollmentData = {
+    studentName: (
+      (formData.firstName || "") +
+      " " +
+      (formData.lastName || "")
+    ).trim(),
 
-      courseName: formData.course || "",
+    
+    courseName: formData.course || selectedCourseObj.title || "",
 
       location: selectedClass.location?.name || "",
 
@@ -329,7 +385,7 @@ const CourseSelection = ({
                 Course: <span>*</span>
               </FieldLabel>
               <StyledFormControl fullWidth>
-                <Select
+                {/* <Select
                   name="course"
                   value={formData.course || ""}
                   onChange={handleCourseChange}
@@ -340,6 +396,27 @@ const CourseSelection = ({
                     .filter((c) => c.isActive)
                     .map((course) => (
                       <StyledMenuItem key={course.id} value={course.title}>
+                        {course.title}
+                      </StyledMenuItem>
+                    ))}
+                </Select> */}
+                <Select
+                  name="courseId"
+                  value={formData.courseId || ""}
+                  onChange={handleCourseChange}
+                  displayEmpty
+                >
+                  <StyledMenuItem value="">
+                    Select
+                  </StyledMenuItem>
+
+                  {courses
+                    .filter((c) => c.isActive)
+                    .map((course) => (
+                      <StyledMenuItem
+                        key={course.id}
+                        value={course.id}
+                      >
                         {course.title}
                       </StyledMenuItem>
                     ))}
@@ -412,8 +489,12 @@ const CourseSelection = ({
                   onChange={handleChange}
                   displayEmpty
                 >
-                  <StyledMenuItem value="">Select</StyledMenuItem>
-                  <StyledMenuItem value="Term">Term Payment</StyledMenuItem>
+                  <StyledMenuItem value="">
+                    Select
+                  </StyledMenuItem>
+                  <StyledMenuItem value="Course">
+                    Term Payment
+                  </StyledMenuItem>
                   {/* <StyledMenuItem value="Full Year">
                     Full Year
                   </StyledMenuItem>
