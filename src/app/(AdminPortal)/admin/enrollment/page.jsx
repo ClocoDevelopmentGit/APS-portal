@@ -418,7 +418,8 @@ const ManualEnrollmentPage = () => {
   };
 
   const handleNewEnrollment = () => {
-    router.push("/admin/enrollment/enrollmentForm");
+    localStorage.setItem("currentStep", 1);
+    window.location.href = "/admin/enrollment/enrollmentForm";
   };
 
   const handleUnpaidClick = (student, course) => {
@@ -433,7 +434,7 @@ const ManualEnrollmentPage = () => {
       courseName: course.course,
     })
   );
-
+  localStorage.setItem("currentStep", 1);
   router.push("/admin/enrollment/enrollmentForm");
 };
   

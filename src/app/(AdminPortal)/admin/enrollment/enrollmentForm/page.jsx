@@ -549,6 +549,7 @@ useEffect(() => {
             <Step4Payment
               formData={formData}
               onSubmit={handleSubmit}
+              onBack={handleBack}
               courseName={courseName}
               courseAge={courseAge}
               enrollmentType={enrollmentType}

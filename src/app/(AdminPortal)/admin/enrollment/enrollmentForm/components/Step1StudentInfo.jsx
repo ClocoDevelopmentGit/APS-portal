@@ -274,15 +274,15 @@ const Step1StudentInfo = ({ formData, handleChange, onNext, onBack }) => {
       console.log("passed");
       const checkEmail = await dispatch(checkUserExist(email));
       console.log(checkEmail, "check email result");
-      if (checkEmail.payload === false) {
-        localStorage.setItem("formData", JSON.stringify(formData));
-        onNext();
-        return;
+      if (checkEmail.payload === true) {
+        setErrors({ email: "Email already exists. Please use a different email." ,
+      guardianEmail: "Email already exists. Please use a different email." });
       }
     else
     {      
-      setErrors({ email: "Email already exists. Please use a different email." ,
-      guardianEmail: "Email already exists. Please use a different email." });
+       localStorage.setItem("formData", JSON.stringify(formData));
+        onNext();
+        return;
     }
    }
    else
