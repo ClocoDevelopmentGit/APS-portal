@@ -11,8 +11,9 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { useRouter } from "next/navigation";
 import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { generateBookingId } from "@/app/utils/Providers/bookingIdGenerator";
+import { addPayment } from "@/redux/slices/paymentSlice";
 
 // ==================== STYLES ====================
 
@@ -73,8 +74,12 @@ const CardDetailsBox = styled(Box)({
 // ==================== COMPONENT ====================
 
 const Step4Payment = ({ formData, onSubmit, onBack, enrollmentType }) => {
+  const dispatch = useDispatch();
   const stripe = useStripe();
   const elements = useElements();
+  const selectedStudent = useSelector(
+  (state) => state.student.selectedStudent);
+
   const [errors, setErrors] = useState({});
   const [paymentMethod, setPaymentMethod] = useState("term");
   // const [enrollmentType, setEnrollmentType] = useState("");
@@ -112,7 +117,7 @@ const Step4Payment = ({ formData, onSubmit, onBack, enrollmentType }) => {
       if (typeof window !== "undefined") {
         classDetail = localStorage.getItem("selectedClass");
       }
-      console.log("Class ID from localStorage:", classDetail);
+      // console.log("Class ID from localStorage:", classDetail);
       if (classDetail && classDetail !== "undefined") {
         const data = JSON.parse(classDetail);
         console.log("Fetched class details:", data);
@@ -154,58 +159,6 @@ const Step4Payment = ({ formData, onSubmit, onBack, enrollmentType }) => {
   }, [enrollmentType, formData.classId, paymentMethod, formData.eventId]);
 
 
-  // ==================== HANDLERS ====================
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setPaymentData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const formatExpiryDate = (value) => {
-    const digits = value.replace(/\D/g, "").slice(0, 4);
-    if (digits.length >= 2) {
-      return digits.slice(0, 2) + "/" + digits.slice(2);
-    }
-    return digits;
-  };
-
-  const handleExpiryChange = (e) => {
-    const formatted = formatExpiryDate(e.target.value);
-    setPaymentData((prev) => ({
-      ...prev,
-      expiryDate: formatted,
-    }));
-  };
-
-  // ==================== VALIDATION ====================
-
-  const validate = () => {
-    const newErrors = {};
-
-    const cardDigits = paymentData.cardNumber.replace(/\D/g, "");
-    if (!cardDigits) newErrors.cardNumber = "Card Number is required";
-    else if (cardDigits.length !== 16)
-      newErrors.cardNumber = "Card Number must be 16 digits";
-
-    if (!paymentData.cardHolderName)
-      newErrors.cardHolderName = "Card Holder Name is required";
-
-    if (!paymentData.expiryDate)
-      newErrors.expiryDate = "Expiry Date is required";
-    else if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(paymentData.expiryDate))
-      newErrors.expiryDate = "Expiry must be MM/YY";
-
-    const cvcDigits = paymentData.cvc.replace(/\D/g, "");
-    if (!cvcDigits) newErrors.cvc = "CVC is required";
-    else if (cvcDigits.length < 3 || cvcDigits.length > 4)
-      newErrors.cvc = "CVC must be 3 or 4 digits";
-
-    return newErrors;
-  };
-
   // ==================== SUBMIT ====================
 
     const processEnrollment = async (paymentIntent) => {
@@ -223,6 +176,8 @@ const Step4Payment = ({ formData, onSubmit, onBack, enrollmentType }) => {
           paymentStatus: String(paymentIntent?.status),
           requestAt: paymentIntent?.requestAt,
           responseAt: paymentIntent?.responseAt,
+          classId: formData.classId ?? null,
+          eventId: formData.eventId ?? null,
       };
         const updatedEnrollmentData = {
           ...enrollmentData,
@@ -233,29 +188,27 @@ const Step4Payment = ({ formData, onSubmit, onBack, enrollmentType }) => {
           JSON.stringify(updatedEnrollmentData),
         );
         console.log("Updated enrollment data with payment info:", updatedEnrollmentData);
-        const user = localStorage.getItem("user");
-        const parsedUser = user ? JSON.parse(user) : null;
         const selectedClass = localStorage.getItem("selectedClass");
         const parsedSelectedClass = selectedClass ? JSON.parse(selectedClass) : null;
         const selectedEvent = localStorage.getItem("eventId");
         const parsedSelectedEvent = selectedEvent ? JSON.parse(selectedEvent) : null;
-        console.log("User ID:", parsedUser?.id);
-        // if (user && parsedUser.id && parsedUser.id != null) {
-        //   updatedEnrollmentData.userId = parsedUser.id;
-        //   updatedEnrollmentData.courseId = parsedSelectedClass.courseId;
-        //   updatedEnrollmentData.classId = parsedSelectedClass.id;
-        //   updatedEnrollmentData.eventId = parsedSelectedEvent?.id || null;
-        //   localStorage.setItem(
-        //   "enrollmentData",
-        //   JSON.stringify(updatedEnrollmentData),
-        // );
-        //   const result = await dispatch(addPayment(updatedEnrollmentData));
-        //   console.log("Payment result passing user:", result);
-        // }
-        // else {
+        console.log("formdata userCourseId", formData.userCourseId);
+        if (formData.userCourseId && formData.userCourseId !== "") {
+          updatedEnrollmentData.userId = selectedStudent.studentId;
+          updatedEnrollmentData.courseId = formData.userCourseId;
+          updatedEnrollmentData.classId = parsedSelectedClass.id;
+          updatedEnrollmentData.eventId = parsedSelectedEvent?.id || null;
+          localStorage.setItem(
+          "enrollmentData",
+          JSON.stringify(updatedEnrollmentData),
+        );
+          const result = await dispatch(addPayment(updatedEnrollmentData));
+          console.log("Payment result passing user:", result);
+        }
+        else {
           const saved = await onSubmit(true);
         console.log("Payment result new user:", saved);
-        // }
+        }
   };
 
   const handleSubmit = async () => {
