@@ -39,12 +39,12 @@ const FormContent = styled(Box)({
 });
 
 const FormContainer = styled(Box)({
-  display: "flex",
-  justifyContent: "space-between",
+  display: "grid",
+  gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)",
   gap: "20px",
   marginBottom: "20px",
   "@media (max-width: 768px)": {
-    flexDirection: "column",
+    gridTemplateColumns: "minmax(0, 1fr)",
     gap: "0px",
   },
 });
@@ -60,8 +60,9 @@ const FieldLabel = styled(Typography)({
 });
 
 const StyledFormControl = styled(FormControl)({
-  marginBottom: "20px",
+  marginBottom: "5px",
   width: "100%",
+  minWidth: 0,
   "& .MuiOutlinedInput-root": {
     borderRadius: "6px",
     backgroundColor: "#FFFFFF",
@@ -83,6 +84,13 @@ const StyledFormControl = styled(FormControl)({
     lineHeight: "19.6px",
     letterSpacing: "-0.28px",
     fontWeight: 400,
+    minWidth: 0,
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+    "@media (max-width: 668px)": {
+      maxWidth: "100%",
+    },
   },
   "& .MuiSelect-icon": {
     color: "#AE9964",
@@ -158,9 +166,7 @@ const CourseSelection = ({
   const [errors, setErrors] = useState({});
   const [courses, setCourses] = useState([]);
   const [selectedCourseObj, setSelectedCourseObj] = useState(null);
-  const studentDetails = useSelector(
-      (state) => state.student.studentDetails
-    );
+  const studentDetails = useSelector((state) => state.student.studentDetails);
 
   // Load from localStorage
   useEffect(() => {
@@ -172,66 +178,63 @@ const CourseSelection = ({
     }
   }, []);
 
- useEffect(() => {
-  if (!courses.length) return;
-  if (!formData.userCourseId) return;
-  if (!studentDetails?.userCourses?.length) return;
-  if (formData.courseId) return; 
+  useEffect(() => {
+    if (!courses.length) return;
+    if (!formData.userCourseId) return;
+    if (!studentDetails?.userCourses?.length) return;
+    if (formData.courseId) return;
 
-  const enrolledCourse = studentDetails.userCourses.find(
-    (uc) => uc.id === formData.userCourseId
-  );
+    const enrolledCourse = studentDetails.userCourses.find(
+      (uc) => uc.id === formData.userCourseId,
+    );
 
-  if (!enrolledCourse?.class?.id) return;
+    if (!enrolledCourse?.class?.id) return;
 
-  const enrolledClassId = enrolledCourse.class.id;
+    const enrolledClassId = enrolledCourse.class.id;
 
-  const matchedCourse = courses.find((course) =>
-    course.classes?.some((cls) => cls.id === enrolledClassId)
-  );
+    const matchedCourse = courses.find((course) =>
+      course.classes?.some((cls) => cls.id === enrolledClassId),
+    );
 
-  if (!matchedCourse) return;
+    if (!matchedCourse) return;
 
-  const matchedClass = matchedCourse.classes.find(
-    (cls) => cls.id === enrolledClassId
-  );
+    const matchedClass = matchedCourse.classes.find(
+      (cls) => cls.id === enrolledClassId,
+    );
 
-  if (!matchedClass) return;
+    if (!matchedClass) return;
 
-  console.log("Matched Course Title before adding:", matchedCourse.title);
+    console.log("Matched Course Title before adding:", matchedCourse.title);
 
-  setSelectedCourseObj(matchedCourse);
+    setSelectedCourseObj(matchedCourse);
 
-  const updatedFields = {
-    courseId: matchedCourse.id,
-    title: matchedCourse.title, 
-    location: matchedClass.location?.name || "",
-    session: matchedClass.id,
-    enrollmentType: enrolledCourse.enrollmentType || "",
-  };
+    const updatedFields = {
+      courseId: matchedCourse.id,
+      title: matchedCourse.title,
+      location: matchedClass.location?.name || "",
+      session: matchedClass.id,
+      enrollmentType: enrolledCourse.enrollmentType || "",
+    };
 
-  Object.entries(updatedFields).forEach(([name, value]) => {
-    handleChange({ target: { name, value } });
-  });
-
-}, [courses, formData.userCourseId, studentDetails]);
+    Object.entries(updatedFields).forEach(([name, value]) => {
+      handleChange({ target: { name, value } });
+    });
+  }, [courses, formData.userCourseId, studentDetails]);
 
   // When course changes
   const handleCourseChange = (e) => {
-  const selectedId = e.target.value;
+    const selectedId = e.target.value;
 
-  const courseObj = courses.find(
-    (course) => course.id === selectedId
-  );
+    const courseObj = courses.find((course) => course.id === selectedId);
 
-  setSelectedCourseObj(courseObj || null);
+    setSelectedCourseObj(courseObj || null);
 
-  handleChange(e);
+    handleChange(e);
 
-  // Reset dependent fields
-  handleChange({ target: { name: "location", value: "" } });
-  handleChange({ target: { name: "session", value: "" } });
-};
+    // Reset dependent fields
+    handleChange({ target: { name: "location", value: "" } });
+    handleChange({ target: { name: "session", value: "" } });
+  };
 
   // When location changes
   const handleLocationChange = (e) => {
@@ -304,18 +307,18 @@ const CourseSelection = ({
   };
 
   const handleNextClick = () => {
-  console.log("inside handle click");
-  setErrors({});
+    console.log("inside handle click");
+    setErrors({});
 
-  const formError = validateEnrollmentForm(formData);
-  if (Object.keys(formError).length > 0) {
-    console.log("Validation errors:", formError);
-    setErrors(formError);
-    return;
-  }
+    const formError = validateEnrollmentForm(formData);
+    if (Object.keys(formError).length > 0) {
+      console.log("Validation errors:", formError);
+      setErrors(formError);
+      return;
+    }
 
-   console.log("Selected session:", formData.session);
-  console.log("All classes:", selectedCourseObj?.classes);
+    console.log("Selected session:", formData.session);
+    console.log("All classes:", selectedCourseObj?.classes);
 
     // 🔥 Find selected class object
     const selectedClass = selectedCourseObj?.classes?.find(
@@ -327,19 +330,18 @@ const CourseSelection = ({
       return;
     }
 
-  localStorage.setItem("classId", selectedClass.id);
-  localStorage.setItem("formData", JSON.stringify(formData));
-  localStorage.setItem("selectedClass", JSON.stringify(selectedClass));
-  console.log("selectedCourseObj.title", selectedCourseObj.title);
-  const enrollmentData = {
-    studentName: (
-      (formData.firstName || "") +
-      " " +
-      (formData.lastName || "")
-    ).trim(),
+    localStorage.setItem("classId", selectedClass.id);
+    localStorage.setItem("formData", JSON.stringify(formData));
+    localStorage.setItem("selectedClass", JSON.stringify(selectedClass));
+    console.log("selectedCourseObj.title", selectedCourseObj.title);
+    const enrollmentData = {
+      studentName: (
+        (formData.firstName || "") +
+        " " +
+        (formData.lastName || "")
+      ).trim(),
 
-    
-    courseName: formData.course || selectedCourseObj.title || "",
+      courseName: formData.course || selectedCourseObj.title || "",
 
       location: selectedClass.location?.name || "",
 
@@ -380,14 +382,14 @@ const CourseSelection = ({
         <FormContent>
           <FormContainer>
             {/* COURSE */}
-            <Box width="100%">
+            <Box>
               <FieldLabel>
                 Course: <span>*</span>
               </FieldLabel>
               <StyledFormControl fullWidth>
-                {/* <Select
-                  name="course"
-                  value={formData.course || ""}
+                <Select
+                  name="courseId"
+                  value={formData.courseId || ""}
                   onChange={handleCourseChange}
                   displayEmpty
                 >
@@ -395,28 +397,7 @@ const CourseSelection = ({
                   {courses
                     .filter((c) => c.isActive)
                     .map((course) => (
-                      <StyledMenuItem key={course.id} value={course.title}>
-                        {course.title}
-                      </StyledMenuItem>
-                    ))}
-                </Select> */}
-                <Select
-                  name="courseId"
-                  value={formData.courseId || ""}
-                  onChange={handleCourseChange}
-                  displayEmpty
-                >
-                  <StyledMenuItem value="">
-                    Select
-                  </StyledMenuItem>
-
-                  {courses
-                    .filter((c) => c.isActive)
-                    .map((course) => (
-                      <StyledMenuItem
-                        key={course.id}
-                        value={course.id}
-                      >
+                      <StyledMenuItem key={course.id} value={course.id}>
                         {course.title}
                       </StyledMenuItem>
                     ))}
@@ -425,7 +406,7 @@ const CourseSelection = ({
             </Box>
 
             {/* LOCATION */}
-            <Box width="100%">
+            <Box>
               <FieldLabel>
                 Location: <span>*</span>
               </FieldLabel>
@@ -450,7 +431,7 @@ const CourseSelection = ({
 
           <FormContainer>
             {/* SESSION */}
-            <Box width="100%">
+            <Box>
               <FieldLabel>
                 Session: <span>*</span>
               </FieldLabel>
@@ -467,7 +448,6 @@ const CourseSelection = ({
                     <StyledMenuItem
                       key={cls.id}
                       value={cls.id}
-                      // disabled={!cls.canEnroll}
                       disabled={cls.availableSeats === 0}
                     >
                       {formatSessionLabel(cls)} ({cls.availableSeats} seats)
@@ -478,7 +458,7 @@ const CourseSelection = ({
             </Box>
 
             {/* ENROLLMENT TYPE */}
-            <Box width="100%">
+            <Box>
               <FieldLabel>
                 Enrolment Type: <span>*</span>
               </FieldLabel>
@@ -489,18 +469,8 @@ const CourseSelection = ({
                   onChange={handleChange}
                   displayEmpty
                 >
-                  <StyledMenuItem value="">
-                    Select
-                  </StyledMenuItem>
-                  <StyledMenuItem value="Course">
-                    Term Payment
-                  </StyledMenuItem>
-                  {/* <StyledMenuItem value="Full Year">
-                    Full Year
-                  </StyledMenuItem>
-                  <StyledMenuItem value="Monthly">
-                    Monthly
-                  </StyledMenuItem> */}
+                  <StyledMenuItem value="">Select</StyledMenuItem>
+                  <StyledMenuItem value="Course">Term Payment</StyledMenuItem>
                   <StyledMenuItem value="Trial">Trial Class</StyledMenuItem>
                 </Select>
               </StyledFormControl>
