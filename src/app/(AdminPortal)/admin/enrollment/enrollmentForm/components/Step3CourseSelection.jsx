@@ -484,7 +484,7 @@ const CourseSelection = ({
               </FieldLabel>
               <StyledFormControl fullWidth>
                 <Select
-                  name="enrolmentType"
+                  name="enrollmentType"
                   value={formData.enrollmentType || ""}
                   onChange={handleChange}
                   displayEmpty
