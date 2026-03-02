@@ -351,6 +351,11 @@ const ManualEnrollmentPage = () => {
   (state) => state.enrolment
 );
   const itemsPerPage = 10;
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const calculateAge = (dob) => {
     if (!dob) return "-";
@@ -479,7 +484,7 @@ const ManualEnrollmentPage = () => {
                     </StyledTableCell>
 
                     <StyledTableCell>
-                      {calculateAge(row.user?.dob)}
+                      {mounted ? calculateAge(row.user?.dob) : "-"}
                     </StyledTableCell>
 
                     <StyledTableCell>
@@ -491,9 +496,9 @@ const ManualEnrollmentPage = () => {
                     </StyledTableCell>
 
                     <StyledTableCell>
-                      {row.class?.startDate && row.class?.endDate
-                        ? `${new Date(row.class.startDate).toLocaleDateString()} - ${new Date(row.class.endDate).toLocaleDateString()}`
-                        : "-"}
+                      {mounted && row.class?.startDate && row.class?.endDate
+                          ? `${new Date(row.class.startDate).toLocaleDateString()} - ${new Date(row.class.endDate).toLocaleDateString()}`
+                          : "-"}
                     </StyledTableCell>
 
                     <StyledTableCell>
