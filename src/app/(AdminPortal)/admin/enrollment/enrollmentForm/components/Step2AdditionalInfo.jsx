@@ -72,7 +72,7 @@ const FieldLabel = styled(Typography)({
 });
 
 const StyledTextField = styled(TextField)({
-  marginBottom: "20px",
+  marginBottom: "5px !important",
   "& .MuiOutlinedInput-root": {
     borderRadius: "6px",
     backgroundColor: "#FFFFFF",
@@ -100,11 +100,22 @@ const StyledTextField = styled(TextField)({
       color: "#999999",
       opacity: 1,
     },
+    "&[type=number]": {
+      MozAppearance: "textfield",
+      "&::-webkit-outer-spin-button": {
+        WebkitAppearance: "none",
+        margin: 0,
+      },
+      "&::-webkit-inner-spin-button": {
+        WebkitAppearance: "none",
+        margin: 0,
+      },
+    },
   },
 });
 
 const StyledTextArea = styled(TextField)({
-  marginBottom: "0px", // Changed from 5px
+  marginBottom: "0px",
   width: "100%",
   "& .MuiOutlinedInput-root": {
     borderRadius: "6px",
@@ -148,7 +159,7 @@ const CharCountInside = styled(Box)({
 });
 
 const StyledFormControl = styled(FormControl)({
-  marginBottom: "20px",
+  marginBottom: "0px",
   width: "100%",
   "& .MuiOutlinedInput-root": {
     borderRadius: "6px",
