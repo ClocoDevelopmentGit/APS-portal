@@ -405,8 +405,7 @@ const ManualEnrollmentPage = () => {
   };
 
   // Calculate pagination
-  const totalPages = Math.ceil((enrolments?.length || 0) / itemsPerPage);
-
+  const totalPages = enrolments?.length > 0 ? Math.ceil(enrolments.length / itemsPerPage) : 1;
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
 
@@ -477,7 +476,7 @@ const ManualEnrollmentPage = () => {
                 </TableRow>
               </StyledTableHead>
               <TableBody>
-                {currentData.map((row) => (
+                {!mounted ? null : currentData.map((row) => (
                   <StyledTableRow key={row.id}>
                     <StyledTableCell>
                       {row.user?.firstName || ""} {row.user?.lastName || ""}
@@ -532,9 +531,10 @@ const ManualEnrollmentPage = () => {
             </Table>
           </StyledTableContainer>
           <PaginationContainer>
-            <PaginationText>
+            {enrolments.length > 0 && (<PaginationText>
               Showing Pages {currentPage} of {totalPages}
               </PaginationText>
+            )}
               <PaginationButtons>
               <NavButton
                 onClick={() => handlePageChange(currentPage - 1)}
