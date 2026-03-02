@@ -179,6 +179,19 @@ const CourseSelection = ({
   }, []);
 
   useEffect(() => {
+  if (!courses.length) return;
+  if (!formData.courseId) return;
+
+  const matchedCourse = courses.find(
+    (course) => course.id === formData.courseId
+  );
+
+  if (matchedCourse) {
+    setSelectedCourseObj(matchedCourse);
+  }
+}, [courses, formData.courseId]);
+
+  useEffect(() => {
     if (!courses.length) return;
     if (!formData.userCourseId) return;
     if (!studentDetails?.userCourses?.length) return;

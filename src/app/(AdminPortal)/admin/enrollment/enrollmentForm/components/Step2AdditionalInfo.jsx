@@ -407,22 +407,6 @@ const Step2AdditionalInfo = ({ formData, handleChange, onNext, onBack }) => {
             </Box>
 
             <Box width={"100%"}>
-              <FieldLabel>School Year Level:</FieldLabel>
-              <StyledTextField
-                name="schoolYearLevel"
-                placeholder=""
-                value={formData.schoolYearLevel || ""}
-                onChange={handleChange}
-                fullWidth
-              />
-              {errors.schoolYearLevel && (
-                <ErrorText>{errors.schoolYearLevel}</ErrorText>
-              )}
-            </Box>
-          </FormContainer>
-
-          {/* How did you hear about us */}
-          <Box width={{ xs: "100%", sm: "49%" }}>
             <FieldLabel>How did you hear about us?</FieldLabel>
             <StyledFormControl fullWidth>
               <Select
@@ -453,6 +437,32 @@ const Step2AdditionalInfo = ({ formData, handleChange, onNext, onBack }) => {
               </Select>
             </StyledFormControl>
           </Box>
+             
+          </FormContainer>
+
+          {Number(formData.currentAge) <= 18 && !!formData.currentAge && ( <Box width={{ xs: "100%", sm: "49%" }}>
+              <FieldLabel>School Year Level:</FieldLabel>
+              <StyledTextField
+                name="schoolYearLevel"
+                type="number"
+                value={formData.schoolYearLevel || ""}
+                onChange={handleChange}
+                fullWidth
+                slotProps={{
+                  htmlInput: {
+                    min: 1,
+                    max: 12,
+                  },
+                }}
+              />
+              {errors.schoolYearLevel && (
+                <ErrorText>{errors.schoolYearLevel}</ErrorText>
+              )}
+            </Box> ) 
+            }
+
+          {/* How did you hear about us */}
+          
 
           {/* Address Section */}
           <SubSectionTitle>Address:</SubSectionTitle>

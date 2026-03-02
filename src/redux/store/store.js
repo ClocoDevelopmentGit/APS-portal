@@ -6,6 +6,7 @@ import locationReducer from "../slices/locationSlice";
 import eventReducer from "../slices/eventSlice";
 import termReducer from "../slices/termSlice";
 import studentReducer from "../slices/studentSlice";
+import enrolmentReducer from "../slices/enrolmentSlice";
 
 export const store = configureStore({
   reducer: {
@@ -16,5 +17,6 @@ export const store = configureStore({
     event: eventReducer,
     term: termReducer,
     student: studentReducer,
+    enrolment: enrolmentReducer,
   },
 });

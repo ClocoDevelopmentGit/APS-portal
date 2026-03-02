@@ -274,6 +274,7 @@ const ManualEnrollmentPage = () => {
   if (!selectedStudent?.studentId) return;
 
   dispatch(fetchStudentById(selectedStudent.studentId));
+  console.log("fetching student details for ID:", selectedStudent.studentId);
 }, [selectedStudent, dispatch]);
 
 const mapStudentToFormData = (student, selectedStudent) => {

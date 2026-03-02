@@ -21,11 +21,10 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import SearchIcon from "@mui/icons-material/Search";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
-import {
-  fetchAllStudents,
-  setSelectedStudent,
-} from "@/redux/slices/studentSlice";
+import { setSelectedStudent } from "@/redux/slices/studentSlice";
 import { RiFileEditFill } from "react-icons/ri";
+import { fetchAllEnrolment } from "@/redux/slices/enrolmentSlice";
+import { useSelector } from "react-redux";
 
 // ==================== STYLED COMPONENTS ====================
 
@@ -347,9 +346,10 @@ const ManualEnrollmentPage = () => {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [enrollmentData, setEnrollmentData] = useState([]);
-  const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
+  const { enrolments, loading } = useSelector(
+  (state) => state.enrolment
+);
   const itemsPerPage = 10;
 
   const calculateAge = (dob) => {
@@ -370,63 +370,10 @@ const ManualEnrollmentPage = () => {
   };
 
   useEffect(() => {
-    const fetchEnrollmentData = async () => {
-      setLoading(true);
-      try {
-        // const response = await dispatch(fetchAllStudents());
+  dispatch(fetchAllEnrolment());
+}, [dispatch]);
 
-        const response = await dispatch(fetchAllStudents()).unwrap();
-        const formattedData = response.map((student) => {
-          const courses = student.userCourses?.map((uc) => {
-            const classData = uc.class;
-
-            const courseTitle = classData?.course?.title || "-";
-
-            const session =
-              classData?.startDate && classData?.endDate
-                ? `${new Date(classData.startDate).toLocaleDateString()} - ${new Date(classData.endDate).toLocaleDateString()}`
-                : "-";
-
-            const isPaid =
-              student.guardian?.invoices?.some(
-                (invoice) => invoice.userCourseId === uc.id,
-              ) ||
-              student.invoices?.some(
-                (invoice) => invoice.userCourseId === uc.id,
-              ) ||
-              false;
-
-            const enrollmentType = uc.enrollmentType;
-
-            return {
-              course: courseTitle,
-              session,
-              enrollmentType,
-              paymentStatus: isPaid ? "Paid" : "Unpaid",
-              userCourseId: uc.id,
-            };
-          });
-
-          return {
-            id: student.id,
-            name: `${student.firstName} ${student.lastName}`,
-            age: calculateAge(student.dob),
-            mobile: student.phone,
-            courses, // <-- array of course info
-          };
-        });
-        console.log("Fetched enrollment data:", formattedData);
-        setEnrollmentData(formattedData);
-        // setEnrollmentData(response.payload);
-      } catch (error) {
-        console.error("Error fetching enrollment data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchEnrollmentData();
-  }, [dispatch]);
-
+                
   const handleSearch = () => {
     console.log("Searching for:", searchQuery);
   };
@@ -436,16 +383,16 @@ const ManualEnrollmentPage = () => {
     window.location.href = "/admin/enrollment/enrollmentForm";
   };
 
-  const handleUnpaidClick = (student, course) => {
-    if (course.paymentStatus !== "Unpaid") return;
+  const handleUnpaidClick = (enrolment) => {
+    if (enrolment.paymentStatus !== "Unpaid") return;
 
-    console.log("selected student", course.course);
+    console.log("selected student", enrolment.course);
 
     dispatch(
       setSelectedStudent({
-        studentId: student.id,
-        userCourseId: course.userCourseId,
-        courseName: course.course,
+        studentId: enrolment.user.id,
+        userCourseId: enrolment.id,
+        courseName: enrolment.class.course.title,
       }),
     );
     localStorage.setItem("currentStep", 1);
@@ -453,10 +400,12 @@ const ManualEnrollmentPage = () => {
   };
 
   // Calculate pagination
-  const totalPages = Math.ceil(enrollmentData.length / itemsPerPage);
+  const totalPages = Math.ceil((enrolments?.length || 0) / itemsPerPage);
+
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentData = enrollmentData.slice(startIndex, endIndex);
+
+  const currentData = enrolments?.slice(startIndex, endIndex) || [];
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -525,81 +474,50 @@ const ManualEnrollmentPage = () => {
               <TableBody>
                 {currentData.map((row) => (
                   <StyledTableRow key={row.id}>
-                    {/* Student Info */}
-                    <StyledTableCell>{row.name}</StyledTableCell>
-
-                    <StyledTableCell>{row.age}</StyledTableCell>
-
-                    <StyledTableCell>{row.mobile}</StyledTableCell>
-
-                    {/* Courses Column */}
                     <StyledTableCell>
-                      {row.courses && row.courses.length > 0
-                        ? row.courses.map((courseItem, index) => (
-                            <div key={index} style={{ marginBottom: "6px" }}>
-                              {courseItem.course}
-                            </div>
-                          ))
-                        : "-"}
+                      {row.user?.firstName || ""} {row.user?.lastName || ""}
                     </StyledTableCell>
 
-                    {/* Sessions Column */}
                     <StyledTableCell>
-                      {row.courses && row.courses.length > 0
-                        ? row.courses.map((courseItem, index) => (
-                            <div key={index} style={{ marginBottom: "6px" }}>
-                              {courseItem.session}
-                            </div>
-                          ))
+                      {calculateAge(row.user?.dob)}
+                    </StyledTableCell>
+
+                    <StyledTableCell>
+                      {row.user?.phone || "-"}
+                    </StyledTableCell>
+
+                    <StyledTableCell>
+                      {row.class?.course?.title || "-"}
+                    </StyledTableCell>
+
+                    <StyledTableCell>
+                      {row.class?.startDate && row.class?.endDate
+                        ? `${new Date(row.class.startDate).toLocaleDateString()} - ${new Date(row.class.endDate).toLocaleDateString()}`
                         : "-"}
                     </StyledTableCell>
 
                     <StyledTableCell>
-                      {row.courses && row.courses.length > 0
-                        ? row.courses.map((courseItem, index) => (
-                            <div key={index} style={{ marginBottom: "6px" }}>
-                              {courseItem.enrollmentType}
-                            </div>
-                          ))
-                        : "-"}
+                      {row.enrollmentType || "-"}
                     </StyledTableCell>
 
-                    {/* Payment Column */}
                     <StyledTableCell>
-                      {row.courses && row.courses.length > 0 ? (
-                        row.courses.map((courseItem, index) => (
-                          <div key={index} style={{ marginBottom: "6px" }}>
-                            <PaymentChip
-                              label={courseItem.paymentStatus}
-                              status={courseItem.paymentStatus}
-                              onClick={() =>
-                                courseItem.paymentStatus === "Unpaid" &&
-                                handleUnpaidClick(row, courseItem)
-                              }
-                              sx={{
-                                cursor:
-                                  courseItem.paymentStatus === "Unpaid"
-                                    ? "pointer"
-                                    : "default",
-                              }}
-                            />
-                          </div>
-                        ))
-                      ) : (
-                        <PaymentChip
-                          label="Unpaid"
-                          status="Unpaid"
-                          onClick={() =>
-                            handleUnpaidClick(row, {
-                              paymentStatus: "Unpaid",
-                            })
-                          }
-                          sx={{ cursor: "pointer" }}
-                        />
-                      )}
+                      <PaymentChip
+                        label={row.paymentStatus || "Unpaid"}
+                        status={
+                          row.paymentStatus?.toLowerCase() === "paid"
+                            ? "paid"
+                            : "unpaid"
+                        }
+                      />
                     </StyledTableCell>
+
                     <StyledTableCell>
-                      <ActionIconButton onClick={() => {}}>
+                      <ActionIconButton
+                        onClick={() =>
+                          row.paymentStatus === "Unpaid" &&
+                          handleUnpaidClick(row)
+                        }
+                      >
                         <RiFileEditFill size={20} />
                       </ActionIconButton>
                     </StyledTableCell>
@@ -609,21 +527,35 @@ const ManualEnrollmentPage = () => {
             </Table>
           </StyledTableContainer>
           <PaginationContainer>
-            <PaginationButtons>
+            <PaginationText>
+              Showing Pages {currentPage} of {totalPages}
+              </PaginationText>
+              <PaginationButtons>
               <NavButton
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-              >
+                >
                 <ChevronLeftIcon sx={{ fontSize: "18px" }} />
-              </NavButton>
+                </NavButton>
+          
+               {Array.from({ length: totalPages }, (_, index) => (
+                <PageButton
+                 key={index + 1}
+                 active={currentPage === index + 1}
+                 onClick={() => handlePageChange(index + 1)}
+                 >
+                {index + 1}
+             </PageButton>
+              ))}
+          
               <NavButton
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
-              >
-                <ChevronRightIcon sx={{ fontSize: "18px" }} />
-              </NavButton>
-            </PaginationButtons>
-          </PaginationContainer>
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+               >
+              <ChevronRightIcon sx={{ fontSize: "18px" }} />
+               </NavButton>
+              </PaginationButtons>
+           </PaginationContainer>
         </ContentCard>
       </PageContainer>
     </>
