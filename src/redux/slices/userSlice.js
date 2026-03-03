@@ -49,6 +49,31 @@ export const sendEnrollmentEmail = createAsyncThunk(
   }
 );
 
+export const sendRegisterEmail = createAsyncThunk(
+  "enrollment/sendEmail",
+  async (enrollmentData, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(
+        `${API_URL}/api/user/send-register-email`,
+        {
+          enrollmentData,
+        }
+      );
+
+      if (!response.data.success) {
+        return rejectWithValue(response.data.message);
+      }
+
+      return response.data.message;
+    } catch (error) {
+      console.error(error);
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to send email"
+      );
+    }
+  }
+);
+
 export const registerUser = createAsyncThunk(
   "auth/login",
   async (usersData, { rejectWithValue }) => {

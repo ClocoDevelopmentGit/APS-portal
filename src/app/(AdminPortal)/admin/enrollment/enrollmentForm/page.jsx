@@ -155,7 +155,7 @@ const ManualEnrollmentPage = () => {
     eventId: "",
 
     //newUser
-    newUser: false,
+    newUser: true,
   });
   const [loading, setLoading] = useState(false);
   const [overlayLoading, setOverlayLoading] = useState(false);

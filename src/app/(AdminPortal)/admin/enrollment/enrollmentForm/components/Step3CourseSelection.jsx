@@ -12,6 +12,7 @@ import { styled } from "@mui/material/styles";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useSelector } from "react-redux";
+import { useRouter } from "next/navigation";
 
 // ==================== STYLED COMPONENTS ====================
 
@@ -161,12 +162,14 @@ const CourseSelection = ({
   handleChange,
   onNext,
   onBack,
+  onSubmit,
   enrollmentType,
 }) => {
   const [errors, setErrors] = useState({});
   const [courses, setCourses] = useState([]);
   const [selectedCourseObj, setSelectedCourseObj] = useState(null);
   const studentDetails = useSelector((state) => state.student.studentDetails);
+  const router = useRouter();
 
   // Load from localStorage
   useEffect(() => {
@@ -319,7 +322,7 @@ const CourseSelection = ({
     return newErrors;
   };
 
-  const handleNextClick = () => {
+  const handleNextClick = async () => {
     console.log("inside handle click");
     setErrors({});
 
@@ -384,7 +387,16 @@ const CourseSelection = ({
 
     localStorage.setItem("enrollmentData", JSON.stringify(enrollmentData));
 
-    onNext();
+    if(formData.NDISPlan === "true")
+    {
+      const saved = await onSubmit();
+      localStorage.setItem("currentStep","1");
+      router.replace("/admin/enrollment/enrollmentForm/saveSuccess");
+    }
+    else{
+      onNext();
+    }
+  
   };
 
   return (

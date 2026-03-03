@@ -270,6 +270,7 @@ const Step4Payment = ({ formData, onSubmit, onBack, enrollmentType }) => {
           "enrollmentData",
           JSON.stringify(updatedEnrollmentData),
         );
+        const result = await dispatch(addPayment(updatedEnrollmentData));
         router.replace("/admin/enrollment/enrollmentForm/failed");
     }
   } catch (err) {
@@ -283,7 +284,8 @@ const Step4Payment = ({ formData, onSubmit, onBack, enrollmentType }) => {
           "enrollmentData",
           JSON.stringify(updatedEnrollmentData),
         );
-        router.replace("/admin/enrollment/failed");
+        const result = await dispatch(addPayment(updatedEnrollmentData));
+        router.replace("/admin/enrollment/enrollmentForm/failed");
   }
 };
 
