@@ -7,6 +7,8 @@ import eventReducer from "../slices/eventSlice";
 import termReducer from "../slices/termSlice";
 import studentReducer from "../slices/studentSlice";
 import enrolmentReducer from "../slices/enrolmentSlice";
+import invoiceReducer from "../slices/invoiceSlice";
+
 
 export const store = configureStore({
   reducer: {
@@ -18,5 +20,6 @@ export const store = configureStore({
     term: termReducer,
     student: studentReducer,
     enrolment: enrolmentReducer,
+    invoice: invoiceReducer,
   },
 });

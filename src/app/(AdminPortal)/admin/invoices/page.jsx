@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -24,6 +24,9 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import SearchIcon from "@mui/icons-material/Search";
 import { FaFileArrowDown } from "react-icons/fa6";
 import DownloadReceiptPopup from "./DownloadReceiptPopup";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchAllInvoices } from "@/redux/slices/invoiceSlice";
+import Loading from "@/app/loading";
 
 // ==================== STYLED COMPONENTS ====================
 
@@ -347,94 +350,63 @@ const NavButton = styled(IconButton)({
   },
 });
 
-// ==================== SAMPLE DATA ====================
+// ==================== HELPERS ====================
 
-const invoicesData = [
-  {
-    id: 1,
-    name: "Anna Hathaway",
-    avatar: "/avatar1.jpg",
-    mobile: "+61 410 345 678",
-    email: "annahathaway@gmail.com",
-    course: "Industry Driven Adults, Oct 18 - 6 2025",
-    transactionId: "TXN1234567890",
-    paymentMethod: "Visa****8678",
-  },
-  {
-    id: 2,
-    name: "Tim Cook",
-    avatar: "/avatar2.jpg",
-    mobile: "+61 410 345 678",
-    email: "annahathaway@gmail.com",
-    course: "Industry Driven Adults, Oct 18 - 6 2025",
-    transactionId: "TXN1234567890",
-    paymentMethod: "Visa****8678",
-  },
-  {
-    id: 3,
-    name: "Wolfrost Hentag",
-    avatar: "/avatar3.jpg",
-    mobile: "+61 410 345 678",
-    email: "annahathaway@gmail.com",
-    course: "Industry Driven Adults, Oct 18 - 6 2025",
-    transactionId: "TXN1234567890",
-    paymentMethod: "Visa****8678",
-  },
-  {
-    id: 4,
-    name: "Jane Foster",
-    avatar: "/avatar4.jpg",
-    mobile: "+61 410 345 678",
-    email: "annahathaway@gmail.com",
-    course: "Industry Driven Adults, Oct 18 - 6 2025",
-    transactionId: "TXN1234567890",
-    paymentMethod: "Visa****8678",
-  },
-  {
-    id: 5,
-    name: "Peter Griffin",
-    avatar: "/avatar5.jpg",
-    mobile: "+61 410 345 678",
-    email: "annahathaway@gmail.com",
-    course: "Industry Driven Adults, Oct 18 - 6 2025",
-    transactionId: "TXN1234567890",
-    paymentMethod: "Visa****8678",
-  },
-  {
-    id: 6,
-    name: "Wayne Bruce",
-    avatar: "/avatar6.jpg",
-    mobile: "+61 410 345 678",
-    email: "annahathaway@gmail.com",
-    course: "Industry Driven Adults, Oct 18 - 6 2025",
-    transactionId: "TXN1234567890",
-    paymentMethod: "Visa****8678",
-  },
-  {
-    id: 7,
-    name: "Steffy Glitter",
-    avatar: "/avatar7.jpg",
-    mobile: "+61 410 345 678",
-    email: "annahathaway@gmail.com",
-    course: "Industry Driven Adults, Oct 18 - 6 2025",
-    transactionId: "TXN1234567890",
-    paymentMethod: "Visa****8678",
-  },
-  {
-    id: 8,
-    name: "Westhamtan",
-    avatar: "/avatar8.jpg",
-    mobile: "+61 410 345 678",
-    email: "annahathaway@gmail.com",
-    course: "Industry Driven Adults, Oct 18 - 6 2025",
-    transactionId: "TXN1234567890",
-    paymentMethod: "Visa****8678",
-  },
-];
+/**
+ * Maps the API invoice response to the shape the UI expects.
+ * Adjust field mappings here if your API changes.
+ */
+const mapInvoiceToUI = (inv) => ({
+  id: inv.id,
+  name: `${inv.user?.firstName ?? ""} ${inv.user?.lastName ?? ""}`.trim(),
+  avatar: null, // API doesn't provide avatars
+  mobile: inv.user?.phone ?? "—",
+  email: inv.user?.email ?? "—",
+  // No course name in response — use enrollmentType + bookingId as a readable fallback
+  course: `${inv.payment?.enrollmentType ?? "—"} · ${inv.payment?.bookingId ?? ""}`,
+  transactionId: inv.payment?.transactionId ?? "—",
+  paymentMethod: inv.payment?.paymentMethod ?? "—",
+  totalAmount: inv.payment?.totalAmount ?? "—",
+  paymentStatus: inv.payment?.paymentStatus ?? "—",
+  enrolledAt: inv.userCourse?.enrollment ?? null,
+  rawData: inv, // keep original for download popup
+});
+
+const filterByDate = (invoices, filterValue) => {
+  if (!filterValue) return invoices;
+  const now = new Date();
+
+  return invoices.filter((inv) => {
+    if (!inv.enrolledAt) return true;
+    const date = new Date(inv.enrolledAt);
+
+    if (filterValue === "thisMonth") {
+      return (
+        date.getMonth() === now.getMonth() &&
+        date.getFullYear() === now.getFullYear()
+      );
+    }
+    if (filterValue === "lastMonth") {
+      const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      return (
+        date.getMonth() === lastMonth.getMonth() &&
+        date.getFullYear() === lastMonth.getFullYear()
+      );
+    }
+    if (filterValue === "thisYear") {
+      return date.getFullYear() === now.getFullYear();
+    }
+    return true; // "all"
+  });
+};
 
 // ==================== COMPONENT ====================
 
 const InvoicesPage = () => {
+  const dispatch = useDispatch();
+  const { invoices, loading, error } = useSelector((state) => state.invoice);
+
+  const [invoicesList, setInvoicesList] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterBy, setFilterBy] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -442,30 +414,69 @@ const InvoicesPage = () => {
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const itemsPerPage = 8;
 
+  // Fetch invoices on mount
+  useEffect(() => {
+    dispatch(fetchAllInvoices());
+  }, [dispatch]);
+
+  // Sync Redux state → local mapped list
+  useEffect(() => {
+    if (invoices && invoices.length > 0) {
+      setInvoicesList(invoices.map(mapInvoiceToUI));
+    } else {
+      // Fallback: try localStorage (populated by the thunk)
+      if (typeof window !== "undefined") {
+        const cached = localStorage.getItem("allInvoices");
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          setInvoicesList(parsed.map(mapInvoiceToUI));
+        }
+      }
+    }
+  }, [invoices]);
+
+  // ---- Filtering & Search ----
+  const filtered = filterByDate(invoicesList, filterBy).filter((inv) => {
+    if (!searchQuery.trim()) return true;
+    const q = searchQuery.toLowerCase();
+    return (
+      inv.name.toLowerCase().includes(q) ||
+      inv.mobile.toLowerCase().includes(q) ||
+      inv.email.toLowerCase().includes(q)
+    );
+  });
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, filterBy]);
+
+  // ---- Pagination ----
+  const totalPages = Math.max(1, Math.ceil(filtered.length / itemsPerPage));
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentData = filtered.slice(startIndex, startIndex + itemsPerPage);
+
   const handleSearch = () => {
-    console.log("Searching for:", searchQuery);
+    setCurrentPage(1);
   };
 
   const handleViewInvoice = (invoiceId) => {
     console.log("Viewing invoice:", invoiceId);
-    // Add your invoice viewing logic here
   };
 
   const handleDownloadInvoice = (invoiceId) => {
-    const invoice = invoicesData.find((inv) => inv.id === invoiceId);
+    const invoice = invoicesList.find((inv) => inv.id === invoiceId);
     setSelectedInvoice(invoice);
     setOpenDownloadPopup(true);
   };
 
-  // Calculate pagination
-  const totalPages = Math.ceil(invoicesData.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentData = invoicesData.slice(startIndex, endIndex);
-
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
+
+  if (loading && invoicesList.length === 0) {
+    return <Loading overlay={false} />;
+  }
 
   return (
     <>
@@ -496,13 +507,22 @@ const InvoicesPage = () => {
             <StyledFormControl size="small">
               <Select
                 value={filterBy}
-                onChange={(e) => setFilterBy(e.target.value)}
+                onChange={(e) => {
+                  setFilterBy(e.target.value);
+                  setCurrentPage(1);
+                }}
                 displayEmpty
                 renderValue={(selected) => {
                   if (!selected) {
                     return <span style={{ color: "#999999" }}>Filter by</span>;
                   }
-                  return selected;
+                  return selected === "thisMonth"
+                    ? "This Month"
+                    : selected === "lastMonth"
+                      ? "Last Month"
+                      : selected === "thisYear"
+                        ? "This Year"
+                        : "All Time";
                 }}
               >
                 <StyledMenuItem value="thisMonth">This Month</StyledMenuItem>
@@ -544,41 +564,53 @@ const InvoicesPage = () => {
                 </TableRow>
               </StyledTableHead>
               <TableBody>
-                {currentData.map((invoice) => (
-                  <StyledTableRow key={invoice.id}>
-                    <StyledTableCell>
-                      <ParticipantCell>
-                        <Avatar
-                          src={invoice.avatar}
-                          alt={invoice.name}
-                          sx={{ width: 28, height: 28, borderRadius: "6px" }}
-                        >
-                          {invoice.name.charAt(0)}
-                        </Avatar>
-                        <ParticipantName>{invoice.name}</ParticipantName>
-                      </ParticipantCell>
-                    </StyledTableCell>
-                    <StyledTableCell>{invoice.mobile}</StyledTableCell>
-                    <StyledTableCell>{invoice.email}</StyledTableCell>
-                    <StyledTableCell>{invoice.course}</StyledTableCell>
-                    <StyledTableCell>{invoice.transactionId}</StyledTableCell>
-                    <StyledTableCell>{invoice.paymentMethod}</StyledTableCell>
-                    <StyledTableCell>
-                      <Box sx={{ display: "flex", gap: "5px" }}>
-                        <ActionIconButton
-                          onClick={() => handleViewInvoice(invoice.id)}
-                        >
-                          <VisibilityOutlinedIcon sx={{ fontSize: "18px" }} />
-                        </ActionIconButton>
-                        <ActionIconButton
-                          onClick={() => handleDownloadInvoice(invoice.id)}
-                        >
-                          <FaFileArrowDown size={18} />
-                        </ActionIconButton>
-                      </Box>
+                {currentData.length > 0 ? (
+                  currentData.map((invoice) => (
+                    <StyledTableRow key={invoice.id}>
+                      <StyledTableCell>
+                        <ParticipantCell>
+                          <Avatar
+                            src={invoice.avatar}
+                            alt={invoice.name}
+                            sx={{ width: 28, height: 28, borderRadius: "6px" }}
+                          >
+                            {invoice.name.charAt(0)}
+                          </Avatar>
+                          <ParticipantName>{invoice.name}</ParticipantName>
+                        </ParticipantCell>
+                      </StyledTableCell>
+                      <StyledTableCell>{invoice.mobile}</StyledTableCell>
+                      <StyledTableCell>{invoice.email}</StyledTableCell>
+                      <StyledTableCell>{invoice.course}</StyledTableCell>
+                      <StyledTableCell>{invoice.transactionId}</StyledTableCell>
+                      <StyledTableCell>{invoice.paymentMethod}</StyledTableCell>
+                      <StyledTableCell>
+                        <Box sx={{ display: "flex", gap: "5px" }}>
+                          <ActionIconButton
+                            onClick={() => handleViewInvoice(invoice.id)}
+                          >
+                            <VisibilityOutlinedIcon sx={{ fontSize: "18px" }} />
+                          </ActionIconButton>
+                          <ActionIconButton
+                            onClick={() => handleDownloadInvoice(invoice.id)}
+                          >
+                            <FaFileArrowDown size={18} />
+                          </ActionIconButton>
+                        </Box>
+                      </StyledTableCell>
+                    </StyledTableRow>
+                  ))
+                ) : (
+                  <StyledTableRow>
+                    <StyledTableCell
+                      colSpan={7}
+                      align="center"
+                      sx={{ padding: "40px", color: "#999" }}
+                    >
+                      {error ? `Error: ${error}` : "No invoices found"}
                     </StyledTableCell>
                   </StyledTableRow>
-                ))}
+                )}
               </TableBody>
             </Table>
           </StyledTableContainer>
