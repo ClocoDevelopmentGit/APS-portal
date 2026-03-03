@@ -14,7 +14,7 @@ import { FaUserTie } from "react-icons/fa6";
 const Menuitems = [
   {
     id: uniqueId(),
-    title: "Dashboard",
+    title: "Dashboard - WIP",
     icon: RiDashboardHorizontalFill,
     href: "/admin",
     chipColor: "secondary",
@@ -46,49 +46,49 @@ const Menuitems = [
   },
   {
     id: uniqueId(),
-    title: "Leads",
+    title: "Leads - WIP",
     icon: FaUserFriends,
     href: "/admin/leads",
   },
   {
     id: uniqueId(),
-    title: "Contacts",
+    title: "Contacts - WIP",
     icon: IoIosPeople,
     href: "/admin/contacts",
   },
   {
     id: uniqueId(),
-    title: "Attendance",
+    title: "Attendance - WIP",
     icon: GiCheckMark,
     href: "/admin/attendance",
   },
   {
     id: uniqueId(),
-    title: "Instructor",
+    title: "Instructor - WIP",
     icon: FaUserTie,
     href: "/admin/instructor",
   },
   {
     id: uniqueId(),
-    title: "Payments",
+    title: "Payments - WIP",
     icon: IoWallet,
     href: "/admin/payments",
   },
   {
     id: uniqueId(),
-    title: "Invoices",
+    title: "Invoices - WIP",
     icon: IoReceipt,
     href: "/admin/invoices",
   },
   {
     id: uniqueId(),
-    title: 'APS CMS',
+    title: 'APS CMS - WIP',
     icon: IoIosGlobe,
     href: '/admin/cms/',
     children: [
       {
         id: uniqueId(),
-        title: 'Homepage',
+        title: 'Homepage - WIP',
         icon: TbPointFilled,
         href: '/admin/cms/homepage',
       },

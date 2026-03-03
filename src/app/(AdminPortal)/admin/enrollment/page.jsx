@@ -1,5 +1,5 @@
 "use client";
-import React, { use, useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import {
   Box,
   Typography,
@@ -345,11 +345,10 @@ const NavButton = styled(IconButton)({
 const ManualEnrollmentPage = () => {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchTerm, setSearchTerm] = useState(""); // New state for actual search
   const [currentPage, setCurrentPage] = useState(1);
   const dispatch = useDispatch();
-  const { enrolments, loading } = useSelector(
-  (state) => state.enrolment
-);
+  const { enrolments, loading } = useSelector((state) => state.enrolment);
   const itemsPerPage = 10;
   const [mounted, setMounted] = useState(false);
 
@@ -375,12 +374,46 @@ const ManualEnrollmentPage = () => {
   };
 
   useEffect(() => {
-  dispatch(fetchAllEnrolment());
-}, [dispatch]);
+    dispatch(fetchAllEnrolment());
+  }, [dispatch]);
 
-                
+  // Use searchTerm instead of searchQuery for filtering
+  const filteredEnrolments = useMemo(() => {
+    if (!enrolments) return [];
+
+    if (!searchTerm.trim()) {
+      return enrolments;
+    }
+
+    const query = searchTerm.toLowerCase().trim();
+    return enrolments.filter((enrolment) => {
+      const fullName =
+        `${enrolment.user?.firstName || ""} ${enrolment.user?.lastName || ""}`.toLowerCase();
+      const nameMatch = fullName.includes(query);
+      const mobileMatch = enrolment.user?.phone?.toLowerCase().includes(query);
+      const courseMatch = enrolment.class?.course?.title
+        ?.toLowerCase()
+        .includes(query);
+      return nameMatch || mobileMatch || courseMatch;
+    });
+  }, [enrolments, searchTerm]);
+
+  // Just update the input value
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  // Trigger search on button click
   const handleSearch = () => {
-    console.log("Searching for:", searchQuery);
+    setSearchTerm(searchQuery);
+    setCurrentPage(1);
+  };
+
+  // Handle Enter key press
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
   };
 
   const handleNewEnrollment = () => {
@@ -404,12 +437,15 @@ const ManualEnrollmentPage = () => {
     router.push("/admin/enrollment/enrollmentForm");
   };
 
-  // Calculate pagination
-  const totalPages = enrolments?.length > 0 ? Math.ceil(enrolments.length / itemsPerPage) : 1;
+  // Calculate pagination using filtered data
+  const totalPages =
+    filteredEnrolments?.length > 0
+      ? Math.ceil(filteredEnrolments.length / itemsPerPage)
+      : 1;
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
 
-  const currentData = enrolments?.slice(startIndex, endIndex) || [];
+  const currentData = filteredEnrolments?.slice(startIndex, endIndex) || [];
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -428,12 +464,10 @@ const ManualEnrollmentPage = () => {
         <HeaderSection>
           <SearchContainer>
             <StyledTextField
-              placeholder="Search student by name or phone number"
+              placeholder="Search by name, mobile number, or course"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") handleSearch();
-              }}
+              onChange={handleSearchChange}
+              onKeyDown={handleKeyDown}
             />
             <SearchButton onClick={handleSearch} startIcon={<SearchIcon />}>
               Search
@@ -444,6 +478,7 @@ const ManualEnrollmentPage = () => {
             + New Enrolments
           </NewEnrollmentButton>
         </HeaderSection>
+
         <ContentCard>
           <StyledTableContainer>
             <Table sx={{ minWidth: 1000 }}>
@@ -476,91 +511,104 @@ const ManualEnrollmentPage = () => {
                 </TableRow>
               </StyledTableHead>
               <TableBody>
-                {!mounted ? null : currentData.map((row) => (
-                  <StyledTableRow key={row.id}>
-                    <StyledTableCell>
-                      {row.user?.firstName || ""} {row.user?.lastName || ""}
-                    </StyledTableCell>
+                {!mounted ? null : currentData.length > 0 ? (
+                  currentData.map((row) => (
+                    <StyledTableRow key={row.id}>
+                      <StyledTableCell>
+                        {row.user?.firstName || ""} {row.user?.lastName || ""}
+                      </StyledTableCell>
 
-                    <StyledTableCell>
-                      {mounted ? calculateAge(row.user?.dob) : "-"}
-                    </StyledTableCell>
+                      <StyledTableCell>
+                        {mounted ? calculateAge(row.user?.dob) : "-"}
+                      </StyledTableCell>
 
-                    <StyledTableCell>
-                      {row.user?.phone || "-"}
-                    </StyledTableCell>
+                      <StyledTableCell>
+                        {row.user?.phone || "-"}
+                      </StyledTableCell>
 
-                    <StyledTableCell>
-                      {row.class?.course?.title || "-"}
-                    </StyledTableCell>
+                      <StyledTableCell>
+                        {row.class?.course?.title || "-"}
+                      </StyledTableCell>
 
-                    <StyledTableCell>
-                      {mounted && row.class?.startDate && row.class?.endDate
+                      <StyledTableCell>
+                        {mounted && row.class?.startDate && row.class?.endDate
                           ? `${new Date(row.class.startDate).toLocaleDateString()} - ${new Date(row.class.endDate).toLocaleDateString()}`
                           : "-"}
-                    </StyledTableCell>
+                      </StyledTableCell>
 
-                    <StyledTableCell>
-                      {row.enrollmentType || "-"}
-                    </StyledTableCell>
+                      <StyledTableCell>
+                        {row.enrollmentType || "-"}
+                      </StyledTableCell>
 
-                    <StyledTableCell>
-                      <PaymentChip
-                        label={row.paymentStatus || "Unpaid"}
-                        status={
-                          row.paymentStatus?.toLowerCase() === "paid"
-                            ? "paid"
-                            : "unpaid"
-                        }
-                      />
-                    </StyledTableCell>
+                      <StyledTableCell>
+                        <PaymentChip
+                          label={row.paymentStatus || "Unpaid"}
+                          status={
+                            row.paymentStatus?.toLowerCase() === "paid"
+                              ? "paid"
+                              : "unpaid"
+                          }
+                        />
+                      </StyledTableCell>
 
-                    <StyledTableCell>
-                      <ActionIconButton
-                        onClick={() =>
-                          row.paymentStatus === "Unpaid" &&
-                          handleUnpaidClick(row)
-                        }
-                      >
-                        <RiFileEditFill size={20} />
-                      </ActionIconButton>
+                      <StyledTableCell>
+                        <ActionIconButton
+                          onClick={() =>
+                            row.paymentStatus === "Unpaid" &&
+                            handleUnpaidClick(row)
+                          }
+                        >
+                          <RiFileEditFill size={20} />
+                        </ActionIconButton>
+                      </StyledTableCell>
+                    </StyledTableRow>
+                  ))
+                ) : (
+                  <StyledTableRow>
+                    <StyledTableCell colSpan={8} align="center">
+                      <Typography sx={{ padding: "40px", color: "#666666" }}>
+                        {searchTerm
+                          ? `No results found for "${searchTerm}"`
+                          : "No enrolments found"}
+                      </Typography>
                     </StyledTableCell>
                   </StyledTableRow>
-                ))}
+                )}
               </TableBody>
             </Table>
           </StyledTableContainer>
           <PaginationContainer>
-            {enrolments.length > 0 && (<PaginationText>
-              Showing Pages {currentPage} of {totalPages}
+            {filteredEnrolments.length > 0 && (
+              <PaginationText>
+                Showing Pages {currentPage} of {totalPages}
               </PaginationText>
             )}
-              <PaginationButtons>
+            <PaginationButtons>
               <NavButton
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-                >
+              >
                 <ChevronLeftIcon sx={{ fontSize: "18px" }} />
-                </NavButton>
-          
-               {Array.from({ length: totalPages }, (_, index) => (
+              </NavButton>
+
+              {Array.from({ length: totalPages }, (_, index) => (
                 <PageButton
-                 key={index + 1}
-                 active={currentPage === index + 1}
-                 onClick={() => handlePageChange(index + 1)}
-                 >
-                {index + 1}
-             </PageButton>
+                  key={index + 1}
+                  active={currentPage === index + 1}
+                  onClick={() => handlePageChange(index + 1)}
+                >
+                  {index + 1}
+                </PageButton>
               ))}
-          
+
               <NavButton
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-               >
-              <ChevronRightIcon sx={{ fontSize: "18px" }} />
-               </NavButton>
-              </PaginationButtons>
-           </PaginationContainer>
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+              >
+                <ChevronRightIcon sx={{ fontSize: "18px" }} />
+              </NavButton>
+            </PaginationButtons>
+          </PaginationContainer>
         </ContentCard>
       </PageContainer>
     </>

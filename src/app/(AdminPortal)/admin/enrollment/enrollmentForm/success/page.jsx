@@ -8,24 +8,39 @@ import { sendEnrollmentEmail } from "@/redux/slices/userSlice";
 
 // ==================== STYLED COMPONENTS ====================
 
-const PageWrapper = styled(Box)({
+const PageContainer = styled(Box)({
+  padding: "0 10px",
+  backgroundColor: "transpernt",
   minHeight: "100vh",
-  backgroundColor: "#B38349",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  padding: "40px 20px",
+});
+
+const HeaderSection = styled(Box)({
+  marginBottom: "24px",
+});
+
+const PageTitle = styled(Typography)({
+  fontSize: "20px",
+  fontWeight: 700,
+  color: "#191919",
+  lineHeight: "24px",
+  marginBottom: "6px",
+});
+
+const Breadcrumb = styled(Typography)({
+  fontSize: "14px",
+  fontWeight: 400,
+  color: "#666666",
+  lineHeight: "18px",
 });
 
 const SuccessCard = styled(Box)({
   backgroundColor: "#FFFFFF",
   borderRadius: "12px",
-  padding: "50px 100px",
-  maxWidth: "1000px",
-  width: "100%",
-  boxShadow: "0 8px 32px rgba(0, 0, 0, 0.15)",
+  padding: "50px",
+  margin: "0 auto",
+  boxShadow: "0 4px 16px 0 rgba(0, 0, 0, 0.10)",
   "@media (max-width: 768px)": {
-    padding: "40px 25px",
+    padding: "30px 20px",
   },
 });
 
@@ -51,8 +66,11 @@ const SuccessTitle = styled(Typography)({
   fontWeight: 700,
   color: "#4CAF50",
   textAlign: "center",
-  marginBottom: "20px",
+  marginBottom: "16px",
   lineHeight: "33px",
+  "@media (max-width: 768px)": {
+    fontSize: "18px",
+  },
 });
 
 const SuccessDescription = styled(Typography)({
@@ -60,111 +78,84 @@ const SuccessDescription = styled(Typography)({
   fontWeight: 600,
   color: "#5E5E5E",
   textAlign: "center",
-  marginBottom: "30px",
-  lineHeight: "28px",
-  "@media (max-width: 468px)": {
-    fontSize: "13px",
-  },
-});
-
-const InfoBox = styled(Box)({
-  backgroundColor: "#E8F5E9",
-  borderLeft: "4px solid #4CAF50",
-  borderRadius: "12px",
-  padding: "15px 25px",
-  marginBottom: "25px",
-  boxShadow: "0 4px 16px 0 rgba(0, 0, 0, 0.10)",
-});
-
-const InfoTitle = styled(Typography)({
-  fontSize: "15px",
-  fontWeight: 700,
-  color: "#4CAF50",
-  marginBottom: "8px",
+  marginBottom: "40px",
   lineHeight: "24px",
-});
-
-const InfoText = styled(Typography)({
-  fontSize: "13px",
-  fontWeight: 400,
-  color: "#666666",
-  lineHeight: "23px",
-  letterSpacing: "0.28px",
-  "& strong": {
-    fontWeight: 600,
+  "@media (max-width: 768px)": {
+    fontSize: "14px",
   },
 });
 
-const DetailsCard = styled(Box)({
-  backgroundColor: "#F9F9F9",
-  border: "1px solid #D0D0D0",
-  borderRadius: "10px",
-  padding: "30px 50px",
-  marginBottom: "30px",
+const SummaryCard = styled(Box)({
+  backgroundColor: "#FAFAFA",
+  border: "1px solid #E5E5E5",
+  borderRadius: "8px",
+  padding: "24px",
+  maxWidth: "800px",
+  margin: "0 auto 40px",
   boxShadow: "0 4px 16px 0 rgba(0, 0, 0, 0.10)",
-  "@media (max-width: 568px)": {
-    padding: "30px 20px",
-  },
 });
 
-const DetailsHeader = styled(Box)({
+const SummaryHeader = styled(Box)({
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
   marginBottom: "20px",
   paddingBottom: "15px",
-  borderBottom: "1px solid #E5E5E5",
-  "@media (max-width: 468px)": {
+  borderBottom: "1px solid #D3D3D3",
+  borderRadius: "0px",
+  "@media (max-width: 568px)": {
     flexDirection: "column",
-    gap: "10px",
     alignItems: "flex-start",
+    gap: "10px",
   },
 });
 
-const DetailsTitle = styled(Typography)({
-  fontSize: "17px",
+const SummaryTitle = styled(Typography)({
+  fontSize: "18px",
   fontWeight: 600,
-  color: "#181818",
-  lineHeight: "27px",
+  color: "#191919",
+  lineHeight: "22px",
+  "@media (max-width: 768px)": {
+    fontSize: "16px",
+  },
 });
 
-const BookingID = styled(Box)({
+const EnrollmentID = styled(Box)({
   backgroundColor: "#FFFBF5",
-  border: "1px solid #B38349",
+  border: "1px solid #635738",
   borderRadius: "5px",
-  padding: "4px 10px",
+  padding: "2px 12px",
   fontSize: "10px",
   fontWeight: 600,
-  color: "#B38349",
+  color: "#635738",
 });
 
-const DetailsRow = styled(Box)({
+const SummaryRow = styled(Box)({
   display: "flex",
   justifyContent: "space-between",
-  alignItems: "center",
-  gap: "5px",
-  padding: "10px 0",
-  "&:last-child": {
-    borderBottom: "none",
-  },
+  alignItems: "flex-start",
+  gap: "20px",
+  padding: "8px 0",
 });
 
-const DetailsLabel = styled(Typography)({
-  fontSize: "13px",
+const SummaryLabel = styled(Typography)({
+  fontSize: "14px",
   fontWeight: 400,
   color: "#666666",
-  "@media (max-width: 468px)": {
-    fontSize: "11px",
+  minWidth: "50%",
+  "@media (max-width: 768px)": {
+    fontSize: "13px",
   },
 });
 
-const DetailsValue = styled(Typography)({
-  fontSize: "13px",
+const SummaryValue = styled(Typography)({
+  fontSize: "14px",
   fontWeight: 500,
   color: "#333333",
   textAlign: "right",
-  "@media (max-width: 468px)": {
-    fontSize: "11px",
+  flex: 1,
+  "@media (max-width: 768px)": {
+    fontSize: "13px",
   },
 });
 
@@ -172,34 +163,35 @@ const TotalRow = styled(Box)({
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
-  padding: "15px 0 0",
-  marginTop: "10px",
-  borderTop: "2px solid #E5E5E5",
+  padding: "16px 0 0",
+  marginTop: "12px",
+  borderTop: "1px solid #D3D3D3",
+  borderRadius: "0px",
 });
 
 const TotalLabel = styled(Typography)({
-  fontSize: "16px",
+  fontSize: "17px",
   fontWeight: 600,
-  color: "#191919",
-  lineHeight: "27px",
-  "@media (max-width: 468px)": {
-    fontSize: "14px",
+  color: "#181818",
+  lineHeight: "24px",
+  "@media (max-width: 768px)": {
+    fontSize: "15px",
   },
 });
 
 const TotalValue = styled(Typography)({
-  fontSize: "18px",
-  fontWeight: 600,
-  color: "#B38349",
-  lineHeight: "30px",
-  "@media (max-width: 468px)": {
-    fontSize: "15px",
+  fontSize: "19px",
+  fontWeight: 700,
+  color: "#AE9964",
+  lineHeight: "28px",
+  "@media (max-width: 768px)": {
+    fontSize: "17px",
   },
 });
 
 const ButtonContainer = styled(Box)({
   display: "flex",
-  gap: "15px",
+  gap: "16px",
   justifyContent: "center",
   "@media (max-width: 568px)": {
     flexDirection: "column",
@@ -207,17 +199,17 @@ const ButtonContainer = styled(Box)({
 });
 
 const PrimaryButton = styled(Button)({
-  backgroundColor: "#B38349",
+  backgroundColor: "#AE9964",
   color: "#FFFFFF",
   fontSize: "14px",
   fontWeight: 600,
   textTransform: "none",
-  padding: "4px 30px",
-  borderRadius: "7px",
-  boxShadow: "0 2px 4px rgba(179, 131, 73, 0.3)",
+  padding: "5px 24px",
+  borderRadius: "5px",
   "&:hover": {
-    backgroundColor: "#A17F4F",
-    boxShadow: "0 4px 8px rgba(179, 131, 73, 0.4)",
+    backgroundColor: "#AE9964",
+    color: "#FFFFFF",
+    boxShadow: "0 4px 16px 0 rgba(0, 0, 0, 0.10)",
   },
   "@media (max-width: 568px)": {
     width: "100%",
@@ -225,19 +217,18 @@ const PrimaryButton = styled(Button)({
 });
 
 const SecondaryButton = styled(Button)({
+  backgroundColor: "#FFFFFF",
   color: "#191919",
   fontSize: "14px",
   fontWeight: 600,
   textTransform: "none",
-  padding: "4px 30px",
-  border: "1px solid #E5E5E5",
-  borderRadius: "7px",
-  backgroundColor: "#FFFFFF",
-  boxShadow: "0 2px 4px rgba(0, 0, 0, 0.08)",
+  padding: "5px 24px",
+  borderRadius: "5px",
+  border: "1px solid #D3D3D3",
   "&:hover": {
-    backgroundColor: "#F5F5F5",
-    borderColor: "#B38349",
-    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.12)",
+    backgroundColor: "#FFFFFF",
+    color: "#191919",
+    boxShadow: "0 4px 16px 0 rgba(0, 0, 0, 0.10)",
   },
   "@media (max-width: 568px)": {
     width: "100%",
@@ -250,8 +241,7 @@ const ManualEnrollmentSuccess = () => {
   const [enrollmentData, setEnrollmentData] = useState(null);
   const dispatch = useDispatch();
 
-  const handleViewDashboard = () => {
-    // Navigate to dashboard
+  const handleBackToEnrollments = () => {
     window.location.href = "/admin/enrollment";
   };
 
@@ -280,7 +270,12 @@ const ManualEnrollmentSuccess = () => {
   }, [enrollmentData, dispatch]);
 
   return (
-    <PageWrapper>
+    <PageContainer>
+      <HeaderSection>
+        <PageTitle>Manual Enrollment</PageTitle>
+        <Breadcrumb>Enrollments / Manual Enrollment / Success</Breadcrumb>
+      </HeaderSection>
+
       <SuccessCard>
         {/* Success Icon */}
         <SuccessIconContainer>
@@ -300,21 +295,66 @@ const ManualEnrollmentSuccess = () => {
           confirmed.
         </SuccessDescription>
 
-        {/* Confirmation Email Info */}
-        <InfoBox>
-          <InfoTitle>Confirmation Email sent</InfoTitle>
-          <InfoText>
-            We have sent a Confirmation Email to{" "}
-            <strong>{enrollmentData?.email}</strong>{" "}
-            {enrollmentData?.newUser
-              ? "with your credentials and a temporary password, "
-              : ""}
-            enrolment details, receipt, and class information.
-          </InfoText>
-        </InfoBox>
+        {/* Enrollment Summary */}
+        <SummaryCard>
+          <SummaryHeader>
+            <SummaryTitle>Enrollment Summary</SummaryTitle>
+            <EnrollmentID>{enrollmentData?.bookingId}</EnrollmentID>
+          </SummaryHeader>
+
+          <SummaryRow>
+            <SummaryLabel>Student Name:</SummaryLabel>
+            <SummaryValue>{enrollmentData?.studentName}</SummaryValue>
+          </SummaryRow>
+
+          <SummaryRow>
+            <SummaryLabel>Course Name:</SummaryLabel>
+            <SummaryValue>{enrollmentData?.courseName}</SummaryValue>
+          </SummaryRow>
+
+          <SummaryRow>
+            <SummaryLabel>Location:</SummaryLabel>
+            <SummaryValue>{enrollmentData?.location}</SummaryValue>
+          </SummaryRow>
+
+          <SummaryRow>
+            <SummaryLabel>Session Details:</SummaryLabel>
+            <SummaryValue>{enrollmentData?.sessionDetails}</SummaryValue>
+          </SummaryRow>
+
+          <SummaryRow>
+            <SummaryLabel>Session Time:</SummaryLabel>
+            <SummaryValue>{enrollmentData?.sessionTime}</SummaryValue>
+          </SummaryRow>
+
+          <SummaryRow>
+            <SummaryLabel>Payment Method:</SummaryLabel>
+            <SummaryValue>{enrollmentData?.paymentMethod}</SummaryValue>
+          </SummaryRow>
+
+          <SummaryRow>
+            <SummaryLabel>Transaction ID:</SummaryLabel>
+            <SummaryValue>{enrollmentData?.transactionId}</SummaryValue>
+          </SummaryRow>
+
+          <TotalRow>
+            <TotalLabel>Total Amount Paid:</TotalLabel>
+            <TotalValue>{enrollmentData?.totalAmount}</TotalValue>
+          </TotalRow>
+        </SummaryCard>
+
+        {/* Action Buttons */}
+        <ButtonContainer>
+          <PrimaryButton onClick={handleDownloadReceipt}>
+            Download Receipt
+          </PrimaryButton>
+          <SecondaryButton onClick={handleBackToEnrollments}>
+            Back to Enrolments
+          </SecondaryButton>
+        </ButtonContainer>
 
         {/* Enrollment Details */}
-        <DetailsCard>
+        {/* <DetailsCard>
           <DetailsHeader>
             <DetailsTitle>Enrolment Details</DetailsTitle>
             <BookingID>{enrollmentData?.bookingId}</BookingID>
@@ -359,19 +399,19 @@ const ManualEnrollmentSuccess = () => {
             <TotalLabel>Total Amount Paid:</TotalLabel>
             <TotalValue>{enrollmentData?.totalAmount}</TotalValue>
           </TotalRow>
-        </DetailsCard>
+        </DetailsCard> */}
 
         {/* Action Buttons */}
-        <ButtonContainer>
+        {/* <ButtonContainer>
           <PrimaryButton onClick={handleViewDashboard}>
             View Dashboard
           </PrimaryButton>
           <SecondaryButton onClick={handleDownloadReceipt}>
             Download Receipt
           </SecondaryButton>
-        </ButtonContainer>
+        </ButtonContainer> */}
       </SuccessCard>
-    </PageWrapper>
+    </PageContainer>
   );
 };
 

@@ -233,7 +233,7 @@ const ManualEnrollmentFailed = () => {
   };
 
   const handleBackToEnrollments = () => {
-    window.location.href = "/admin/enrollments";
+    window.location.href = "/admin/enrollment";
   };
 
   return (

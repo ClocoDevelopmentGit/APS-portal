@@ -11,6 +11,7 @@ import dayjs from "dayjs";
 import "./Enrollment.css";
 import { checkUserExist } from "@/redux/slices/userSlice";
 import { useDispatch, useSelector } from "react-redux";
+import { useRouter } from "next/navigation";
 
 // ==================== THEME ====================
 const pickerTheme = createTheme({
@@ -208,11 +209,36 @@ const ErrorText = styled(Typography)({
 // ==================== COMPONENT ====================
 
 const Step1StudentInfo = ({ formData, handleChange, onNext, onBack }) => {
-  const selectedStudent = useSelector(
-  (state) => state.student.selectedStudent);
+  const router = useRouter();
+  const selectedStudent = useSelector((state) => state.student.selectedStudent);
   const dispatch = useDispatch();
   const [overlayLoading, setOverlayLoading] = useState(false);
   const [errors, setErrors] = useState({});
+
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const handleEmailChange = (e) => {
+    const { name, value } = e.target;
+    handleChange(e);
+
+    // Real-time email validation
+    if (value && !validateEmail(value)) {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: "Please enter a valid email address",
+      }));
+    } else {
+      // Clear error if email is valid
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
+      });
+    }
+  };
 
   const handleDateChange = (field, value) => {
     handleChange({ target: { name: field, value: value } });
@@ -255,6 +281,20 @@ const Step1StudentInfo = ({ formData, handleChange, onNext, onBack }) => {
       }
     });
 
+    // Email validation for adult students (18+)
+    if (Number(formData.currentAge) >= 18) {
+      if (formData.email && !validateEmail(formData.email)) {
+        newErrors.email = "Please enter a valid email address";
+      }
+    }
+
+    // Email validation for guardian (under 18)
+    if (Number(formData.currentAge) < 18) {
+      if (formData.guardianEmail && !validateEmail(formData.guardianEmail)) {
+        newErrors.guardianEmail = "Please enter a valid email address";
+      }
+    }
+
     return newErrors;
   };
 
@@ -264,32 +304,41 @@ const Step1StudentInfo = ({ formData, handleChange, onNext, onBack }) => {
     const formError = validateEnrollmentForm(formData);
     if (Object.keys(formError).length > 0) {
       setErrors(formError);
+      setOverlayLoading(false);
       return;
     }
 
     const email = formData.email || formData.guardianEmail;
     const studentId = selectedStudent?.studentId;
 
-      if (!studentId) {
+    if (!studentId) {
       console.log("passed");
       const checkEmail = await dispatch(checkUserExist(email));
       console.log(checkEmail, "check email result");
       if (checkEmail.payload === true) {
-        setErrors({ email: "Email already exists. Please use a different email." ,
-      guardianEmail: "Email already exists. Please use a different email." });
-      }
-    else
-    {      
-       localStorage.setItem("formData", JSON.stringify(formData));
-        onNext();
+        setErrors({
+          email: "Email already exists. Please use a different email.",
+          guardianEmail: "Email already exists. Please use a different email.",
+        });
+        setOverlayLoading(false);
         return;
-    }
-   }
-   else
-    {
+      } else {
+        localStorage.setItem("formData", JSON.stringify(formData));
+        onNext();
+        setOverlayLoading(false);
+        return;
+      }
+    } else {
       onNext();
+      setOverlayLoading(false);
     }
-    setOverlayLoading(false);
+  };
+
+  const handleBackClick = () => {
+    // Navigate back to the previous page (enrollment list)
+    router.back();
+    // Or if you want to go to a specific route:
+    // router.push("/admin/enrollment");
   };
 
   return (
@@ -340,6 +389,13 @@ const Step1StudentInfo = ({ formData, handleChange, onNext, onBack }) => {
                 slotProps={{
                   textField: {
                     placeholder: "dd-mm-yyyy",
+                    onKeyDown: (e) => e.preventDefault(), // Block all keys
+                    onKeyPress: (e) => e.preventDefault(), // Block key press
+                    onPaste: (e) => e.preventDefault(),
+                    inputProps: {
+                      readOnly: true,
+                      style: { cursor: "pointer" },
+                    },
                   },
                   popper: {
                     sx: {
@@ -379,7 +435,7 @@ const Step1StudentInfo = ({ formData, handleChange, onNext, onBack }) => {
                   type="email"
                   placeholder="email@example.com"
                   value={formData.email}
-                  onChange={(e) => handleChange(e)}
+                  onChange={handleEmailChange}
                   fullWidth
                 />
                 {errors.email && <ErrorText>{errors.email}</ErrorText>}
@@ -430,6 +486,7 @@ const Step1StudentInfo = ({ formData, handleChange, onNext, onBack }) => {
                   </FieldLabel>
                   <StyledTextField
                     name="guardianContact"
+                    type="number"
                     placeholder="example: +61 412 345 678"
                     value={formData.guardianContact || ""}
                     onChange={(e) => handleChange(e)}
@@ -451,7 +508,7 @@ const Step1StudentInfo = ({ formData, handleChange, onNext, onBack }) => {
                     type="email"
                     placeholder="email@example.com"
                     value={formData.guardianEmail || ""}
-                    onChange={(e) => handleChange(e)}
+                    onChange={handleEmailChange}
                     fullWidth
                   />
                   {errors.guardianEmail && (
@@ -477,7 +534,7 @@ const Step1StudentInfo = ({ formData, handleChange, onNext, onBack }) => {
           )}
 
           <ButtonContainer>
-            <BackButton onClick={onBack} startIcon={<ArrowBackIcon />}>
+            <BackButton onClick={handleBackClick} startIcon={<ArrowBackIcon />}>
               Back
             </BackButton>
             <NextButton
