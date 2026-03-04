@@ -250,6 +250,16 @@ const Step4Payment = ({ formData, onSubmit, onBack, enrollmentType }) => {
       };
       if (error) {
         console.error(error);
+        const updatedEnrollmentData = {
+          ...enrollmentData,
+          paymentStatus: "Failed",
+          amountToPay: `$${creditAmount.toFixed(2)}`,
+        };
+        localStorage.setItem(
+          "enrollmentData",
+          JSON.stringify(updatedEnrollmentData),
+        );
+        const result = await dispatch(addPayment(updatedEnrollmentData));
         router.replace("/admin/enrollment/enrollmentForm/failed");
         return;
       }
