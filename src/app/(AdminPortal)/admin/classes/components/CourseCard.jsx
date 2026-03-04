@@ -744,21 +744,21 @@ const CourseCard = ({ course, categories, setAlert, setOverlayLoading }) => {
         </div>
 
         {/* Action Buttons */}
-        <ActionButtonsContainer>
+        {/* <ActionButtonsContainer>
           <EditButton
             startIcon={<IconEdit size={12} />}
             onClick={handleEditCourse}
           >
             Edit Course
           </EditButton>
-          {/* <DeleteButton
+          <DeleteButton
             startIcon={<IconTrash size={12} />}
             onClick={handleDeleteCourse}
             disabled={deleteLoading}
           >
             {deleteLoading ? "Deleting" : "Delete Course"}
-          </DeleteButton> */}
-        </ActionButtonsContainer>
+          </DeleteButton>
+        </ActionButtonsContainer> */}
       </CardContent>
       <CreateCourse
         open={openCourseModal}
