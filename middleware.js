@@ -5,18 +5,23 @@ export function middleware(req) {
   const redirectUrl =
     process.env.NEXT_PUBLIC_REDIRECT_URL || "http://localhost:3000";
 
+  const res = NextResponse.next();
+
+  // Always set no-cache headers to prevent stale auth state
+  res.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+  res.headers.set("Pragma", "no-cache");
+  res.headers.set("Expires", "0");
+  res.headers.set("Surrogate-Control", "no-store");
+
   if (!token) {
     console.log("No token found, redirecting to login page.");
     return NextResponse.redirect(new URL("/Pages/LoginPage", redirectUrl));
   }
 
-  const res = NextResponse.next();
-  res.headers.set("Cache-Control", "no-store, no-cache, must-revalidate");
-  res.headers.set("Pragma", "no-cache");
-  res.headers.set("Expires", "0");
   return res;
 }
 
 export const config = {
   matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
 };
+
