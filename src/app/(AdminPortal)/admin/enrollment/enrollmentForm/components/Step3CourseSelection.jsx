@@ -155,6 +155,13 @@ const NextButton = styled(Button)({
   },
 });
 
+const ErrorText = styled(Typography)({
+  fontSize: "12px",
+  color: "#E85A4F",
+  marginTop: "5px",
+  marginBottom: "5px",
+});
+
 // ==================== COMPONENT ====================
 
 const CourseSelection = ({
@@ -182,17 +189,17 @@ const CourseSelection = ({
   }, []);
 
   useEffect(() => {
-  if (!courses.length) return;
-  if (!formData.courseId) return;
+    if (!courses.length) return;
+    if (!formData.courseId) return;
 
-  const matchedCourse = courses.find(
-    (course) => course.id === formData.courseId
-  );
+    const matchedCourse = courses.find(
+      (course) => course.id === formData.courseId,
+    );
 
-  if (matchedCourse) {
-    setSelectedCourseObj(matchedCourse);
-  }
-}, [courses, formData.courseId]);
+    if (matchedCourse) {
+      setSelectedCourseObj(matchedCourse);
+    }
+  }, [courses, formData.courseId]);
 
   useEffect(() => {
     if (!courses.length) return;
@@ -301,10 +308,36 @@ const CourseSelection = ({
     return `${startDate} - ${endDate} | ${cls.day} | ${startTime}-${endTime} | ${cls.location.name}`;
   };
 
+  // const validateEnrollmentForm = (formData) => {
+  //   const newErrors = {};
+  //   const fieldLabels = {
+  //     ...(enrollmentType === "Course" && { session: "Session" }),
+  //   };
+
+  //   Object.keys(fieldLabels).forEach((key) => {
+  //     const value = formData[key];
+  //     if (
+  //       value === null ||
+  //       value === undefined ||
+  //       value === "" ||
+  //       value === 0
+  //     ) {
+  //       newErrors[key] = `${fieldLabels[key]} is required`;
+  //     }
+  //   });
+
+  //   return newErrors;
+  // };
+
   const validateEnrollmentForm = (formData) => {
     const newErrors = {};
+
+    // Required fields validation
     const fieldLabels = {
-      ...(enrollmentType === "Course" && { session: "Session" }),
+      courseId: "Course",
+      location: "Location",
+      session: "Session",
+      enrollmentType: "Enrolment Type",
     };
 
     Object.keys(fieldLabels).forEach((key) => {
@@ -387,16 +420,13 @@ const CourseSelection = ({
 
     localStorage.setItem("enrollmentData", JSON.stringify(enrollmentData));
 
-    if(formData.NDISPlan === "true")
-    {
+    if (formData.NDISPlan === "true") {
       const saved = await onSubmit();
-      localStorage.setItem("currentStep","1");
+      localStorage.setItem("currentStep", "1");
       router.replace("/admin/enrollment/enrollmentForm/saveSuccess");
-    }
-    else{
+    } else {
       onNext();
     }
-  
   };
 
   return (
@@ -417,6 +447,13 @@ const CourseSelection = ({
                   value={formData.courseId || ""}
                   onChange={handleCourseChange}
                   displayEmpty
+                  renderValue={(selected) => {
+                    if (!selected) {
+                      return <span style={{ color: "#999999" }}>Select</span>;
+                    }
+                    const course = courses.find((c) => c.id === selected);
+                    return course?.title || "Select";
+                  }}
                 >
                   <StyledMenuItem value="">Select</StyledMenuItem>
                   {courses
@@ -428,6 +465,7 @@ const CourseSelection = ({
                     ))}
                 </Select>
               </StyledFormControl>
+              {errors.courseId && <ErrorText>{errors.courseId}</ErrorText>}
             </Box>
 
             {/* LOCATION */}
@@ -442,6 +480,12 @@ const CourseSelection = ({
                   onChange={handleLocationChange}
                   disabled={!selectedCourseObj}
                   displayEmpty
+                  renderValue={(selected) => {
+                    if (!selected) {
+                      return <span style={{ color: "#999999" }}>Select</span>;
+                    }
+                    return selected;
+                  }}
                 >
                   <StyledMenuItem value="">Select</StyledMenuItem>
                   {locations.map((loc) => (
@@ -451,6 +495,7 @@ const CourseSelection = ({
                   ))}
                 </Select>
               </StyledFormControl>
+              {errors.location && <ErrorText>{errors.location}</ErrorText>}
             </Box>
           </FormContainer>
 
@@ -467,6 +512,13 @@ const CourseSelection = ({
                   onChange={handleChange}
                   disabled={!formData.location}
                   displayEmpty
+                  renderValue={(selected) => {
+                    if (!selected) {
+                      return <span style={{ color: "#999999" }}>Select</span>;
+                    }
+                    const cls = sessions.find((s) => s.id === selected);
+                    return cls ? formatSessionLabel(cls) : "Select";
+                  }}
                 >
                   <StyledMenuItem value="">Select</StyledMenuItem>
                   {sessions.map((cls) => (
@@ -480,6 +532,7 @@ const CourseSelection = ({
                   ))}
                 </Select>
               </StyledFormControl>
+              {errors.session && <ErrorText>{errors.session}</ErrorText>}
             </Box>
 
             {/* ENROLLMENT TYPE */}
@@ -493,12 +546,23 @@ const CourseSelection = ({
                   value={formData.enrollmentType || ""}
                   onChange={handleChange}
                   displayEmpty
+                  renderValue={(selected) => {
+                    if (!selected) {
+                      return <span style={{ color: "#999999" }}>Select</span>;
+                    }
+                    return selected === "Course"
+                      ? "Term Payment"
+                      : "Trial Class";
+                  }}
                 >
                   <StyledMenuItem value="">Select</StyledMenuItem>
                   <StyledMenuItem value="Course">Term Payment</StyledMenuItem>
                   <StyledMenuItem value="Trial">Trial Class</StyledMenuItem>
                 </Select>
               </StyledFormControl>
+              {errors.enrollmentType && (
+                <ErrorText>{errors.enrollmentType}</ErrorText>
+              )}
             </Box>
           </FormContainer>
 

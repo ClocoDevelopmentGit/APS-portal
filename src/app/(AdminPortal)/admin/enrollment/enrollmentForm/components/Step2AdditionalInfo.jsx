@@ -259,6 +259,43 @@ const NDISContainer = styled(Box)({
 const Step2AdditionalInfo = ({ formData, handleChange, onNext, onBack }) => {
   const [errors, setErrors] = useState({});
 
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  // Add email change handler
+  const handleEmailChange = (e) => {
+    const { name, value } = e.target;
+    handleChange(e);
+
+    // Real-time email validation for NDIS provider email
+    if (name === "NDIS.providerEmail" && value) {
+      if (!validateEmail(value)) {
+        setErrors((prev) => ({
+          ...prev,
+          NDIS: {
+            ...prev.NDIS,
+            providerEmail: "Please enter a valid email address",
+          },
+        }));
+      } else {
+        // Clear error if email is valid
+        setErrors((prev) => {
+          const newErrors = { ...prev };
+          if (newErrors.NDIS) {
+            delete newErrors.NDIS.providerEmail;
+            // If NDIS object is empty, remove it
+            if (Object.keys(newErrors.NDIS).length === 0) {
+              delete newErrors.NDIS;
+            }
+          }
+          return newErrors;
+        });
+      }
+    }
+  };
+
   const validateEnrollmentForm = (data) => {
     const newErrors = {};
 
@@ -346,6 +383,14 @@ const Step2AdditionalInfo = ({ formData, handleChange, onNext, onBack }) => {
         }
       });
 
+      // Email format validation for NDIS provider email
+      if (
+        data?.NDIS?.providerEmail &&
+        !validateEmail(data.NDIS.providerEmail)
+      ) {
+        newErrors.NDIS.providerEmail = "Please enter a valid email address";
+      }
+
       // If no NDIS errors, remove the empty object
       if (Object.keys(newErrors.NDIS).length === 0) {
         delete newErrors.NDIS;
@@ -407,40 +452,40 @@ const Step2AdditionalInfo = ({ formData, handleChange, onNext, onBack }) => {
             </Box>
 
             <Box width={"100%"}>
-            <FieldLabel>How did you hear about us?</FieldLabel>
-            <StyledFormControl fullWidth>
-              <Select
-                name="infoAboutAPS"
-                value={formData.infoAboutAPS || ""}
-                onChange={handleChange}
-                displayEmpty
-                renderValue={(selected) => {
-                  if (!selected) {
-                    return <span style={{ color: "#999999" }}>Select</span>;
-                  }
-                  return selected;
-                }}
-              >
-                <StyledMenuItem value="Social Media">
-                  Social Media
-                </StyledMenuItem>
-                <StyledMenuItem value="Friend/Family">
-                  Friend/Family
-                </StyledMenuItem>
-                <StyledMenuItem value="Google Search">
-                  Google Search
-                </StyledMenuItem>
-                <StyledMenuItem value="Advertisement">
-                  Advertisement
-                </StyledMenuItem>
-                <StyledMenuItem value="Other">Other</StyledMenuItem>
-              </Select>
-            </StyledFormControl>
-          </Box>
-             
+              <FieldLabel>How did you hear about us?</FieldLabel>
+              <StyledFormControl fullWidth>
+                <Select
+                  name="infoAboutAPS"
+                  value={formData.infoAboutAPS || ""}
+                  onChange={handleChange}
+                  displayEmpty
+                  renderValue={(selected) => {
+                    if (!selected) {
+                      return <span style={{ color: "#999999" }}>Select</span>;
+                    }
+                    return selected;
+                  }}
+                >
+                  <StyledMenuItem value="Social Media">
+                    Social Media
+                  </StyledMenuItem>
+                  <StyledMenuItem value="Friend/Family">
+                    Friend/Family
+                  </StyledMenuItem>
+                  <StyledMenuItem value="Google Search">
+                    Google Search
+                  </StyledMenuItem>
+                  <StyledMenuItem value="Advertisement">
+                    Advertisement
+                  </StyledMenuItem>
+                  <StyledMenuItem value="Other">Other</StyledMenuItem>
+                </Select>
+              </StyledFormControl>
+            </Box>
           </FormContainer>
 
-          {Number(formData.currentAge) <= 18 && !!formData.currentAge && ( <Box width={{ xs: "100%", sm: "49%" }}>
+          {Number(formData.currentAge) <= 18 && !!formData.currentAge && (
+            <Box width={{ xs: "100%", sm: "49%" }}>
               <FieldLabel>School Year Level:</FieldLabel>
               <StyledTextField
                 name="schoolYearLevel"
@@ -458,11 +503,10 @@ const Step2AdditionalInfo = ({ formData, handleChange, onNext, onBack }) => {
               {errors.schoolYearLevel && (
                 <ErrorText>{errors.schoolYearLevel}</ErrorText>
               )}
-            </Box> ) 
-            }
+            </Box>
+          )}
 
           {/* How did you hear about us */}
-          
 
           {/* Address Section */}
           <SubSectionTitle>Address:</SubSectionTitle>
@@ -877,7 +921,7 @@ const Step2AdditionalInfo = ({ formData, handleChange, onNext, onBack }) => {
                     type="email"
                     placeholder=""
                     value={formData?.NDIS?.providerEmail || ""}
-                    onChange={handleChange}
+                    onChange={handleEmailChange}
                     fullWidth
                   />
                   {errors?.NDIS?.providerEmail && (

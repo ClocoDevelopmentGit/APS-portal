@@ -1,11 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import {
-  Box,
-  Typography,
-  TextField,
-  Button,
-} from "@mui/material";
+import { Box, Typography, TextField, Button } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
@@ -77,8 +72,7 @@ const Step4Payment = ({ formData, onSubmit, onBack, enrollmentType }) => {
   const dispatch = useDispatch();
   const stripe = useStripe();
   const elements = useElements();
-  const selectedStudent = useSelector(
-  (state) => state.student.selectedStudent);
+  const selectedStudent = useSelector((state) => state.student.selectedStudent);
 
   const [errors, setErrors] = useState({});
   const [paymentMethod, setPaymentMethod] = useState("term");
@@ -97,20 +91,20 @@ const Step4Payment = ({ formData, onSubmit, onBack, enrollmentType }) => {
     cvc: "",
   });
 
-    useEffect(() => {
+  useEffect(() => {
     // Fetch class details based on formData.classId
 
-      const calculateWeeks = (startDate, endDate) => {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+    const calculateWeeks = (startDate, endDate) => {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
 
-    start.setHours(0, 0, 0, 0);
-    end.setHours(0, 0, 0, 0);
+      start.setHours(0, 0, 0, 0);
+      end.setHours(0, 0, 0, 0);
 
-    if (end < start) return 0;
+      if (end < start) return 0;
 
-    return Math.floor((end - start) / (1000 * 60 * 60 * 24 * 7)) + 1;
-  };
+      return Math.floor((end - start) / (1000 * 60 * 60 * 24 * 7)) + 1;
+    };
 
     const fetchClassDetails = async () => {
       let classDetail;
@@ -145,12 +139,12 @@ const Step4Payment = ({ formData, onSubmit, onBack, enrollmentType }) => {
         console.log("Enrollment type:", enrollmentType);
         const creditAmount =
           enrollmentType === "Course" || enrollmentType === "Term"
-              ? totalPrice
-              : enrollmentType === "Workshop"
-                ? data?.fees
-                : enrollmentType === "Trial"
-                  ? data?.fees / 10
-                  : 0;
+            ? totalPrice
+            : enrollmentType === "Workshop"
+              ? data?.fees
+              : enrollmentType === "Trial"
+                ? data?.fees / 10
+                : 0;
         setCreditAmount(creditAmount);
         console.log("Calculated credit amount:", creditAmount);
       }
@@ -158,159 +152,166 @@ const Step4Payment = ({ formData, onSubmit, onBack, enrollmentType }) => {
     fetchClassDetails();
   }, [enrollmentType, formData.classId, paymentMethod, formData.eventId]);
 
-
   // ==================== SUBMIT ====================
 
-    const processEnrollment = async (paymentIntent) => {
-      
-      const enrollmentData = JSON.parse(localStorage.getItem("enrollmentData"));
-      console.log("Enrollment data before update:", enrollmentData);
-      const paymentData = {
-          paymentMethod: "card",
-          transactionId: paymentIntent?.id || "",
-          totalAmount: `$${creditAmount.toFixed(2)}`,
-          bookingId: generateBookingId(),
-          email: formData.email || formData.guardianEmail,
-          enrollmentType: formData.enrollmentType,
-          newUser: formData.newUser,
-          paymentStatus: String(paymentIntent?.status),
-          requestAt: paymentIntent?.requestAt,
-          responseAt: paymentIntent?.responseAt,
-          classId: formData.classId ?? null,
-          eventId: formData.eventId ?? null,
-      };
-        const updatedEnrollmentData = {
-          ...enrollmentData,
-          ...paymentData
-        };
-        localStorage.setItem(
-          "enrollmentData",
-          JSON.stringify(updatedEnrollmentData),
-        );
-        console.log("Updated enrollment data with payment info:", updatedEnrollmentData);
-        const selectedClass = localStorage.getItem("selectedClass");
-        const parsedSelectedClass = selectedClass ? JSON.parse(selectedClass) : null;
-        const selectedEvent = localStorage.getItem("eventId");
-        const parsedSelectedEvent = selectedEvent ? JSON.parse(selectedEvent) : null;
-        console.log("formdata userCourseId", formData.userCourseId);
-        if (formData.userCourseId && formData.userCourseId !== "") {
-          updatedEnrollmentData.userId = selectedStudent.studentId;
-          updatedEnrollmentData.courseId = formData.userCourseId;
-          updatedEnrollmentData.classId = parsedSelectedClass.id;
-          updatedEnrollmentData.eventId = parsedSelectedEvent?.id || null;
-          localStorage.setItem(
-          "enrollmentData",
-          JSON.stringify(updatedEnrollmentData),
-        );
-          const result = await dispatch(addPayment(updatedEnrollmentData));
-          console.log("Payment result passing user:", result);
-        }
-        else {
-          const saved = await onSubmit(true);
-        console.log("Payment result new user:", saved);
-        }
+  const processEnrollment = async (paymentIntent) => {
+    const enrollmentData = JSON.parse(localStorage.getItem("enrollmentData"));
+    console.log("Enrollment data before update:", enrollmentData);
+    const paymentData = {
+      paymentMethod: "card",
+      transactionId: paymentIntent?.id || "",
+      totalAmount: `$${creditAmount.toFixed(2)}`,
+      bookingId: generateBookingId(),
+      email: formData.email || formData.guardianEmail,
+      enrollmentType: formData.enrollmentType,
+      newUser: formData.newUser,
+      paymentStatus: String(paymentIntent?.status),
+      requestAt: paymentIntent?.requestAt,
+      responseAt: paymentIntent?.responseAt,
+      classId: formData.classId ?? null,
+      eventId: formData.eventId ?? null,
+    };
+    const updatedEnrollmentData = {
+      ...enrollmentData,
+      ...paymentData,
+    };
+    localStorage.setItem(
+      "enrollmentData",
+      JSON.stringify(updatedEnrollmentData),
+    );
+    console.log(
+      "Updated enrollment data with payment info:",
+      updatedEnrollmentData,
+    );
+    const selectedClass = localStorage.getItem("selectedClass");
+    const parsedSelectedClass = selectedClass
+      ? JSON.parse(selectedClass)
+      : null;
+    const selectedEvent = localStorage.getItem("eventId");
+    const parsedSelectedEvent = selectedEvent
+      ? JSON.parse(selectedEvent)
+      : null;
+    console.log("formdata userCourseId", formData.userCourseId);
+    if (formData.userCourseId && formData.userCourseId !== "") {
+      updatedEnrollmentData.userId = selectedStudent.studentId;
+      updatedEnrollmentData.courseId = formData.userCourseId;
+      updatedEnrollmentData.classId = parsedSelectedClass.id;
+      updatedEnrollmentData.eventId = parsedSelectedEvent?.id || null;
+      localStorage.setItem(
+        "enrollmentData",
+        JSON.stringify(updatedEnrollmentData),
+      );
+      const result = await dispatch(addPayment(updatedEnrollmentData));
+      console.log("Payment result passing user:", result);
+    } else {
+      const saved = await onSubmit(true);
+      console.log("Payment result new user:", saved);
+    }
   };
 
   const handleSubmit = async () => {
-  if (!stripe || !elements) return;
+    if (!stripe || !elements) return;
+    const enrollmentData = JSON.parse(localStorage.getItem("enrollmentData"));
 
-  try {
-    // 1️⃣ Create PaymentIntent
+    try {
+      // 1️⃣ Create PaymentIntent
 
-    const paymentIntentRequestTime = new Date().toISOString();
+      const paymentIntentRequestTime = new Date().toISOString();
 
-    const response = await fetch("/api/create-payment-intent", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        amount: creditAmount,
-      }),
-    });
+      const response = await fetch("/api/create-payment-intent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: creditAmount,
+        }),
+      });
 
-    const { clientSecret } = await response.json();
+      const { clientSecret } = await response.json();
 
-    // 2️⃣ Confirm payment
-    const { error, paymentIntent } = await stripe.confirmCardPayment(
-      clientSecret,
-      {
-        payment_method: {
-          card: elements.getElement(CardElement),
-          billing_details: {
-            name: formData.firstName + " " + formData.lastName,
-            email: formData.email || formData.guardianEmail,
+      // 2️⃣ Confirm payment
+      const { error, paymentIntent } = await stripe.confirmCardPayment(
+        clientSecret,
+        {
+          payment_method: {
+            card: elements.getElement(CardElement),
+            billing_details: {
+              name: formData.firstName + " " + formData.lastName,
+              email: formData.email || formData.guardianEmail,
+            },
           },
         },
-      },
-    );
+      );
 
-    const stripeResponseTime = new Date().toISOString();
-    const paymentData = {
-      ...paymentIntent,
-      requestAt: paymentIntentRequestTime,
-      responseAt: stripeResponseTime,
-    }
-    if (error) {
-      console.error(error);
-      router.replace("/Pages/enrollment/failed");
-      return;
-    }
+      const stripeResponseTime = new Date().toISOString();
+      const paymentData = {
+        ...paymentIntent,
+        requestAt: paymentIntentRequestTime,
+        responseAt: stripeResponseTime,
+      };
+      if (error) {
+        console.error(error);
+        const updatedEnrollmentData = {
+          ...enrollmentData,
+          paymentStatus: "Failed",
+          amountToPay: `$${creditAmount.toFixed(2)}`,
+        };
+        localStorage.setItem(
+          "enrollmentData",
+          JSON.stringify(updatedEnrollmentData),
+        );
+        const result = await dispatch(addPayment(updatedEnrollmentData));
+        router.replace("/admin/enrollment/enrollmentForm/failed");
+        return;
+      }
 
-    console.log("PaymentIntent:", paymentData);
-    if (paymentIntent.status === "succeeded") {
-      await processEnrollment(paymentData);
-      router.replace("/admin/enrollment/enrollmentForm/success");
-    }
-    else {
+      console.log("PaymentIntent:", paymentData);
+      if (paymentIntent.status === "succeeded") {
+        await processEnrollment(paymentData);
+        router.replace("/admin/enrollment/enrollmentForm/success");
+      } else {
+        const updatedEnrollmentData = {
+          ...enrollmentData,
+          paymentStatus: "Failed",
+          amountToPay: `$${creditAmount.toFixed(2)}`,
+        };
+        localStorage.setItem(
+          "enrollmentData",
+          JSON.stringify(updatedEnrollmentData),
+        );
+        const result = await dispatch(addPayment(updatedEnrollmentData));
+        router.replace("/admin/enrollment/enrollmentForm/failed");
+      }
+    } catch (err) {
+      console.error(err);
       const updatedEnrollmentData = {
-          ...enrollmentData,
-          paymentStatus: "Failed",
-          amountToPay: `$${creditAmount.toFixed(2)}`,
-        };
-        localStorage.setItem(
-          "enrollmentData",
-          JSON.stringify(updatedEnrollmentData),
-        );
-        const result = await dispatch(addPayment(updatedEnrollmentData));
-        router.replace("/admin/enrollment/enrollmentForm/failed");
+        ...enrollmentData,
+        paymentStatus: "Failed",
+        amountToPay: `$${creditAmount.toFixed(2)}`,
+      };
+      localStorage.setItem(
+        "enrollmentData",
+        JSON.stringify(updatedEnrollmentData),
+      );
+      const result = await dispatch(addPayment(updatedEnrollmentData));
+      router.replace("/admin/enrollment/enrollmentForm/failed");
     }
-  } catch (err) {
-    console.error(err);
-    const updatedEnrollmentData = {
-          ...enrollmentData,
-          paymentStatus: "Failed",
-          amountToPay: `$${creditAmount.toFixed(2)}`,
-        };
-        localStorage.setItem(
-          "enrollmentData",
-          JSON.stringify(updatedEnrollmentData),
-        );
-        const result = await dispatch(addPayment(updatedEnrollmentData));
-        router.replace("/admin/enrollment/enrollmentForm/failed");
-  }
-};
-
+  };
 
   // ==================== UI ====================
 
   return (
     <Box>
       <FormContainer>
-         <CardDetailsBox>
-            <CardElement options={{ hidePostalCode: true, disableLink: true }} />
-            </CardDetailsBox>
+        <CardDetailsBox>
+          <CardElement options={{ hidePostalCode: true, disableLink: true }} />
+        </CardDetailsBox>
       </FormContainer>
 
       <ButtonContainer>
-        <StyledButton
-          onClick={onBack}
-          startIcon={<ArrowBackIcon />}
-        >
+        <StyledButton onClick={onBack} startIcon={<ArrowBackIcon />}>
           Back
         </StyledButton>
-        <StyledButton
-          onClick={handleSubmit}
-          endIcon={<ArrowForwardIcon />}
-        >
+        <StyledButton onClick={handleSubmit} endIcon={<ArrowForwardIcon />}>
           Next
         </StyledButton>
       </ButtonContainer>

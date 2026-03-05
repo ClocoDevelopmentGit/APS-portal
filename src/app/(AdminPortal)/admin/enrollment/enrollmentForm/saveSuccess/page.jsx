@@ -9,25 +9,37 @@ import { sendRegisterEmail } from "@/redux/slices/userSlice";
 // ==================== STYLED COMPONENTS ====================
 
 const PageWrapper = styled(Box)({
+  padding: "0 10px",
+  backgroundColor: "transpernt",
   minHeight: "100vh",
-  backgroundColor: "#B38349",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  padding: "40px 20px",
+});
+
+const HeaderSection = styled(Box)({
+  marginBottom: "24px",
+});
+
+const PageTitle = styled(Typography)({
+  fontSize: "20px",
+  fontWeight: 700,
+  color: "#191919",
+  lineHeight: "24px",
+  marginBottom: "6px",
+});
+
+const Breadcrumb = styled(Typography)({
+  fontSize: "14px",
+  fontWeight: 400,
+  color: "#666666",
+  lineHeight: "18px",
 });
 
 const SuccessCard = styled(Box)({
   backgroundColor: "#FFFFFF",
   borderRadius: "12px",
-  padding: "50px 80px",
-  maxWidth: "850px",
-  width: "100%",
-  boxShadow: "0 8px 32px rgba(0, 0, 0, 0.15)",
+  padding: "50px",
+  margin: "0 auto",
+  boxShadow: "0 4px 16px 0 rgba(0, 0, 0, 0.10)",
   "@media (max-width: 768px)": {
-    padding: "40px 30px",
-  },
-  "@media (max-width: 568px)": {
     padding: "30px 20px",
   },
 });
@@ -167,7 +179,7 @@ const SaveSuccessful = () => {
   const dispatch = useDispatch();
 
   const handleViewDashboard = () => {
-     window.location.href = "/admin/enrollment";
+    window.location.href = "/admin/enrollment";
   };
 
   // const handleGoToHome = () => {
@@ -180,7 +192,10 @@ const SaveSuccessful = () => {
       console.log(storedData);
       if (storedData) {
         setEnrollmentData(JSON.parse(storedData));
-        console.log("Enrollment data retrieved from localStorage:", JSON.parse(storedData));
+        console.log(
+          "Enrollment data retrieved from localStorage:",
+          JSON.parse(storedData),
+        );
       }
     };
     fetchData();
@@ -193,14 +208,19 @@ const SaveSuccessful = () => {
     if (enrollmentData?.newUser) {
       dispatch(
         sendRegisterEmail(
-          enrollmentData?.email || enrollmentData?.guardianEmail
-        )
+          enrollmentData?.email || enrollmentData?.guardianEmail,
+        ),
       );
     }
   }, [enrollmentData, dispatch]);
 
   return (
     <PageWrapper>
+      <HeaderSection>
+        <PageTitle>Manual Enrollment</PageTitle>
+        <Breadcrumb>Enrollments / Manual Enrollment / Success</Breadcrumb>
+      </HeaderSection>
+
       <SuccessCard>
         {/* Success Title */}
         <SuccessTitle>Form Saved!</SuccessTitle>
@@ -257,7 +277,7 @@ const SaveSuccessful = () => {
         {/* Action Buttons */}
         <ButtonContainer>
           <PrimaryButton onClick={handleViewDashboard}>
-            View Dashboard
+            Back to Enrolment
           </PrimaryButton>
           {/* <SecondaryButton onClick={handleGoToHome}>
             Go to Home Page
