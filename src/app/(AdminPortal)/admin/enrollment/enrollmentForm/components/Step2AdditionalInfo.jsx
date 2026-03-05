@@ -484,8 +484,8 @@ const Step2AdditionalInfo = ({ formData, handleChange, onNext, onBack }) => {
             </Box>
           </FormContainer>
 
-          {Number(formData.currentAge) <= 18 && !!formData.currentAge && (
-            <Box width={{ xs: "100%", sm: "49%" }}>
+          {Number(formData.currentAge) < 18 && !!formData.currentAge && (
+            <Box width={{ xs: "100%", sm: "49%" }} sx={{ mt: 1 }}>
               <FieldLabel>School Year Level:</FieldLabel>
               <StyledTextField
                 name="schoolYearLevel"
