@@ -387,18 +387,33 @@ useEffect(() => {
   };
 
   const handleNext = () => {
-    if (currentStep < steps.length) {
-      setCurrentStep(currentStep + 1);
-      localStorage.setItem("currentStep", currentStep + 1);
+  if (currentStep < steps.length) {
+    const nextStep = currentStep + 1;
+
+    if (currentStep === 3) {
+      const latestEnrollmentType = localStorage.getItem("enrollmentType");
+      if (latestEnrollmentType) {
+        setEnrollmentType(latestEnrollmentType);
+      }
     }
-  };
+
+    setCurrentStep(nextStep);
+    localStorage.setItem("currentStep", nextStep);
+  }
+};
 
   const handleBack = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
-      localStorage.setItem("currentStep", currentStep - 1);
+  if (currentStep > 1) {
+    const prevStep = currentStep - 1;
+
+    if (currentStep === 4) {
+      setEnrollmentType("");
     }
-  };
+
+    setCurrentStep(prevStep);
+    localStorage.setItem("currentStep", prevStep);
+  }
+};
 
   const buildUserData = (formData, email, mobile, saveType) => ({
     firstName: formData.firstName,
@@ -539,6 +554,7 @@ useEffect(() => {
             onBack={handleBack}
             onSubmit={handleSubmit}
             courseName={courseName}
+            courseAge={courseAge}
             classDetails={classDetails}
             enrollmentType={enrollmentType}
             setCurrentStep={setCurrentStep}

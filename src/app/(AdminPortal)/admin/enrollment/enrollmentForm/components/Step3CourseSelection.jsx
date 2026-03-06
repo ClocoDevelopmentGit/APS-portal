@@ -170,6 +170,8 @@ const CourseSelection = ({
   onNext,
   onBack,
   onSubmit,
+  courseName,
+  courseAge,
   enrollmentType,
 }) => {
   const [errors, setErrors] = useState({});
@@ -181,8 +183,8 @@ const CourseSelection = ({
   // Load from localStorage
   useEffect(() => {
     const stored = localStorage.getItem("allCourses");
-    localStorage.setItem("enrollmentType", "Course");
-    enrollmentType = "Course";
+    // localStorage.setItem("enrollmentType", "Course");
+    // enrollmentType = "Course";
     if (stored) {
       setCourses(JSON.parse(stored));
     }
@@ -382,7 +384,12 @@ const CourseSelection = ({
     localStorage.setItem("classId", selectedClass.id);
     localStorage.setItem("formData", JSON.stringify(formData));
     localStorage.setItem("selectedClass", JSON.stringify(selectedClass));
+    localStorage.setItem("enrollmentType", formData.enrollmentType);
+    enrollmentType = formData.enrollmentType;
     console.log("selectedCourseObj.title", selectedCourseObj.title);
+    console.log("selectedClass",selectedCourseObj.ageRange);
+    courseName = selectedCourseObj.title;
+    
     const enrollmentData = {
       studentName: (
         (formData.firstName || "") +
@@ -391,7 +398,7 @@ const CourseSelection = ({
       ).trim(),
 
       courseName: formData.course || selectedCourseObj.title || "",
-
+      courseAge: selectedCourseObj.ageRange || "",
       location: selectedClass.location?.name || "",
 
       sessionDetails: `${selectedClass.day} - ${new Date(

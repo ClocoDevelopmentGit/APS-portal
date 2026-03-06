@@ -550,16 +550,17 @@ const SavingsAmount = styled(Typography)({
 
 // ==================== COMPONENT ====================
 
-const Step4Payment = ({ formData, onSubmit, onBack, enrollmentType }) => {
+const Step4Payment = ({ formData, onSubmit, onBack, enrollmentType, courseName ,courseAge }) => {
   const dispatch = useDispatch();
   const stripe = useStripe();
   const elements = useElements();
   const selectedStudent = useSelector((state) => state.student.selectedStudent);
   const enrollmentFee = 0;
-
   const [errors, setErrors] = useState({});
   const [paymentMethod, setPaymentMethod] = useState("term");
-  // const [enrollmentType, setEnrollmentType] = useState("");
+  const [resolvedEnrollmentType, setResolvedEnrollmentType] = useState(enrollmentType || "");
+
+  const [enrollmentData, setEnrollmentData] = useState(null);
   const [creditAmount, setCreditAmount] = useState(0);
   const router = useRouter();
   const [classDetails, setClassDetails] = useState(null);
@@ -576,6 +577,28 @@ const Step4Payment = ({ formData, onSubmit, onBack, enrollmentType }) => {
     cvc: "",
   });
 
+  useEffect(() => {
+  if (typeof window !== "undefined") {
+    const storedData = localStorage.getItem("enrollmentData");
+    if (storedData) {
+      setEnrollmentData(JSON.parse(storedData));
+    }
+  }
+
+   const storedEnrollmentType = localStorage.getItem("enrollmentType");
+    if (storedEnrollmentType) {
+      setResolvedEnrollmentType(storedEnrollmentType);
+    }
+}, []);
+
+useEffect(() => {
+  if (!enrollmentType) {
+    const stored = localStorage.getItem("enrollmentType");
+    if (stored) setResolvedEnrollmentType(stored);
+  } else {
+    setResolvedEnrollmentType(enrollmentType);
+  }
+}, [enrollmentType])
   useEffect(() => {
     // Fetch class details based on formData.classId
 
@@ -601,7 +624,7 @@ const Step4Payment = ({ formData, onSubmit, onBack, enrollmentType }) => {
         const data = JSON.parse(classDetail);
         console.log("Fetched class details:", data);
         setClassDetails(data);
-        setPaymentMethod(enrollmentType);
+        // setPaymentMethod(enrollmentType);
         const today = new Date();
         const startDate = new Date(data?.startDate);
         const endDate = new Date(data?.endDate);
@@ -620,22 +643,27 @@ const Step4Payment = ({ formData, onSubmit, onBack, enrollmentType }) => {
         setDiscountApplied(discount);
         setPrice(totalPrice);
         setYearlyPrice(annualPrice);
-        enrollmentType = formData.enrollmentType;
-        console.log("Enrollment type:", enrollmentType);
-        const creditAmount =
-          enrollmentType === "Course" || enrollmentType === "Term"
+        // enrollmentType = formData.enrollmentType;
+         const creditAmountPrice =
+          paymentMethod === "term"
             ? totalPrice
-            : enrollmentType === "Workshop"
-              ? data?.fees
-              : enrollmentType === "Trial"
-                ? data?.fees / 10
-                : 0;
+            : (annualPrice * (100 - discount)) / 100;
+       const creditAmount =
+          !formData.classId && !formData.eventId
+            ? 0
+            : resolvedEnrollmentType === "Course"
+              ? creditAmountPrice
+              : resolvedEnrollmentType === "Workshop"
+                ? data?.fees
+                : resolvedEnrollmentType === "Trial"
+                  ? data?.fees / 10
+                  : 0;
         setCreditAmount(creditAmount);
         console.log("Calculated credit amount:", creditAmount);
       }
     };
     fetchClassDetails();
-  }, [enrollmentType, formData.classId, paymentMethod, formData.eventId]);
+  }, [resolvedEnrollmentType, formData.classId, paymentMethod, formData.eventId]);
 
   // ==================== SUBMIT ====================
 
@@ -648,7 +676,7 @@ const Step4Payment = ({ formData, onSubmit, onBack, enrollmentType }) => {
       totalAmount: `$${creditAmount.toFixed(2)}`,
       bookingId: generateBookingId(),
       email: formData.email || formData.guardianEmail,
-      enrollmentType: formData.enrollmentType,
+      enrollmentType: resolvedEnrollmentType,
       newUser: formData.newUser,
       paymentStatus: String(paymentIntent?.status),
       requestAt: paymentIntent?.requestAt,
@@ -790,7 +818,7 @@ const Step4Payment = ({ formData, onSubmit, onBack, enrollmentType }) => {
         <FormContent>
           <PaymentSection>
             {/* Payment Method Section */}
-            {enrollmentType === "Course" && (
+            {resolvedEnrollmentType === "Course" && (
               <PaymentMethodSection>
                 <PaymentMethodTitle>
                   Choose your payment method
@@ -938,20 +966,20 @@ const Step4Payment = ({ formData, onSubmit, onBack, enrollmentType }) => {
           <SummarySection>
             <SummaryBox>
               <CourseTitle>
-                {classDetails?.course?.title || "Course"}
+                {enrollmentData?.courseName|| "Course"}
               </CourseTitle>
               <CourseSubtitle>
-                Age Group {classDetails?.course?.ageGroup || "-"}
+                Age Group {enrollmentData?.courseAge || "-"}
               </CourseSubtitle>
 
               <PriceDisplay>${creditAmount.toFixed(2)}</PriceDisplay>
-              {enrollmentType === "Course" && paymentMethod === "term" && (
+              {resolvedEnrollmentType === "Course" && paymentMethod === "term" && (
                 <PriceSubtext>Full term course fee</PriceSubtext>
               )}
-              {enrollmentType === "Course" && paymentMethod === "annual" && (
+              {resolvedEnrollmentType === "Course" && paymentMethod === "annual" && (
                 <PriceSubtext>Full Year course fee</PriceSubtext>
               )}
-              {enrollmentType === "Trial" && (
+              {resolvedEnrollmentType === "Trial" && (
                 <PriceSubtext>
                   One-time trial class fee (10% of term fee)
                 </PriceSubtext>
