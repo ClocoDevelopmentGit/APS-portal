@@ -27,6 +27,7 @@ import DownloadReceiptPopup from "./DownloadReceiptPopup";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllInvoices } from "@/redux/slices/invoiceSlice";
 import Loading from "@/app/loading";
+import InvoiceModal from "./InvoiceModal";
 
 // ==================== STYLED COMPONENTS ====================
 
@@ -412,6 +413,7 @@ const InvoicesPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [openDownloadPopup, setOpenDownloadPopup] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
+  const [openInvoiceModal, setOpenInvoiceModal] = useState(false);
   const itemsPerPage = 8;
 
   // Fetch invoices on mount
@@ -461,7 +463,9 @@ const InvoicesPage = () => {
   };
 
   const handleViewInvoice = (invoiceId) => {
-    console.log("Viewing invoice:", invoiceId);
+    const invoice = invoicesList.find((inv) => inv.id === invoiceId);
+    setSelectedInvoice(invoice);
+    setOpenInvoiceModal(true);
   };
 
   const handleDownloadInvoice = (invoiceId) => {
@@ -653,6 +657,38 @@ const InvoicesPage = () => {
         open={openDownloadPopup}
         onClose={() => setOpenDownloadPopup(false)}
         invoiceData={selectedInvoice}
+      />
+
+      <InvoiceModal
+        open={openInvoiceModal}
+        onClose={() => setOpenInvoiceModal(false)}
+        invoiceData={
+          selectedInvoice
+            ? {
+                amount: selectedInvoice.totalAmount?.replace("$", "") || "0.00",
+                paidDate: selectedInvoice.enrolledAt
+                  ? new Date(selectedInvoice.enrolledAt).toLocaleString(
+                      "en-US",
+                      {
+                        hour: "numeric",
+                        minute: "2-digit",
+                        hour12: true,
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      },
+                    )
+                  : "N/A",
+                transactionId: selectedInvoice.transactionId,
+                studentName: selectedInvoice.name,
+                studentId: selectedInvoice.rawData?.user?.id || "N/A",
+                course: selectedInvoice.course,
+                location:
+                  selectedInvoice.rawData?.class?.location?.name || "N/A",
+                paymentMethod: selectedInvoice.paymentMethod,
+              }
+            : null
+        }
       />
     </>
   );
